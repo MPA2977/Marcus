@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Motor de Maturidade em Gestão de Riscos · Projeto Consultoria</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy-0:#08131f;
+    --navy-1:#0b1a2b;
+    --navy-2:#102539;
+    --navy-3:#16314a;
+    --line:#1f3c5a;
+    --gold:#c9a24b;
+    --gold-soft:#d8bd7e;
+    --teal:#54b0b8;
+    --teal-soft:#7fd0d6;
+    --ink:#eaf1f8;
+    --muted:#8aa3bd;
+    --muted-2:#5f7a96;
+    --red:#cf6b5a;
+    --ok:#6fae7d;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:
+      radial-gradient(1200px 600px at 80% -10%, #0f2238 0%, transparent 60%),
+      var(--navy-0);
+    color:var(--ink);
+    font-family:"IBM Plex Sans",system-ui,sans-serif;
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1080px;margin:0 auto;padding:0 28px 80px;}
+
+  /* ---------- HEADER ---------- */
+  header.masthead{
+    border-bottom:1px solid var(--line);
+    padding:34px 0 26px;
+    margin-bottom:8px;
+  }
+  .eyebrow{
+    font-family:"IBM Plex Mono",monospace;
+    font-size:11px;letter-spacing:.32em;text-transform:uppercase;
+    color:var(--gold);
+    display:flex;align-items:center;gap:12px;
+  }
+  .eyebrow::before{content:"";width:30px;height:1px;background:var(--gold);display:inline-block;}
+  h1{
+    font-family:"Spectral",serif;
+    font-weight:600;
+    font-size:clamp(28px,4.4vw,44px);
+    line-height:1.08;
+    margin:14px 0 10px;
+    letter-spacing:-.01em;
+  }
+  h1 em{color:var(--gold-soft);font-style:italic;font-weight:500;}
+  .lede{color:var(--muted);max-width:62ch;font-size:15.5px;}
+  .lede strong{color:var(--ink);font-weight:600;}
+
+  .meta-row{
+    display:flex;flex-wrap:wrap;gap:18px;margin-top:22px;
+  }
+  .meta-field{flex:1 1 220px;min-width:200px;}
+  .meta-field label{
+    display:block;font-family:"IBM Plex Mono",monospace;
+    font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--muted-2);margin-bottom:6px;
+  }
+  .meta-field input{
+    width:100%;background:var(--navy-1);border:1px solid var(--line);
+    border-radius:6px;color:var(--ink);padding:9px 12px;
+    font-family:"IBM Plex Sans",sans-serif;font-size:14px;
+  }
+  .meta-field input:focus{outline:none;border-color:var(--gold);}
+
+  /* ---------- SECTION TITLES ---------- */
+  .sec-title{
+    font-family:"IBM Plex Mono",monospace;
+    font-size:11px;letter-spacing:.28em;text-transform:uppercase;
+    color:var(--muted);
+    margin:48px 0 18px;
+    display:flex;align-items:center;gap:14px;
+  }
+  .sec-title .num{color:var(--gold);}
+  .sec-title::after{content:"";flex:1;height:1px;background:var(--line);}
+
+  /* ---------- DIMENSION CARDS ---------- */
+  .dim{
+    background:linear-gradient(180deg,var(--navy-1),var(--navy-0));
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:22px 24px 24px;
+    margin-bottom:16px;
+    position:relative;
+    overflow:hidden;
+  }
+  .dim::before{
+    content:"";position:absolute;left:0;top:0;bottom:0;width:3px;
+    background:var(--gold);opacity:.5;
+  }
+  .dim-head{display:flex;align-items:baseline;gap:14px;margin-bottom:4px;}
+  .dim-no{
+    font-family:"IBM Plex Mono",monospace;font-size:13px;font-weight:600;
+    color:var(--gold);min-width:26px;
+  }
+  .dim-name{font-family:"Spectral",serif;font-size:20px;font-weight:600;margin:0;}
+  .dim-q{color:var(--muted);font-size:13.5px;margin:8px 0 18px 40px;font-style:italic;}
+  .dim-q::before{content:"“";color:var(--gold);}
+  .dim-q::after{content:"”";color:var(--gold);}
+
+  .controls{display:flex;flex-wrap:wrap;gap:26px;margin-left:40px;}
+  .ctrl-group{flex:1 1 300px;min-width:280px;}
+  .ctrl-label{
+    font-family:"IBM Plex Mono",monospace;font-size:10.5px;
+    letter-spacing:.14em;text-transform:uppercase;margin-bottom:8px;
+    display:flex;align-items:center;gap:8px;
+  }
+  .ctrl-label .dot{width:9px;height:9px;border-radius:2px;display:inline-block;}
+  .dot.atual{background:var(--gold);}
+  .dot.desejado{background:var(--teal);border:1px solid var(--teal-soft);}
+  .ctrl-label.atual{color:var(--gold-soft);}
+  .ctrl-label.desejado{color:var(--teal-soft);}
+
+  .seg{display:flex;gap:5px;}
+  .seg button{
+    flex:1;background:var(--navy-2);border:1px solid var(--line);
+    color:var(--muted);font-family:"IBM Plex Mono",monospace;
+    font-size:14px;font-weight:500;padding:9px 0;border-radius:6px;
+    cursor:pointer;transition:all .14s ease;
+  }
+  .seg button:hover{border-color:var(--muted);color:var(--ink);}
+  .seg.atual button[aria-pressed="true"]{
+    background:rgba(201,162,75,.16);border-color:var(--gold);color:var(--gold-soft);
+    box-shadow:inset 0 0 0 1px var(--gold);
+  }
+  .seg.desejado button[aria-pressed="true"]{
+    background:rgba(84,176,184,.14);border-color:var(--teal);color:var(--teal-soft);
+    box-shadow:inset 0 0 0 1px var(--teal);
+  }
+  .seg button:focus-visible{outline:2px solid var(--gold);outline-offset:2px;}
+
+  .level-desc{
+    margin:16px 0 0 40px;padding:12px 14px;
+    background:var(--navy-2);border-left:2px solid var(--gold);border-radius:0 6px 6px 0;
+    font-size:13.5px;color:var(--ink);
+  }
+  .level-desc b{font-family:"IBM Plex Mono",monospace;color:var(--gold-soft);font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;}
+
+  /* ---------- RADAR + SCORE ---------- */
+  .panel{
+    display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:24px;
+    align-items:stretch;
+  }
+  .card{
+    background:linear-gradient(180deg,var(--navy-1),var(--navy-0));
+    border:1px solid var(--line);border-radius:10px;padding:22px 24px;
+  }
+  .card h3{
+    font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.2em;
+    text-transform:uppercase;color:var(--muted);margin:0 0 14px;font-weight:500;
+  }
+  #radar{width:100%;height:auto;display:block;}
+  .legend{display:flex;gap:20px;justify-content:center;margin-top:6px;font-size:12px;color:var(--muted);}
+  .legend span{display:flex;align-items:center;gap:7px;}
+  .legend .sw{width:14px;height:3px;border-radius:2px;}
+
+  .scores{display:flex;flex-direction:column;gap:14px;}
+  .score-block{
+    display:flex;align-items:baseline;justify-content:space-between;
+    padding-bottom:14px;border-bottom:1px solid var(--line);
+  }
+  .score-block:last-child{border-bottom:none;padding-bottom:0;}
+  .score-label{font-size:13px;color:var(--muted);}
+  .score-val{font-family:"Spectral",serif;font-size:34px;font-weight:600;line-height:1;}
+  .score-val small{font-family:"IBM Plex Mono",monospace;font-size:13px;color:var(--muted-2);font-weight:400;}
+  .v-atual{color:var(--gold-soft);}
+  .v-desejado{color:var(--teal-soft);}
+  .v-gap{color:var(--ink);}
+  .stage-tag{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--muted-2);margin-top:3px;}
+
+  /* ---------- TABLE ---------- */
+  table{width:100%;border-collapse:collapse;font-size:13.5px;}
+  thead th{
+    font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.14em;
+    text-transform:uppercase;color:var(--muted-2);text-align:left;font-weight:500;
+    padding:0 12px 10px;border-bottom:1px solid var(--line);
+  }
+  thead th.c{text-align:center;}
+  tbody td{padding:11px 12px;border-bottom:1px solid rgba(31,60,90,.5);}
+  tbody td.c{text-align:center;font-family:"IBM Plex Mono",monospace;}
+  tbody tr:hover{background:rgba(16,37,57,.5);}
+  .dim-cell{color:var(--ink);}
+  .dim-cell small{display:block;color:var(--muted-2);font-size:11px;font-family:"IBM Plex Mono",monospace;}
+  .pri{display:inline-block;font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.08em;
+    padding:3px 9px;border-radius:999px;text-transform:uppercase;}
+  .pri.alta{background:rgba(207,107,90,.16);color:var(--red);border:1px solid rgba(207,107,90,.4);}
+  .pri.media{background:rgba(201,162,75,.14);color:var(--gold-soft);border:1px solid rgba(201,162,75,.4);}
+  .pri.baixa{background:rgba(84,176,184,.12);color:var(--teal-soft);border:1px solid rgba(84,176,184,.35);}
+  .pri.nenhuma{color:var(--muted-2);}
+
+  /* ---------- ACTION PLAN ---------- */
+  .plan-item{
+    background:linear-gradient(180deg,var(--navy-1),var(--navy-0));
+    border:1px solid var(--line);border-left:3px solid var(--gold);
+    border-radius:0 8px 8px 0;padding:16px 20px;margin-bottom:12px;
+  }
+  .plan-top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:7px;flex-wrap:wrap;}
+  .plan-name{font-family:"Spectral",serif;font-size:16.5px;font-weight:600;}
+  .plan-move{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--muted);white-space:nowrap;}
+  .plan-move b.a{color:var(--gold-soft);}
+  .plan-move b.d{color:var(--teal-soft);}
+  .plan-action{font-size:14px;color:var(--ink);margin:0;}
+  .plan-empty{text-align:center;color:var(--muted);padding:30px;font-style:italic;}
+
+  /* ---------- ACTIONS BAR ---------- */
+  .actions{display:flex;gap:12px;margin:40px 0 0;flex-wrap:wrap;}
+  .btn{
+    font-family:"IBM Plex Mono",monospace;font-size:12px;letter-spacing:.08em;
+    text-transform:uppercase;padding:12px 22px;border-radius:7px;cursor:pointer;
+    border:1px solid var(--gold);background:transparent;color:var(--gold-soft);transition:all .15s;
+  }
+  .btn:hover{background:var(--gold);color:var(--navy-0);}
+  .btn.ghost{border-color:var(--line);color:var(--muted);}
+  .btn.ghost:hover{background:var(--navy-2);color:var(--ink);border-color:var(--muted);}
+
+  footer{margin-top:54px;padding-top:22px;border-top:1px solid var(--line);
+    font-size:12px;color:var(--muted-2);line-height:1.7;}
+  footer b{color:var(--muted);}
+
+  @media (max-width:760px){
+    .panel{grid-template-columns:1fr;}
+    .dim-q,.controls,.level-desc{margin-left:0;}
+  }
+  @media print{
+    body{background:#fff;color:#111;}
+    .actions,.meta-field input{display:none;}
+    .dim,.card,.plan-item{break-inside:avoid;}
+    .seg button{display:none;}
+    .seg button[aria-pressed="true"]{display:block;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="masthead">
+    <div class="eyebrow">Projeto Consultoria · CFO sob demanda</div>
+    <h1>Diagnóstico de Maturidade em <em>Gestão de Riscos Corporativos</em></h1>
+    <p class="lede">Instrumento de autoavaliação em sete dimensões, adaptado do modelo do <strong>IBGC (Caderno 19)</strong> para a realidade da indústria de médio porte. Posiciona o estágio atual da empresa, define o estágio desejado e gera o plano de ação que estrutura a fase de Reestruturação.</p>
+
+    <div class="meta-row">
+      <div class="meta-field">
+        <label for="emp">Empresa</label>
+        <input id="emp" type="text" placeholder="Razão social do cliente">
+      </div>
+      <div class="meta-field">
+        <label for="resp">Responsável / Diagnóstico por</label>
+        <input id="resp" type="text" placeholder="Nome">
+      </div>
+      <div class="meta-field">
+        <label for="data">Data</label>
+        <input id="data" type="text" placeholder="__/__/____">
+      </div>
+    </div>
+  </header>
+
+  <div class="sec-title"><span class="num">01</span> Autoavaliação por dimensão</div>
+  <div id="dims"></div>
+
+  <div class="sec-title"><span class="num">02</span> Síntese — atual × desejado</div>
+  <div class="panel">
+    <div class="card">
+      <h3>Mapa de maturidade</h3>
+      <svg id="radar" viewBox="0 0 440 400" role="img" aria-label="Radar de maturidade por dimensão"></svg>
+      <div class="legend">
+        <span><span class="sw" style="background:var(--gold)"></span>Estágio atual</span>
+        <span><span class="sw" style="background:var(--teal)"></span>Estágio desejado</span>
+      </div>
+    </div>
+    <div class="card">
+      <h3>Escore consolidado</h3>
+      <div class="scores">
+        <div class="score-block">
+          <div>
+            <div class="score-label">Maturidade média atual</div>
+            <div class="stage-tag" id="tag-atual"></div>
+          </div>
+          <div class="score-val v-atual"><span id="sc-atual">–</span><small> / 5</small></div>
+        </div>
+        <div class="score-block">
+          <div>
+            <div class="score-label">Maturidade média desejada</div>
+            <div class="stage-tag" id="tag-desejado"></div>
+          </div>
+          <div class="score-val v-desejado"><span id="sc-desejado">–</span><small> / 5</small></div>
+        </div>
+        <div class="score-block">
+          <div>
+            <div class="score-label">Gap total de evolução</div>
+            <div class="stage-tag">soma dos saltos de nível</div>
+          </div>
+          <div class="score-val v-gap"><span id="sc-gap">–</span><small> níveis</small></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec-title"><span class="num">03</span> Quadro de prioridades</div>
+  <div class="card" style="padding:18px 20px;">
+    <table>
+      <thead>
+        <tr>
+          <th>Dimensão</th>
+          <th class="c">Atual</th>
+          <th class="c">Desejado</th>
+          <th class="c">Gap</th>
+          <th class="c">Prioridade</th>
+        </tr>
+      </thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </div>
+
+  <div class="sec-title"><span class="num">04</span> Plano de ação sugerido</div>
+  <div id="plan"></div>
+
+  <div class="actions">
+    <button class="btn" onclick="window.print()">Exportar / Imprimir PDF</button>
+    <button class="btn ghost" onclick="resetAll()">Reiniciar diagnóstico</button>
+  </div>
+
+  <footer>
+    <b>Sobre o instrumento.</b> Adaptação proprietária do modelo de maturidade de GRCorp do Instituto Brasileiro de Governança Corporativa — <i>Gerenciamento de Riscos Corporativos: Evolução em Governança e Estratégia</i> (Caderno 19, 2017) — calibrada para empresas industriais de médio porte sem estrutura formal de tesouraria ou CFO dedicado. As características de cada nível e os próximos passos foram reescritos para esse contexto.<br>
+    <b>Projeto Consultoria · CFO sob demanda</b> — diagnóstico, reestruturação e acompanhamento de risco para o mid-market industrial.
+  </footer>
+
+</div>
+
+<script>
+const NIVEIS = ["Inicial","Fragmentado","Definido","Consolidado","Otimizado"];
+
+const DIMS = [
+  {
+    n:"01", nome:"Estratégia de GRCorp",
+    q:"Existem objetivos e metas de gestão de risco definidos e ligados ao planejamento?",
+    desc:[
+      "Não há clareza sobre por que, como ou quando gerenciar riscos. As decisões de risco (câmbio, crédito, caixa) são reativas e isoladas.",
+      "A empresa sabe por onde começar, mas não há objetivos nem metas de risco formalizados. Metas de desempenho existem, sem ligação com risco.",
+      "Estratégia de gestão de riscos definida e implementada, com metas de desempenho estabelecidas.",
+      "Estratégia clara e implementada; metas de desempenho monitoradas e relacionadas ao perfil de risco.",
+      "Estratégia de risco integrada aos demais ciclos de gestão; metas alinhadas e modelo é referência no setor."
+    ],
+    acao:"Formalizar com o sócio os objetivos e o apetite a risco da empresa — começando pela exposição cambial e de crédito — e amarrá-los ao planejamento e às metas de desempenho."
+  },
+  {
+    n:"02", nome:"Governança de GRCorp",
+    q:"Há papéis e responsáveis claros pela gestão de risco, do dono à operação?",
+    desc:[
+      "Funções de risco exercidas individualmente, sem integração à visão estratégica. Sem responsáveis definidos.",
+      "Controles focados em áreas históricas ou exigências pontuais (ex.: banco, fisco), sem visão integrada dos riscos.",
+      "Estrutura de risco definida, com papéis do dono/gestão e linhas de defesa esboçadas.",
+      "Estrutura bem definida e alinhada à estratégia; cobertura abrangente dos riscos da empresa.",
+      "Papéis plenamente integrados e gerando valor; supervisão independente e objetiva em tempo integral."
+    ],
+    acao:"Designar um \u201cdono do risco\u201d por processo crítico e definir a quem reporta. Instalar a função de risco (interna ou terceirizada — CFO sob demanda) como segunda linha de defesa."
+  },
+  {
+    n:"03", nome:"Política de GRCorp",
+    q:"As regras de risco estão escritas, aprovadas e divulgadas em uma política?",
+    desc:[
+      "Políticas e procedimentos não definidos; sem processo consistente para criá-los e mantê-los.",
+      "Políticas limitadas a poucas áreas-chave; aplicação irregular e informal.",
+      "Política formal de risco, comunicada de forma consistente em toda a empresa.",
+      "Políticas bem desenvolvidas e aplicadas com consistência; atualizadas conforme o negócio muda.",
+      "Políticas referenciadas pelo setor e por terceiros; impactam o ambiente de negócios externo."
+    ],
+    acao:"Redigir uma Política de Gestão de Riscos enxuta (objetivo, escopo, apetite e limites, papéis) e aprová-la formalmente com a direção — primeiro documento de governança de risco da empresa."
+  },
+  {
+    n:"04", nome:"Processo de GRCorp",
+    q:"Existe um ciclo estruturado de identificar, avaliar, tratar e monitorar riscos?",
+    desc:[
+      "Processos e controles de apoio à gestão de risco pouco desenvolvidos; monitoramento mínimo.",
+      "Identificação e avaliação de riscos acontecem de forma avulsa e sob demanda.",
+      "Processo estruturado de identificação, avaliação, resposta e monitoramento, aplicado de forma sistemática.",
+      "Processos bem estruturados; gestores monitoram sistematicamente os riscos de seus processos.",
+      "Identificação e avaliação integradas aos objetivos estratégicos; monitoramento eficiente e coordenado."
+    ],
+    acao:"Implantar o ciclo identificar \u2192 avaliar (matriz probabilidade × impacto) \u2192 tratar \u2192 monitorar, com revisão periódica e foco nos riscos-chave de alta severidade."
+  },
+  {
+    n:"05", nome:"Linguagem de riscos e métodos",
+    q:"Há taxonomia de riscos e critérios padronizados de apetite e tolerância?",
+    desc:[
+      "Sem abordagem padronizada para o nível aceitável de risco; análises pontuais e improvisadas.",
+      "Análises qualitativas e quantitativas existem, mas sem padrão de apetite ou tolerância.",
+      "Abordagem padronizada de apetite/tolerância existe, mas não é usada de forma consistente por todas as áreas.",
+      "Abordagem padronizada e consistente; testes de stress e cenários usados no nível corporativo.",
+      "Apetite e tolerância padronizados; cenários e stress-test exploram a análise de riscos de forma avançada."
+    ],
+    acao:"Adotar uma taxonomia de riscos (fontes externas / internas / decisão) e padronizar apetite e tolerância. Introduzir stress-test cambial e de juros sobre o fluxo de caixa."
+  },
+  {
+    n:"06", nome:"Sistemas, dados e informação",
+    q:"A exposição a risco é capturada e reportada de forma consistente e compreendida?",
+    desc:[
+      "Relatórios direcionados por exigências externas e mal definidos; dados de risco dispersos em planilhas avulsas.",
+      "Modelos de relatório definidos pela direção, mas não compreendidos nem alinhados na organização.",
+      "Modelos de informação e relatórios bem definidos e compreendidos; relatórios corretos e completos.",
+      "Tecnologias aproveitadas para alcançar os objetivos de risco no nível corporativo.",
+      "Tecnologias integradas e altamente efetivas; informação de risco compartilhada de forma consistente."
+    ],
+    acao:"Estruturar um painel de exposição periódico (câmbio, juros, liquidez, crédito, concentração) com indicadores-chave de risco (KRIs) e gatilhos de tolerância visíveis à direção."
+  },
+  {
+    n:"07", nome:"Cultura, comunicação e monitoramento",
+    q:"O risco faz parte das decisões, da comunicação e do dia a dia da gestão?",
+    desc:[
+      "Sem plano de disseminação; decisões de risco não são formalizadas nem registradas.",
+      "Comunicações informais; treinamentos pontuais e sem rotina.",
+      "Protocolos de comunicação claros e abertos; diálogo sobre risco com as partes interessadas incentivado.",
+      "Cultura de risco inserida nas atividades diárias; riscos tratados de forma proativa.",
+      "Cultura de risco efetiva em todos os níveis; programas de disseminação para evolução contínua."
+    ],
+    acao:"Inserir a pauta de risco nas reuniões de decisão e criar rotina de comunicação e treinamento para os gestores, registrando as decisões de risco relevantes."
+  }
+];
+
+// estado inicial: demonstra a lógica do instrumento, editável ao vivo
+const state = DIMS.map(()=>({atual:1, desejado:3}));
+
+const dimsEl = document.getElementById("dims");
+
+function buildDims(){
+  dimsEl.innerHTML = "";
+  DIMS.forEach((d,i)=>{
+    const card = document.createElement("div");
+    card.className = "dim";
+    card.innerHTML = `
+      <div class="dim-head">
+        <span class="dim-no">${d.n}</span>
+        <h2 class="dim-name">${d.nome}</h2>
+      </div>
+      <div class="dim-q">${d.q}</div>
+      <div class="controls">
+        <div class="ctrl-group">
+          <div class="ctrl-label atual"><span class="dot atual"></span>Estágio atual</div>
+          <div class="seg atual" data-kind="atual" data-i="${i}">${segButtons(i,"atual")}</div>
+        </div>
+        <div class="ctrl-group">
+          <div class="ctrl-label desejado"><span class="dot desejado"></span>Estágio desejado</div>
+          <div class="seg desejado" data-kind="desejado" data-i="${i}">${segButtons(i,"desejado")}</div>
+        </div>
+      </div>
+      <div class="level-desc" id="desc-${i}"></div>
+    `;
+    dimsEl.appendChild(card);
+  });
+  dimsEl.querySelectorAll(".seg button").forEach(b=>{
+    b.addEventListener("click",()=>{
+      const seg=b.closest(".seg");
+      const i=+seg.dataset.i, kind=seg.dataset.kind, v=+b.dataset.v;
+      state[i][kind]=v;
+      render();
+    });
+  });
+}
+
+function segButtons(i,kind){
+  let out="";
+  for(let v=1;v<=5;v++){
+    out+=`<button data-v="${v}" aria-pressed="false" title="${NIVEIS[v-1]}">${v}</button>`;
+  }
+  return out;
+}
+
+function syncButtons(){
+  DIMS.forEach((d,i)=>{
+    ["atual","desejado"].forEach(kind=>{
+      const seg=dimsEl.querySelector(`.seg.${kind}[data-i="${i}"]`);
+      seg.querySelectorAll("button").forEach(b=>{
+        b.setAttribute("aria-pressed", (+b.dataset.v===state[i][kind])?"true":"false");
+      });
+    });
+    const desc=document.getElementById("desc-"+i);
+    const lvl=state[i].atual;
+    desc.innerHTML=`<b>Nível ${lvl} — ${NIVEIS[lvl-1]}</b><br>${d.desc[lvl-1]}`;
+  });
+}
+
+/* -------- RADAR -------- */
+function drawRadar(){
+  const svg=document.getElementById("radar");
+  const cx=220, cy=205, R=150, N=DIMS.length;
+  const ang=k=>(-90 + k*360/N)*Math.PI/180;
+  const pt=(k,val)=>{const r=(val/5)*R;return[cx+r*Math.cos(ang(k)), cy+r*Math.sin(ang(k))];};
+  let g="";
+  // anéis
+  for(let lvl=1;lvl<=5;lvl++){
+    let p="";
+    for(let k=0;k<N;k++){const[x,y]=pt(k,lvl);p+=`${x.toFixed(1)},${y.toFixed(1)} `;}
+    g+=`<polygon points="${p}" fill="none" stroke="#1f3c5a" stroke-width="1" opacity="${lvl===5?.9:.45}"/>`;
+  }
+  // eixos + rótulos
+  for(let k=0;k<N;k++){
+    const[x,y]=pt(k,5);
+    g+=`<line x1="${cx}" y1="${cy}" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}" stroke="#1f3c5a" stroke-width="1" opacity=".6"/>`;
+    const[lx,ly]=pt(k,5.62);
+    let anchor="middle";
+    if(lx>cx+6)anchor="start"; if(lx<cx-6)anchor="end";
+    g+=`<text x="${lx.toFixed(1)}" y="${ly.toFixed(1)}" fill="#8aa3bd" font-family="IBM Plex Mono, monospace" font-size="10" text-anchor="${anchor}" dominant-baseline="middle">${DIMS[k].n}</text>`;
+  }
+  // polígono desejado (teal)
+  let pd="";for(let k=0;k<N;k++){const[x,y]=pt(k,state[k].desejado);pd+=`${x.toFixed(1)},${y.toFixed(1)} `;}
+  g+=`<polygon points="${pd}" fill="rgba(84,176,184,.12)" stroke="#54b0b8" stroke-width="1.6"/>`;
+  for(let k=0;k<N;k++){const[x,y]=pt(k,state[k].desejado);g+=`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="2.6" fill="#7fd0d6"/>`;}
+  // polígono atual (gold)
+  let pa="";for(let k=0;k<N;k++){const[x,y]=pt(k,state[k].atual);pa+=`${x.toFixed(1)},${y.toFixed(1)} `;}
+  g+=`<polygon points="${pa}" fill="rgba(201,162,75,.18)" stroke="#c9a24b" stroke-width="1.8"/>`;
+  for(let k=0;k<N;k++){const[x,y]=pt(k,state[k].atual);g+=`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="3" fill="#d8bd7e"/>`;}
+  svg.innerHTML=g;
+}
+
+function stageName(avg){
+  if(avg<=0)return "—";
+  const idx=Math.round(avg)-1;
+  return `~ ${NIVEIS[Math.max(0,Math.min(4,idx))]}`;
+}
+
+/* -------- SÍNTESE / TABELA / PLANO -------- */
+function render(){
+  syncButtons();
+  drawRadar();
+
+  const a=state.reduce((s,d)=>s+d.atual,0)/DIMS.length;
+  const de=state.reduce((s,d)=>s+d.desejado,0)/DIMS.length;
+  const gap=state.reduce((s,d)=>s+Math.max(0,d.desejado-d.atual),0);
+  document.getElementById("sc-atual").textContent=a.toFixed(1);
+  document.getElementById("sc-desejado").textContent=de.toFixed(1);
+  document.getElementById("sc-gap").textContent=gap;
+  document.getElementById("tag-atual").textContent=stageName(a);
+  document.getElementById("tag-desejado").textContent=stageName(de);
+
+  // tabela
+  const tb=document.getElementById("tbody");
+  tb.innerHTML=DIMS.map((d,i)=>{
+    const g=state[i].desejado-state[i].atual;
+    let cls="nenhuma",lab="—";
+    if(g>=3){cls="alta";lab="Alta";}else if(g===2){cls="media";lab="Média";}else if(g===1){cls="baixa";lab="Baixa";}
+    return `<tr>
+      <td class="dim-cell">${d.nome}<small>${d.n} · ${NIVEIS[state[i].atual-1]}</small></td>
+      <td class="c">${state[i].atual}</td>
+      <td class="c">${state[i].desejado}</td>
+      <td class="c">${g>0?"+"+g:"0"}</td>
+      <td class="c"><span class="pri ${cls}">${lab}</span></td>
+    </tr>`;
+  }).join("");
+
+  // plano
+  const plan=document.getElementById("plan");
+  const items=DIMS.map((d,i)=>({d,i,g:state[i].desejado-state[i].atual}))
+                  .filter(x=>x.g>0)
+                  .sort((x,y)=>y.g-x.g);
+  if(items.length===0){
+    plan.innerHTML=`<div class="plan-item" style="border-left-color:var(--ok)"><p class="plan-empty">Nenhum gap definido. Ajuste o estágio desejado acima do atual para gerar o plano de ação por dimensão.</p></div>`;
+    return;
+  }
+  plan.innerHTML=items.map(x=>`
+    <div class="plan-item">
+      <div class="plan-top">
+        <span class="plan-name">${x.d.n} · ${x.d.nome}</span>
+        <span class="plan-move">Nível <b class="a">${state[x.i].atual} ${NIVEIS[state[x.i].atual-1]}</b> &rarr; <b class="d">${state[x.i].desejado} ${NIVEIS[state[x.i].desejado-1]}</b></span>
+      </div>
+      <p class="plan-action">${x.d.acao}</p>
+    </div>
+  `).join("");
+}
+
+function resetAll(){
+  state.forEach(s=>{s.atual=1;s.desejado=3;});
+  render();
+}
+
+buildDims();
+render();
+</script>
+</body>
+</html>
