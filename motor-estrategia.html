@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Motor de Estratégia de Valor — Projeto Consultoria</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=Spectral:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#0E1B2E; --navy-2:#142640; --panel:#162B47; --panel-2:#1B3252;
+  --gold:#C8A24B; --gold-soft:#D9BD78; --line:#274062; --ink:#EAF0F7;
+  --ink-dim:#9DB0C7; --ink-faint:#6F87A4;
+  --fat:#5B8FF0; --cax:#5FB58A; --luc:#D9A441;
+  --pos:#5FB58A; --neg:#D9686A;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--navy);color:var(--ink);
+  font-family:"IBM Plex Sans",sans-serif;font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1180px;margin:0 auto;padding:0 20px 80px}
+.mono{font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums}
+
+header{padding:46px 0 24px;border-bottom:1px solid var(--line)}
+.brand{font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.32em;
+  text-transform:uppercase;color:var(--gold)}
+.brand span{color:var(--ink-faint)}
+header h1{font-family:"Spectral",serif;font-weight:600;font-size:2.1rem;margin:14px 0 4px;letter-spacing:-.01em}
+header p{margin:0;color:var(--ink-dim);max-width:72ch}
+
+h2.sec{font-family:"Spectral",serif;font-weight:600;font-size:1.3rem;margin:38px 0 4px;
+  display:flex;align-items:baseline;gap:12px}
+h2.sec .n{font-family:"IBM Plex Mono",monospace;font-size:.74rem;color:var(--gold);letter-spacing:.1em}
+.hint{color:var(--ink-dim);font-size:.9rem;margin:0 0 18px}
+
+details.base{margin-top:20px;border:1px solid var(--line);border-radius:6px;background:var(--navy-2);overflow:hidden}
+details.base>summary{cursor:pointer;padding:14px 18px;font-family:"IBM Plex Mono",monospace;
+  font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;color:var(--gold-soft);list-style:none;
+  display:flex;justify-content:space-between;align-items:center;background:var(--panel)}
+details.base>summary::-webkit-details-marker{display:none}
+details.base>summary::after{content:"▾";color:var(--ink-faint)}
+details.base[open]>summary::after{content:"▴"}
+.bgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line)}
+.glab{grid-column:1/-1;background:var(--navy);padding:8px 16px;font-family:"IBM Plex Mono",monospace;
+  font-size:.6rem;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-faint)}
+.fld{background:var(--navy-2);padding:10px 14px}
+.fld label{display:block;font-size:.68rem;color:var(--ink-faint);margin-bottom:4px}
+.fld input{width:100%;background:var(--navy);border:1px solid var(--line);color:var(--ink);
+  font-family:"IBM Plex Mono",monospace;font-size:.86rem;padding:6px 8px;border-radius:4px}
+.fld input:focus{outline:none;border-color:var(--gold)}
+
+.controls{display:flex;flex-wrap:wrap;gap:18px 28px;align-items:center;margin-top:22px;
+  padding:14px 18px;border:1px solid var(--line);border-radius:6px;background:var(--navy-2)}
+.ctl{display:flex;align-items:center;gap:10px}
+.ctl .lab{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-faint)}
+.seg{display:flex;border:1px solid var(--line);border-radius:5px;overflow:hidden}
+.seg button{background:var(--navy);color:var(--ink-dim);border:none;padding:7px 14px;
+  font-family:"IBM Plex Mono",monospace;font-size:.82rem;cursor:pointer}
+.seg button.on{background:var(--gold);color:var(--navy);font-weight:600}
+select{background:var(--navy);color:var(--ink);border:1px solid var(--line);border-radius:5px;
+  padding:7px 10px;font-family:"IBM Plex Mono",monospace;font-size:.82rem}
+
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:8px}
+.card{border:1px solid var(--line);border-radius:8px;background:linear-gradient(180deg,var(--panel),var(--navy-2));
+  overflow:hidden;display:flex;flex-direction:column}
+.card.fat{border-top:3px solid var(--fat)} .card.cax{border-top:3px solid var(--cax)} .card.luc{border-top:3px solid var(--luc)}
+.chead{padding:16px 18px 12px;position:relative}
+.ctag{font-family:"IBM Plex Mono",monospace;font-size:.6rem;letter-spacing:.2em;text-transform:uppercase}
+.fat .ctag{color:var(--fat)} .cax .ctag{color:var(--cax)} .luc .ctag{color:var(--luc)}
+.chead h3{font-family:"Spectral",serif;font-size:1.32rem;font-weight:600;margin:6px 0 2px}
+.lens{font-size:.74rem;color:var(--ink-faint);font-style:italic;font-family:"Spectral",serif}
+.yrbadge{position:absolute;top:16px;right:18px;font-family:"IBM Plex Mono",monospace;font-size:.6rem;
+  letter-spacing:.1em;color:var(--ink-faint);border:1px solid var(--line);border-radius:20px;padding:2px 9px}
+.sliders{padding:4px 18px 14px;border-bottom:1px solid var(--line)}
+.sl{margin:12px 0}
+.sl .row{display:flex;justify-content:space-between;font-size:.74rem;color:var(--ink-dim);margin-bottom:5px}
+.sl .row b{font-family:"IBM Plex Mono",monospace;color:var(--ink)}
+input[type=range]{width:100%;-webkit-appearance:none;appearance:none;height:4px;border-radius:4px;background:var(--panel-2)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;height:15px;border-radius:50%;background:var(--gold);cursor:pointer;border:2px solid var(--navy)}
+input[type=range]::-moz-range-thumb{width:15px;height:15px;border-radius:50%;background:var(--gold);cursor:pointer;border:2px solid var(--navy)}
+.out{padding:14px 18px;flex:1}
+.kbig{display:flex;justify-content:space-between;align-items:baseline;padding:6px 0;border-bottom:1px dotted var(--line)}
+.kbig .lab{font-size:.78rem;color:var(--ink-dim)}
+.kbig .val{font-family:"IBM Plex Mono",monospace;font-size:1.05rem}
+.kbig .val.lead{font-size:1.35rem;color:var(--gold-soft)}
+.delta{font-family:"IBM Plex Mono",monospace;font-size:.7rem;margin-left:8px}
+.up{color:var(--pos)} .dn{color:var(--neg)}
+.mini{margin-top:12px}
+.mini h4{font-family:"IBM Plex Mono",monospace;font-size:.6rem;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-faint);margin:0 0 6px}
+.mrow{display:grid;grid-template-columns:1fr auto auto;gap:8px;font-family:"IBM Plex Mono",monospace;
+  font-size:.76rem;padding:3px 0;border-bottom:1px solid rgba(39,64,98,.5)}
+.mrow span:first-child{font-family:"IBM Plex Sans",sans-serif;color:var(--ink-dim)}
+.mrow .d{text-align:right;min-width:64px}
+
+.chartwrap{border:1px solid var(--line);border-radius:8px;background:var(--navy-2);padding:18px 18px 10px;margin-top:8px}
+.legend{display:flex;gap:20px;flex-wrap:wrap;margin:2px 0 8px;font-family:"IBM Plex Mono",monospace;font-size:.74rem;color:var(--ink-dim)}
+.legend i{display:inline-block;width:18px;height:3px;border-radius:2px;margin-right:7px;vertical-align:middle}
+svg{display:block;width:100%;height:auto}
+
+.cmp{margin-top:10px;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+table{width:100%;border-collapse:collapse;font-family:"IBM Plex Mono",monospace;font-size:.82rem}
+th,td{padding:10px 14px;text-align:right;border-bottom:1px solid var(--line)}
+th:first-child,td:first-child{text-align:left;font-family:"IBM Plex Sans",sans-serif}
+thead th{font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-faint);background:var(--panel)}
+th.fat,td.fat{color:var(--fat)} th.cax,td.cax{color:var(--cax)} th.luc,td.luc{color:var(--luc)}
+tbody td:first-child{color:var(--ink-dim)}
+td.win{background:rgba(200,162,75,.10);color:var(--gold-soft);font-weight:600}
+
+.bars{margin-top:18px;border:1px solid var(--line);border-radius:8px;padding:18px 20px;background:var(--navy-2)}
+.bars h4{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-faint);margin:0 0 16px}
+.bargroup{display:grid;grid-template-columns:120px 1fr 110px;gap:14px;align-items:center;margin:11px 0}
+.bargroup .nm{font-size:.82rem;color:var(--ink-dim)}
+.track{height:22px;background:var(--panel-2);border-radius:4px;overflow:hidden}
+.fill{height:100%;border-radius:4px;transition:width .3s}
+.fill.fat{background:var(--fat)} .fill.cax{background:var(--cax)} .fill.luc{background:var(--luc)} .fill.base{background:var(--ink-faint)}
+.bargroup .v{font-family:"IBM Plex Mono",monospace;font-size:.92rem;text-align:right}
+
+.router{margin-top:18px;border:1px solid var(--gold);border-radius:8px;
+  background:linear-gradient(180deg,var(--panel),var(--navy-2));padding:20px 24px}
+.router .rl{font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold)}
+.router .rv{font-family:"Spectral",serif;font-size:1.5rem;font-weight:600;margin:6px 0 8px}
+.router p{margin:0;color:var(--ink-dim);font-size:.9rem}
+
+.note{border-left:2px solid var(--gold);background:rgba(200,162,75,.05);padding:12px 16px;margin:24px 0 0;
+  font-size:.82rem;color:var(--ink-dim);border-radius:0 4px 4px 0}
+.note b{color:var(--ink)}
+.chk{font-family:"IBM Plex Mono",monospace;font-size:.66rem;color:var(--ink-faint);margin-top:6px}
+footer{margin-top:36px;padding-top:18px;border-top:1px solid var(--line);
+  font-family:"IBM Plex Mono",monospace;font-size:.66rem;color:var(--ink-faint);line-height:1.7}
+
+@media (max-width:900px){
+  .cards{grid-template-columns:1fr} .bgrid{grid-template-columns:repeat(2,1fr)}
+  table{font-size:.72rem} th,td{padding:8px 8px}
+  .bargroup{grid-template-columns:84px 1fr 88px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="brand">Projeto Consultoria <span>// CFO sob demanda</span></div>
+    <h1>Motor de Estratégia de Valor</h1>
+    <p>Uma decisão, três caminhos. Cresça em <b style="color:var(--fat)">faturamento</b>, gere <b style="color:var(--cax)">caixa</b> ou amplie o <b style="color:var(--luc)">lucro</b> — nunca os três ao mesmo tempo. Ajuste a intensidade de cada um e compare a trajetória plurianual do balanço e do valor do equity antes de escolher.</p>
+  </header>
+
+  <details class="base" open>
+    <summary>Balanço-base &nbsp;·&nbsp; edite para a empresa do cliente (R$ mil)</summary>
+    <div class="bgrid" id="baseInputs"></div>
+  </details>
+
+  <div class="controls">
+    <div class="ctl"><span class="lab">Horizonte</span>
+      <div class="seg" id="horizonSeg"></div></div>
+    <div class="ctl"><span class="lab">Métrica da trajetória</span>
+      <select id="metricSel">
+        <option value="equity">Valor do equity</option>
+        <option value="receita">Receita</option>
+        <option value="ebitda">EBITDA</option>
+        <option value="dividaLiq">Dívida líquida</option>
+        <option value="caixa">Caixa</option>
+        <option value="lc">Liquidez corrente</option>
+      </select></div>
+  </div>
+
+  <h2 class="sec"><span class="n">01</span>Trajetória dos três caminhos</h2>
+  <p class="hint">Todos partem do mesmo ponto (Ano 0) e divergem conforme a estratégia escolhida.</p>
+  <div class="chartwrap">
+    <div class="legend">
+      <span><i style="background:var(--fat)"></i>Faturamento</span>
+      <span><i style="background:var(--cax)"></i>Caixa</span>
+      <span><i style="background:var(--luc)"></i>Lucro</span>
+    </div>
+    <div id="chart"></div>
+  </div>
+
+  <h2 class="sec"><span class="n">02</span>Os três caminhos — intensidade e impacto</h2>
+  <p class="hint">Os deltas dos cards são do fim do horizonte contra o Ano 0.</p>
+  <div class="cards" id="cards"></div>
+
+  <h2 class="sec"><span class="n">03</span>Comparação para a decisão <span class="n" id="cmpYr"></span></h2>
+  <div class="cmp"><table id="cmpTable"></table></div>
+
+  <div class="bars">
+    <h4 id="barsTitle">Valor do equity ao fim do horizonte (EV/EBITDA × EBITDA − dívida líquida)</h4>
+    <div id="equityBars"></div>
+  </div>
+
+  <div class="router" id="router"></div>
+
+  <div class="note">
+    <b>Como ler.</b> Projeção nominal, encadeada ano a ano. Receita, despesas e capex são reajustados pela inflação; os caminhos Caixa e Lucro têm receita "estável" em termos reais, ou seja, crescem apenas pelo reajuste. A depreciação deixou de ser fixa: incide sobre o ativo fixo de abertura (taxa derivada do balanço-base), então o capex de crescimento eleva a depreciação futura e o corte de capex a reduz. O resultado financeiro de cada ano usa o custo da dívida e o rendimento do caixa sobre os saldos de abertura — desalavancar barateia os anos seguintes; a dívida crescente os encarece. O <b>valor do equity</b> usa um múltiplo EV/EBITDA comum aos três para comparabilidade — é a régua de decisão, não o valuation final.
+    <div class="chk" id="balcheck"></div>
+  </div>
+
+  <footer>
+    Projeto Consultoria · Motor de Estratégia de Valor · ferramenta de apoio à decisão, não constitui recomendação de investimento ou crédito. Premissas: despesa operacional acompanha a receita, depreciação sobre o ativo fixo de abertura (custo histórico, sem reavaliação), múltiplo de saída fixo. Calibre com o plano do cliente.
+  </footer>
+
+</div>
+
+<script>
+const F = n => (Math.round(n)).toLocaleString('pt-BR');
+const P = x => (x*100).toFixed(1).replace('.',',')+'%';
+const Fx = (n,d=2) => n.toLocaleString('pt-BR',{minimumFractionDigits:d,maximumFractionDigits:d});
+
+let HORIZON=5, METRIC='equity';
+
+const baseDef = [
+  ['DRE / operacional', [
+    ['receita','Receita líquida',200000],['mb','Margem bruta %',30],
+    ['despOp','Despesas operac.',40000],['da','Depreciação & amort.',8000],
+    ['custo','Custo dívida % a.a.',16],['yield','Rend. caixa % a.a.',10],
+    ['aliq','Alíquota imposto %',34],['payout','Payout dividendos %',25],
+    ['infl','Inflação / reajuste % a.a.',4.5]
+  ]],
+  ['Capital de giro (dias)', [
+    ['pmr','PMR — recebimento',60],['pme','PME — estoque',75],['pmp','PMP — fornecedor',40],
+    ['mult','Múltiplo EV/EBITDA',6]
+  ]],
+  ['Balanço (R$ mil)', [
+    ['caixa','Caixa + aplicações',15000],['outrosAC','Outros ativos circ.',10000],
+    ['ativoFixo','Ativo fixo',90000],['outrosPC','Outros passivos circ.',18000],
+    ['dividaCP','Dívida CP',12000],['forfait','Forfait / risco sacado',0],
+    ['dividaLP','Dívida LP',35000],['pl','Patrimônio líquido',80000]
+  ]]
+];
+const vals={};
+function buildBase(){
+  const host=document.getElementById('baseInputs'); host.innerHTML='';
+  baseDef.forEach(([grp,flds])=>{
+    const g=document.createElement('div'); g.className='glab'; g.textContent=grp; host.appendChild(g);
+    flds.forEach(([k,lab,def])=>{
+      vals[k]=def;
+      const d=document.createElement('div'); d.className='fld';
+      d.innerHTML=`<label>${lab}</label><input type="number" id="i_${k}" value="${def}" step="any">`;
+      host.appendChild(d);
+      d.querySelector('input').addEventListener('input',e=>{vals[k]=parseFloat(e.target.value)||0;render();});
+    });
+  });
+}
+function P_(){
+  return {receita:vals.receita,mb:vals.mb/100,despOp:vals.despOp,da:vals.da,
+    custo:vals.custo/100,yield:vals.yield/100,infl:vals.infl/100,aliq:vals.aliq/100,payout:vals.payout/100,mult:vals.mult,
+    pmr:vals.pmr,pme:vals.pme,pmp:vals.pmp,caixa:vals.caixa,outrosAC:vals.outrosAC,
+    ativoFixo:vals.ativoFixo,outrosPC:vals.outrosPC,dividaCP:vals.dividaCP,
+    forfait:vals.forfait,dividaLP:vals.dividaLP,pl:vals.pl};
+}
+
+// ---- model (chained, evolving interest) ----
+function metrics(s,p0){
+  const dividaTot=s.dividaCP+s.forfait+s.dividaLP;
+  const ac=s.caixa+s.clientes+s.estoques+p0.outrosAC;
+  const pc=s.fornec+p0.outrosPC+s.dividaCP+s.forfait;
+  s.dividaTot=dividaTot; s.ac=ac; s.pc=pc;
+  s.ativoTot=ac+s.ativoFixo+p0.ajusteNC; s.totalPL=pc+s.dividaLP+s.pl;
+  s.dividaLiq=dividaTot-s.caixa; s.lc=ac/pc; s.margemEbitda=s.ebitda/s.receita;
+  s.ncg=s.clientes+s.estoques+p0.outrosAC-s.fornec-p0.outrosPC;
+  s.roe=s.ll/s.pl; s.equity=s.ebitda*p0.mult-s.dividaLiq; s.check=s.ativoTot-s.totalPL;
+  return s;
+}
+function baseState(p){
+  p.cashOpex = p.despOp - p.da;
+  p.depRate = p.ativoFixo>0 ? p.da/p.ativoFixo : 0;
+  const cmv=p.receita*(1-p.mb);
+  const s={receita:p.receita,mb:p.mb,pmr:p.pmr,pme:p.pme,pmp:p.pmp,
+    clientes:p.receita*p.pmr/360,estoques:cmv*p.pme/360,fornec:cmv*p.pmp/360,
+    caixa:p.caixa,ativoFixo:p.ativoFixo,dividaCP:p.dividaCP,forfait:p.forfait,dividaLP:p.dividaLP,pl:p.pl};
+  s.ebitda=p.receita*p.mb-p.cashOpex; s.dep=p.da; s.ebit=s.ebitda-p.da;
+  const dt=s.dividaCP+s.forfait+s.dividaLP;
+  s.resultFin=p.caixa*p.yield-dt*p.custo;
+  s.ll = (function(){const lair=s.ebit+s.resultFin; return lair-Math.max(0,lair*p.aliq);})();
+  const ac=s.caixa+s.clientes+s.estoques+p.outrosAC, pc=s.fornec+p.outrosPC+s.dividaCP+s.forfait;
+  p.ajusteNC=(pc+s.dividaLP+s.pl)-(ac+s.ativoFixo);
+  return metrics(s,p);
+}
+function step(prev,p0,key,idx,S){
+  const infl=p0.infl||0;
+  let receita,mb,pmr,pme,pmp,fin;
+  if(key==='fat'){
+    receita=prev.receita*(1+infl)*(1+S.fat.gRec/100);
+    mb=p0.mb+S.fat.mbDelta/100; pmr=p0.pmr;pme=p0.pme;pmp=p0.pmp; fin='debt';
+  } else if(key==='cax'){
+    receita=prev.receita*(1+infl); mb=p0.mb;
+    if(idx===1){pmr=p0.pmr-S.cax.dPMR;pme=p0.pme-S.cax.dPME;pmp=p0.pmp+S.cax.dPMP;}
+    else {pmr=prev.pmr;pme=prev.pme;pmp=prev.pmp;}
+    fin='amort';
+  } else {
+    receita=(idx===1)?p0.receita*(1+infl)*(1+S.luc.volume/100):prev.receita*(1+infl);
+    mb=p0.mb+S.luc.mbGanho/100; pmr=p0.pmr;pme=p0.pme;pmp=p0.pmp; fin='hold';
+  }
+  const opexRatio=p0.cashOpex/p0.receita;
+  let cashOpex=receita*opexRatio;
+  if(key==='luc') cashOpex*=(1-S.luc.corteDesp/100);
+  const dep=prev.ativoFixo*p0.depRate;
+  let capex;
+  if(key==='fat') capex=dep+(S.fat.capexInc/100)*(receita-prev.receita);
+  else if(key==='cax') capex=dep*(S.cax.capexDA/100);
+  else capex=dep;
+  const cmv=receita*(1-mb);
+  const clientes=receita*pmr/360,estoques=cmv*pme/360,fornec=cmv*pmp/360;
+  const ebitda=receita*mb-cashOpex, ebit=ebitda-dep;
+  const dtPrev=prev.dividaCP+prev.forfait+prev.dividaLP;
+  const resultFin=prev.caixa*p0.yield-dtPrev*p0.custo;
+  const lair=ebit+resultFin, imp=Math.max(0,lair*p0.aliq), ll=lair-imp;
+  const div=Math.max(0,ll)*p0.payout, retido=ll-div;
+  const ativoFixo=prev.ativoFixo+capex-dep;
+  const dWC=(clientes+estoques-fornec)-(prev.clientes+prev.estoques-prev.fornec);
+  const operFlow=ll+dep-dWC-capex-div;
+  let caixa=prev.caixa,dividaCP=prev.dividaCP,forfait=prev.forfait,dividaLP=prev.dividaLP;
+  if(fin==='debt'){ dividaLP=prev.dividaLP-operFlow; }
+  else if(fin==='amort'){ let r=operFlow;
+    const pf=Math.min(forfait,Math.max(0,r));forfait-=pf;r-=pf;
+    const pc2=Math.min(dividaCP,Math.max(0,r));dividaCP-=pc2;r-=pc2;
+    const pl2=Math.min(dividaLP,Math.max(0,r));dividaLP-=pl2;r-=pl2;
+    caixa=prev.caixa+r; }
+  else { caixa=prev.caixa+operFlow; }
+  const pl=prev.pl+retido;
+  const s={receita,mb,pmr,pme,pmp,clientes,estoques,fornec,caixa,ativoFixo,
+    dividaCP,forfait,dividaLP,pl,ebit,ebitda,dep,resultFin,ll,operFlow};
+  return metrics(s,p0);
+}
+function run(p0,key,years,S){
+  const out=[baseState(p0)];
+  for(let i=1;i<=years;i++) out.push(step(out[i-1],p0,key,i,S));
+  return out;
+}
+
+// ---- strategy slider config ----
+const strat={
+  fat:{tag:'Caminho 01',name:'Crescer faturamento',lens:'Lente: EV / Vendas',cls:'fat',
+    sliders:[['gRec','Crescimento de receita (a.a.)','%',0,40,20,1],
+      ['capexInc','Capex s/ receita incremental','%',0,30,15,1],
+      ['mbDelta','Variação de margem bruta','pp',-3,1,0,0.5]]},
+  cax:{tag:'Caminho 02',name:'Gerar caixa',lens:'Lente: DCF / fluxo de caixa',cls:'cax',
+    sliders:[['dPMR','Reduzir PMR','dias',0,30,12,1],['dPME','Reduzir PME','dias',0,30,15,1],
+      ['dPMP','Aumentar PMP','dias',0,30,12,1],['capexDA','Capex s/ depreciação','%',0,120,50,5]]},
+  luc:{tag:'Caminho 03',name:'Obter lucro',lens:'Lente: EV / EBITDA',cls:'luc',
+    sliders:[['mbGanho','Ganho de margem bruta','pp',0,6,4,0.5],
+      ['corteDesp','Corte de despesas operac.','%',0,25,8,1],
+      ['volume','Variação de volume','%',-10,0,-3,1]]}
+};
+const S={};
+function buildCards(){
+  const host=document.getElementById('cards'); host.innerHTML='';
+  Object.entries(strat).forEach(([key,c])=>{
+    S[key]={}; c.sliders.forEach(s=>S[key][s[0]]=s[5]);
+    const card=document.createElement('div'); card.className='card '+c.cls;
+    let sl='';
+    c.sliders.forEach(([id,lab,unit,mn,mx,df,st])=>{
+      sl+=`<div class="sl"><div class="row"><span>${lab}</span><b><span id="v_${key}_${id}">${df}</span> ${unit}</b></div>
+      <input type="range" min="${mn}" max="${mx}" step="${st}" value="${df}" data-k="${key}" data-id="${id}"></div>`;
+    });
+    card.innerHTML=`<div class="chead"><div class="ctag">${c.tag}</div><h3>${c.name}</h3><div class="lens">${c.lens}</div><span class="yrbadge" id="yb_${key}"></span></div>
+      <div class="sliders">${sl}</div><div class="out" id="out_${key}"></div>`;
+    host.appendChild(card);
+  });
+  host.querySelectorAll('input[type=range]').forEach(r=>{
+    r.addEventListener('input',e=>{
+      const k=e.target.dataset.k,id=e.target.dataset.id;
+      S[k][id]=parseFloat(e.target.value);
+      document.getElementById(`v_${k}_${id}`).textContent=e.target.value;
+      render();
+    });
+  });
+}
+function buildHorizon(){
+  const h=document.getElementById('horizonSeg'); h.innerHTML='';
+  [1,2,3,4,5].forEach(y=>{
+    const b=document.createElement('button'); b.textContent=y+(y===1?' ano':' anos'); if(y===HORIZON)b.className='on';
+    b.onclick=()=>{HORIZON=y; render();}; h.appendChild(b);
+  });
+  document.getElementById('metricSel').addEventListener('change',e=>{METRIC=e.target.value; render();});
+}
+
+const MF={equity:F,receita:F,ebitda:F,dividaLiq:F,caixa:F,lc:v=>Fx(v,2)};
+const MLAB={equity:'Valor do equity',receita:'Receita',ebitda:'EBITDA',dividaLiq:'Dívida líquida',caixa:'Caixa',lc:'Liquidez corrente'};
+const COL={fat:'#5B8FF0',cax:'#5FB58A',luc:'#D9A441'};
+
+function buildChart(runs,years){
+  const W=820,H=340,PL=70,PR=18,PT=18,PB=40;
+  const series={};
+  ['fat','cax','luc'].forEach(k=>series[k]=runs[k].map(s=>s[METRIC]));
+  const all=[].concat(...Object.values(series));
+  let ymin=Math.min(...all),ymax=Math.max(...all);
+  const pad=(ymax-ymin)*0.10||1; ymin-=pad; ymax+=pad;
+  if(ymin>0 && METRIC!=='lc') ymin=Math.min(0,ymin);
+  const X=i=>PL+(W-PL-PR)*(i/years);
+  const Y=v=>PT+(H-PT-PB)*(1-(v-ymin)/(ymax-ymin));
+  let g='';
+  const ticks=5;
+  for(let t=0;t<=ticks;t++){
+    const v=ymin+(ymax-ymin)*t/ticks, y=Y(v);
+    g+=`<line x1="${PL}" y1="${y}" x2="${W-PR}" y2="${y}" stroke="#274062" stroke-width="1"/>`;
+    g+=`<text x="${PL-8}" y="${y+4}" text-anchor="end" fill="#6F87A4" font-size="11" font-family="IBM Plex Mono">${MF[METRIC](v)}</text>`;
+  }
+  if(ymin<0&&ymax>0){const z=Y(0);g+=`<line x1="${PL}" y1="${z}" x2="${W-PR}" y2="${z}" stroke="#6F87A4" stroke-width="1" stroke-dasharray="4 3"/>`;}
+  for(let i=0;i<=years;i++){
+    g+=`<text x="${X(i)}" y="${H-PB+20}" text-anchor="middle" fill="#9DB0C7" font-size="11" font-family="IBM Plex Mono">Ano ${i}</text>`;
+  }
+  ['fat','cax','luc'].forEach(k=>{
+    const pts=series[k].map((v,i)=>`${X(i)},${Y(v)}`).join(' ');
+    g+=`<polyline points="${pts}" fill="none" stroke="${COL[k]}" stroke-width="2.5"/>`;
+    series[k].forEach((v,i)=>{g+=`<circle cx="${X(i)}" cy="${Y(v)}" r="3.5" fill="${COL[k]}"/>`;});
+    const lv=series[k][years];
+    g+=`<text x="${X(years)+6}" y="${Y(lv)+4}" fill="${COL[k]}" font-size="11" font-family="IBM Plex Mono">${MF[METRIC](lv)}</text>`;
+  });
+  return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Trajetória ${MLAB[METRIC]}">${g}</svg>`;
+}
+
+function deltaTag(cur,base,inv){
+  if(Math.abs(cur-base)<0.5) return '';
+  const up=cur>base, good=inv?!up:up;
+  return `<span class="delta ${good?'up':'dn'}">${up?'▲':'▼'} ${F(Math.abs(cur-base))}</span>`;
+}
+function mrow(lab,cur,base){
+  const d=cur-base, cls=Math.abs(d)<0.5?'':(d>0?'up':'dn'), sign=d>0?'+':'';
+  return `<div class="mrow"><span>${lab}</span><span>${F(cur)}</span><span class="d ${cls}">${Math.abs(d)<0.5?'—':sign+F(d)}</span></div>`;
+}
+function keyOf(lab){return {'Valor do equity':'equity','EBITDA':'ebitda','Margem EBITDA':'margemEbitda',
+  'ROE':'roe','Lucro líquido':'ll','Dívida líquida':'dividaLiq','NCG':'ncg'}[lab];}
+
+function render(){
+  const p=P_();
+  const runs={fat:run(p,'fat',HORIZON,S),cax:run(p,'cax',HORIZON,S),luc:run(p,'luc',HORIZON,S)};
+  const b=runs.fat[0];
+  const fin={fat:runs.fat[HORIZON],cax:runs.cax[HORIZON],luc:runs.luc[HORIZON]};
+
+  // chart
+  document.getElementById('chart').innerHTML=buildChart(runs,HORIZON);
+
+  // cards (final year)
+  Object.keys(strat).forEach(k=>{
+    const s=fin[k];
+    document.getElementById('yb_'+k).textContent='Ano '+HORIZON;
+    document.getElementById('out_'+k).innerHTML=`
+      <div class="kbig"><span class="lab">Valor do equity</span><span class="val lead">${F(s.equity)}${deltaTag(s.equity,b.equity)}</span></div>
+      <div class="kbig"><span class="lab">Receita</span><span class="val">${F(s.receita)}${deltaTag(s.receita,b.receita)}</span></div>
+      <div class="kbig"><span class="lab">EBITDA · margem</span><span class="val">${F(s.ebitda)} · ${P(s.margemEbitda)}</span></div>
+      <div class="kbig"><span class="lab">Dívida líquida</span><span class="val">${F(s.dividaLiq)}${deltaTag(s.dividaLiq,b.dividaLiq,true)}</span></div>
+      <div class="kbig"><span class="lab">Liquidez corrente</span><span class="val">${Fx(s.lc)}</span></div>
+      <div class="mini"><h4>Impacto no balanço — Δ Ano ${HORIZON} vs. Ano 0</h4>
+        ${mrow('Caixa',s.caixa,b.caixa)}${mrow('Clientes',s.clientes,b.clientes)}
+        ${mrow('Estoques',s.estoques,b.estoques)}${mrow('Ativo fixo',s.ativoFixo,b.ativoFixo)}
+        ${mrow('Fornecedores',s.fornec,b.fornec)}${mrow('Dívida total',s.dividaTot,b.dividaTot)}
+        ${mrow('Patrim. líquido',s.pl,b.pl)}</div>`;
+  });
+
+  document.getElementById('cmpYr').textContent='· Ano '+HORIZON;
+  document.getElementById('barsTitle').textContent=`Valor do equity no Ano ${HORIZON} (EV/EBITDA × EBITDA − dívida líquida)`;
+
+  // comparison
+  const rows=[['Receita',v=>F(v.receita)],['EBITDA',v=>F(v.ebitda)],['Margem EBITDA',v=>P(v.margemEbitda)],
+    ['Lucro líquido',v=>F(v.ll)],['NCG',v=>F(v.ncg)],['Dívida líquida',v=>F(v.dividaLiq)],
+    ['Liquidez corrente',v=>Fx(v.lc)],['ROE',v=>P(v.roe)],['Ativo total',v=>F(v.ativoTot)],['Valor do equity',v=>F(v.equity)]];
+  let html=`<thead><tr><th>Indicador (Ano ${HORIZON})</th><th>Base</th><th class="fat">Faturamento</th><th class="cax">Caixa</th><th class="luc">Lucro</th></tr></thead><tbody>`;
+  rows.forEach(([lab,fn])=>{
+    let winner=null, kk=keyOf(lab);
+    if(['Valor do equity','EBITDA','Margem EBITDA','ROE','Lucro líquido'].includes(lab))
+      winner=['fat','cax','luc'].reduce((a,k)=>fin[k][kk]>fin[a][kk]?k:a,'fat');
+    else if(['Dívida líquida','NCG'].includes(lab))
+      winner=['fat','cax','luc'].reduce((a,k)=>fin[k][kk]<fin[a][kk]?k:a,'fat');
+    else if(lab==='Liquidez corrente')
+      winner=['fat','cax','luc'].reduce((a,k)=>fin[k].lc>fin[a].lc?k:a,'fat');
+    html+=`<tr><td>${lab}</td><td>${fn(b)}</td>`;
+    ['fat','cax','luc'].forEach(k=>html+=`<td class="${winner===k?'win':''}">${fn(fin[k])}</td>`);
+    html+=`</tr>`;
+  });
+  html+='</tbody>'; document.getElementById('cmpTable').innerHTML=html;
+
+  // equity bars
+  const evs={'Base':[b.equity,'base'],'Faturamento':[fin.fat.equity,'fat'],'Caixa':[fin.cax.equity,'cax'],'Lucro':[fin.luc.equity,'luc']};
+  const mx=Math.max(...Object.values(evs).map(x=>x[0]),1);
+  let bars='';
+  Object.entries(evs).forEach(([nm,[v,cls]])=>{
+    bars+=`<div class="bargroup"><div class="nm">${nm}</div>
+      <div class="track"><div class="fill ${cls}" style="width:${Math.max(2,v/mx*100)}%"></div></div>
+      <div class="v">${F(v)}</div></div>`;
+  });
+  document.getElementById('equityBars').innerHTML=bars;
+
+  // router
+  let rec,why;
+  if(b.lc<1.2||b.dividaLiq/b.ebitda>3.5){rec='Gerar caixa';why='A liquidez está apertada ou a alavancagem alta. Antes de crescer ou otimizar margem, é preciso desafogar o balanço — encurtar o ciclo de caixa e amortizar dívida.';}
+  else if(b.margemEbitda<0.10){rec='Obter lucro';why='A margem EBITDA está abaixo do padrão setorial. Crescer faturamento sobre margem fraca multiplica o problema; a prioridade é recuperar rentabilidade e qualidade do resultado.';}
+  else {rec='Crescer faturamento';why='O balanço está saudável (liquidez e alavancagem confortáveis) e a margem é competitiva. Há espaço para investir em crescimento — desde que o retorno do capital fique acima do custo.';}
+  document.getElementById('router').innerHTML=`<div class="rl">Roteador MPA — prioridade sugerida pelo diagnóstico-base</div><div class="rv">${rec}</div><p>${why}</p>`;
+
+  // balance check across all years
+  let mxchk=0;
+  ['fat','cax','luc'].forEach(k=>runs[k].forEach(s=>{mxchk=Math.max(mxchk,Math.abs(s.check));}));
+  document.getElementById('balcheck').textContent=`Verificação de fechamento (Ativo − Passivo+PL): máx. R$ ${Fx(mxchk,2)} mil em todos os anos e cenários.`;
+
+  document.querySelectorAll('#horizonSeg button').forEach(btn=>{
+    btn.className = (parseInt(btn.textContent)===HORIZON)?'on':'';
+  });
+}
+
+buildBase(); buildHorizon(); buildCards(); render();
+</script>
+</body>
+</html>
