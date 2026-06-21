@@ -1,0 +1,968 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Motor de Câmbio — NDF, Swap &amp; Spread</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Spectral:wght@300;400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy-900:#08111f; --navy-800:#0b1a2e; --navy-700:#0f223b; --navy-600:#16304f;
+    --line:#1f3a5c; --gold:#c9a227; --gold-soft:#d8be63;
+    --ink:#eaf0f7; --ink-dim:#9bb0c9; --ink-faint:#5e7896;
+    --green:#4fb286; --red:#e0707a; --amber:#e0a44c;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--navy-900);color:var(--ink);font-family:'IBM Plex Sans',sans-serif;-webkit-font-smoothing:antialiased}
+  body{
+    background:
+      radial-gradient(1100px 600px at 85% -10%, rgba(201,162,39,.07), transparent 60%),
+      radial-gradient(900px 500px at -10% 110%, rgba(22,48,79,.6), transparent 55%),
+      var(--navy-900);
+    min-height:100vh;padding:0 0 64px;
+  }
+  .num{font-family:'IBM Plex Mono',monospace;font-feature-settings:"tnum" 1}
+
+  header.app{border-bottom:1px solid var(--line);padding:26px 40px 22px;display:flex;align-items:flex-end;justify-content:space-between;background:linear-gradient(180deg, rgba(11,26,46,.6), transparent)}
+  .brand{display:flex;flex-direction:column;gap:6px}
+  .brand .mark{display:flex;align-items:center;gap:12px}
+  .brand .glyph{width:34px;height:34px;border:1px solid var(--gold);border-radius:3px;display:grid;place-items:center;color:var(--gold);font-family:'Spectral',serif;font-weight:600;font-size:19px;box-shadow:inset 0 0 0 3px rgba(201,162,39,.08)}
+  .brand h1{font-family:'Spectral',serif;font-weight:500;font-size:22px;letter-spacing:.2px}
+  .brand .sub{color:var(--ink-dim);font-size:12px;letter-spacing:.14em;text-transform:uppercase}
+  .phase-tag{color:var(--gold-soft);font-size:11px;letter-spacing:.16em;text-transform:uppercase;border:1px solid var(--line);border-radius:999px;padding:6px 13px}
+  button.ghost{background:transparent;border:1px solid var(--line);color:var(--ink-dim);font-family:'IBM Plex Sans';font-size:13px;padding:9px 16px;border-radius:4px;cursor:pointer;transition:.18s}
+  button.ghost:hover{border-color:var(--gold);color:var(--gold-soft)}
+
+  .tabs{max-width:1240px;margin:24px auto 0;padding:0 40px;display:flex;gap:8px}
+  .tab{background:transparent;border:1px solid var(--line);border-bottom:none;color:var(--ink-dim);font-family:'Spectral',serif;font-size:14.5px;padding:11px 22px;border-radius:8px 8px 0 0;cursor:pointer;transition:.16s}
+  .tab.on{background:var(--navy-800);color:var(--gold-soft);border-color:var(--gold)}
+
+  .wrap{max-width:1240px;margin:-1px auto 0;padding:0 40px;display:grid;grid-template-columns:minmax(360px,420px) 1fr;gap:30px;align-items:start;border-top:1px solid var(--line);padding-top:30px}
+  @media(max-width:980px){.wrap{grid-template-columns:1fr}}
+
+  .panel{background:linear-gradient(180deg, var(--navy-800), var(--navy-700));border:1px solid var(--line);border-radius:10px;box-shadow:0 18px 40px -24px rgba(0,0,0,.8)}
+  .panel > .ph{padding:16px 22px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px}
+  .ph .dot{width:7px;height:7px;border-radius:50%;background:var(--gold)}
+  .ph h2{font-family:'Spectral',serif;font-weight:500;font-size:15px;letter-spacing:.3px}
+
+  .group{padding:18px 22px;border-bottom:1px solid rgba(31,58,92,.5)}
+  .group:last-child{border-bottom:none}
+  .group-title{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold-soft);margin-bottom:14px}
+  .field{margin-bottom:14px}
+  .field:last-child{margin-bottom:0}
+  .field label{display:block;font-size:12.5px;color:var(--ink-dim);margin-bottom:6px}
+  .field .row{display:flex;gap:10px}
+  .inp{width:100%;background:var(--navy-900);border:1px solid var(--line);border-radius:5px;color:var(--ink);font-family:'IBM Plex Mono',monospace;font-size:14px;padding:10px 12px;transition:.15s}
+  .inp:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(201,162,39,.1)}
+  select.inp{font-family:'IBM Plex Sans';cursor:pointer}
+  .suffix{position:relative}
+  .suffix span{position:absolute;right:12px;top:50%;transform:translateY(-50%);color:var(--ink-faint);font-size:12px;font-family:'IBM Plex Mono'}
+  .seg{display:flex;border:1px solid var(--line);border-radius:5px;overflow:hidden}
+  .seg button{flex:1;background:var(--navy-900);border:none;color:var(--ink-dim);padding:9px;font-size:12px;cursor:pointer;font-family:'IBM Plex Sans';transition:.15s}
+  .seg button.on{background:rgba(201,162,39,.14);color:var(--gold-soft)}
+  .note{font-size:11px;color:var(--ink-faint);line-height:1.5;margin-top:8px}
+  .note b{color:var(--amber);font-weight:500}
+  .venc-bad{border-color:var(--red)!important;color:var(--red)!important}
+
+  .kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border-radius:10px 10px 0 0;overflow:hidden}
+  .kpi{background:var(--navy-700);padding:20px}
+  .kpi .lbl{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-faint);margin-bottom:9px}
+  .kpi .val{font-family:'IBM Plex Mono';font-size:25px;font-weight:500;letter-spacing:-.5px}
+  .kpi .val.gold{color:var(--gold)}
+  .kpi .sub2{font-size:11.5px;color:var(--ink-dim);margin-top:5px;font-family:'IBM Plex Mono'}
+  @media(max-width:560px){.kpis{grid-template-columns:1fr}}
+
+  .spread-card{padding:22px;border-bottom:1px solid var(--line);display:flex;gap:24px;align-items:center;flex-wrap:wrap}
+  .spread-main{flex:1;min-width:220px}
+  .spread-main .lbl{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-faint);margin-bottom:8px}
+  .spread-main .big{font-family:'IBM Plex Mono';font-size:38px;font-weight:600;letter-spacing:-1px;line-height:1}
+  .spread-main .verdict{font-size:13px;margin-top:10px;line-height:1.5;color:var(--ink-dim)}
+  .pill{display:inline-block;margin-top:10px;font-family:'IBM Plex Mono';font-size:12.5px;color:var(--ink-dim);border:1px solid var(--line);border-radius:6px;padding:5px 10px}
+  .pill b{color:var(--gold-soft)}
+
+  .vizbox{padding:24px 22px 18px;border-bottom:1px solid var(--line)}
+  .vizbox h3,.decomp h3{font-family:'Spectral',serif;font-weight:500;font-size:14px;margin-bottom:18px;color:var(--ink)}
+  #fxLine{width:100%;height:120px;display:block}
+
+  .decomp{padding:20px 22px;border-bottom:1px solid var(--line)}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:8px;overflow:hidden}
+  .cellk{background:var(--navy-700);padding:16px 18px}
+  .cellk .l{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-faint);margin-bottom:7px}
+  .cellk .v{font-family:'IBM Plex Mono';font-size:18px}
+  .settle{padding:18px 22px;color:var(--ink-dim);font-size:12.5px;line-height:1.6}
+  .settle b{color:var(--ink)}
+
+  footer.app{max-width:1240px;margin:24px auto 0;padding:0 40px;color:var(--ink-faint);font-size:11px;line-height:1.6}
+  .hide{display:none}
+
+  /* Curvas */
+  .curve-help{max-width:1240px;margin:0 auto;padding:18px 40px 0;color:var(--ink-dim);font-size:12.5px;line-height:1.6}
+  .curve-help b{color:var(--ink)}
+  .curves-grid{max-width:1240px;margin:14px auto 0;padding:0 40px;display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:24px}
+  @media(max-width:900px){.curves-grid{grid-template-columns:1fr}}
+  .uprow{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px}
+  .file-btn{position:relative;overflow:hidden}
+  .file-btn input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;font-size:0}
+  textarea.inp{font-family:'IBM Plex Mono';font-size:12px;resize:vertical;min-height:74px;line-height:1.5}
+  .statline{font-size:11.5px;color:var(--gold-soft);font-family:'IBM Plex Mono';margin:10px 0 4px}
+  .curve-chart{width:100%;height:150px;display:block;margin:6px 0}
+  .tbl-wrap{max-height:200px;overflow:auto;border:1px solid var(--line);border-radius:7px;margin-top:6px}
+  .vtable{width:100%;border-collapse:collapse;font-size:12.5px}
+  .vtable th{position:sticky;top:0;background:var(--navy-600);color:var(--ink-faint);font-size:10px;text-transform:uppercase;letter-spacing:.08em;text-align:left;padding:7px 8px;border-bottom:1px solid var(--line)}
+  .vtable td{padding:2px 4px;border-bottom:1px solid rgba(31,58,92,.4)}
+  .vtable input{width:100%;background:transparent;border:none;color:var(--ink);font-family:'IBM Plex Mono';font-size:12.5px;padding:6px 6px}
+  .vtable input:focus{outline:none;background:var(--navy-900);border-radius:4px}
+  .vtable .del{color:var(--ink-faint);cursor:pointer;text-align:center;width:30px;font-size:15px}
+  .vtable .del:hover{color:var(--red)}
+
+  @media print{
+    body{background:#fff;color:#0b1a2e}
+    .panel{box-shadow:none;break-inside:avoid}
+    .wrap{grid-template-columns:1fr;gap:18px}
+    button,.tabs{display:none}
+  }
+</style>
+</head>
+<body>
+<header class="app">
+  <div class="brand">
+    <div class="mark"><div class="glyph">C</div><h1>Motor de Câmbio — NDF, Swap &amp; Spread</h1></div>
+    <span class="sub">Forward justo · Cupom cambial · Spread do banco</span>
+  </div>
+  <div style="display:flex;align-items:center;gap:16px">
+    <span class="phase-tag">Fase 1 · Interno</span>
+    <button class="ghost" onclick="window.print()">Exportar PDF</button>
+  </div>
+</header>
+
+<div class="tabs">
+  <button class="tab on" id="tabNdf" onclick="setTab('ndf')">NDF (D+0)</button>
+  <button class="tab" id="tabTrava" onclick="setTab('trava')">Trava cambial (D+2)</button>
+  <button class="tab" id="tabComp" onclick="setTab('comp')">Comparador</button>
+  <button class="tab" id="tabSwap" onclick="setTab('swap')">Swap cambial</button>
+  <button class="tab" id="tabCurvas" onclick="setTab('curvas')">Curvas</button>
+</div>
+
+<div class="wrap" id="opsView">
+  <!-- ============ INPUTS ============ -->
+  <div class="panel">
+    <div class="ph"><span class="dot"></span><h2 id="inHead">Parâmetros do NDF</h2></div>
+
+    <!-- shared market block -->
+    <div class="group">
+      <div class="group-title">Mercado</div>
+      <div class="field">
+        <label>Spot / PTAX (R$/USD)</label>
+        <div class="suffix"><input class="inp num" id="spot" value="5,4000"><span>R$</span></div>
+        <p class="note">Insira o spot/PTAX atual. <b>Fase 2</b> puxa automático (BCB/B3).</p>
+      </div>
+      <div class="field">
+        <div class="row">
+          <div style="flex:1"><label>Data de início</label><input class="inp" type="date" id="inicio"></div>
+          <div style="flex:1"><label id="liqLbl">Liquidação (spot D+2)</label><input class="inp" id="spotD" readonly style="opacity:.7;cursor:default"></div>
+        </div>
+      </div>
+      <div class="field">
+        <div class="row">
+          <div style="flex:1"><label>Vencimento</label><input class="inp" type="date" id="venc"></div>
+        </div>
+        <p class="note" id="vencNote" style="display:none"><b>Data não útil</b> — fim de semana ou feriado. Ajuste para o próximo dia útil.</p>
+      </div>
+      <div class="field">
+        <div class="row">
+          <div style="flex:1"><label>Dias corridos</label><input class="inp num" id="dc" value="90"></div>
+          <div style="flex:1"><label>Dias úteis</label><input class="inp num" id="du" value="62"></div>
+        </div>
+        <p class="note" id="prazoNote">Prazo contado da <b>liquidação</b> até o vencimento.</p>
+      </div>
+      <div class="field">
+        <label>Fonte das taxas</label>
+        <div class="seg" id="srcMode">
+          <button class="on" data-m="manual" onclick="setSrc('manual')">Manual</button>
+          <button data-m="curva" onclick="setSrc('curva')">Curva</button>
+        </div>
+        <p class="note" id="srcStatus">Modo manual. Carregue as curvas na aba <b>Curvas</b> para interpolar automaticamente.</p>
+      </div>
+      <div class="field">
+        <div class="row">
+          <div style="flex:1"><label>CDI / Pré (a.a.)</label><div class="suffix"><input class="inp num" id="pre" value="11,90"><span>%</span></div></div>
+          <div style="flex:1" id="wrapCupom"><label>Cupom cambial (a.a.)</label><div class="suffix"><input class="inp num" id="cupom" value="4,50"><span>%</span></div></div>
+          <div style="flex:1" id="wrapSofr" class="hide"><label>SOFR USD (a.a.)</label><div class="suffix"><input class="inp num" id="sofr" value="4,30"><span>%</span></div></div>
+        </div>
+        <p class="note" id="legNote">CDI/Pré 252 du (exp.) · cupom cambial ACT/360 (linear). Início em <b>D+0</b>.</p>
+      </div>
+    </div>
+
+    <!-- NDF specific -->
+    <div class="group" id="grpNdf">
+      <div class="group-title" id="grpTitle">Operação NDF</div>
+      <div class="field">
+        <label>Direção do cliente</label>
+        <div class="seg" id="dirMode">
+          <button class="on" data-m="compra" onclick="setDir('compra')">Compra USD (importador)</button>
+          <button data-m="venda" onclick="setDir('venda')">Venda USD (exportador)</button>
+        </div>
+      </div>
+      <div class="field">
+        <label>Notional</label>
+        <div class="suffix"><input class="inp num" id="notional" inputmode="numeric" value="1.000.000,00"><span>USD</span></div>
+      </div>
+      <div class="field">
+        <label>Cotação a termo do banco (R$/USD)</label>
+        <div class="suffix"><input class="inp num" id="fwdBanco" value="5,5200"><span>R$</span></div>
+      </div>
+    </div>
+
+    <!-- SWAP specific -->
+    <div class="group hide" id="grpSwap">
+      <div class="group-title">Operação Swap (CDI × USD+cupom)</div>
+      <div class="field">
+        <label>Notional</label>
+        <div class="suffix"><input class="inp num" id="notionalS" inputmode="numeric" value="5.000.000,00"><span>R$</span></div>
+      </div>
+      <div class="field">
+        <label>Posição do cliente</label>
+        <div class="seg" id="dirModeS">
+          <button class="on" data-m="ativoUSD" onclick="setDirS('ativoUSD')">Recebe USD+cupom</button>
+          <button data-m="passivoUSD" onclick="setDirS('passivoUSD')">Paga USD+cupom</button>
+        </div>
+      </div>
+      <div class="field">
+        <label>Cupom cambial oferecido pelo banco (a.a.)</label>
+        <div class="suffix"><input class="inp num" id="cupomBanco" value="3,80"><span>%</span></div>
+        <p class="note">Compara com o cupom de mercado acima.</p>
+      </div>
+    </div>
+
+    <!-- COMPARADOR specific -->
+    <div class="group hide" id="grpComp">
+      <div class="group-title">Comparação NDF × Trava</div>
+      <div class="field">
+        <label>Direção do cliente</label>
+        <div class="seg" id="dirModeC">
+          <button class="on" data-m="compra" onclick="setDir('compra')">Compra USD (importador)</button>
+          <button data-m="venda" onclick="setDir('venda')">Venda USD (exportador)</button>
+        </div>
+      </div>
+      <div class="field">
+        <label>Notional</label>
+        <div class="suffix"><input class="inp num" id="notionalC" inputmode="numeric" value="1.000.000,00"><span>USD</span></div>
+      </div>
+      <div class="field">
+        <div class="row">
+          <div style="flex:1"><label>Cotação banco — NDF</label><div class="suffix"><input class="inp num" id="fwdNdf" placeholder="opcional"><span>R$</span></div></div>
+          <div style="flex:1"><label>Cotação banco — Trava</label><div class="suffix"><input class="inp num" id="fwdTrava" placeholder="opcional"><span>R$</span></div></div>
+        </div>
+        <p class="note">Em branco: compara só o <b>forward justo</b> das curvas. Preenchido: compara o <b>all-in</b> (justo + spread do banco) de cada instrumento.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ RESULTS ============ -->
+  <div class="panel" id="resultsView">
+    <div class="kpis">
+      <div class="kpi"><div class="lbl" id="k1l">Forward teórico</div><div class="val gold" id="k1v">—</div><div class="sub2" id="k1s">—</div></div>
+      <div class="kpi"><div class="lbl" id="k2l">Forward points</div><div class="val" id="k2v">—</div><div class="sub2" id="k2s">—</div></div>
+      <div class="kpi"><div class="lbl" id="k3l">Custo do spread</div><div class="val" id="k3v">—</div><div class="sub2" id="k3s">—</div></div>
+    </div>
+
+    <div class="spread-card">
+      <div class="spread-main">
+        <div class="lbl" id="smL">Margem do banco</div>
+        <div class="big num" id="smBig">—</div>
+        <div class="verdict" id="smVerdict">—</div>
+        <div class="pill" id="smPill"></div>
+      </div>
+    </div>
+
+    <div class="vizbox" id="viz">
+      <h3>Spot → Forward justo → Forward do banco</h3>
+      <svg id="fxLine" viewBox="0 0 700 120" preserveAspectRatio="none"></svg>
+    </div>
+
+    <div class="decomp">
+      <h3 id="decH">Cupom implícito</h3>
+      <div class="row2">
+        <div class="cellk"><div class="l" id="c1l">Cupom de mercado</div><div class="v" id="c1v">—</div></div>
+        <div class="cellk"><div class="l" id="c2l">Cupom implícito do banco</div><div class="v" id="c2v">—</div></div>
+      </div>
+    </div>
+
+    <div class="settle" id="settle"></div>
+  </div>
+
+  <!-- ============ COMPARADOR RESULTS ============ -->
+  <div class="panel hide" id="compView">
+    <div class="kpis">
+      <div class="kpi"><div class="lbl">NDF — forward justo</div><div class="val gold" id="cN">—</div><div class="sub2">CDI × cupom · D+0</div></div>
+      <div class="kpi"><div class="lbl">Trava — forward justo</div><div class="val gold" id="cT">—</div><div class="sub2">CDI × SOFR · D+2</div></div>
+      <div class="kpi"><div class="lbl">Prêmio onshore</div><div class="val" id="cP">—</div><div class="sub2" id="cPs">cupom − SOFR</div></div>
+    </div>
+    <div class="vizbox">
+      <h3>NDF × Trava — forward justo e prêmio onshore</h3>
+      <svg id="compLine" viewBox="0 0 700 120" preserveAspectRatio="none"></svg>
+    </div>
+    <div class="spread-card">
+      <div class="spread-main">
+        <div class="lbl">Melhor instrumento dado as curvas</div>
+        <div class="big num" id="cRecBig" style="font-size:25px">—</div>
+        <div class="verdict" id="cRec">—</div>
+      </div>
+    </div>
+    <div class="decomp">
+      <h3>All-in por instrumento (R$/USD)</h3>
+      <div class="row2">
+        <div class="cellk"><div class="l">NDF — all-in · spread</div><div class="v" id="cNallin">—</div></div>
+        <div class="cellk"><div class="l">Trava — all-in · spread</div><div class="v" id="cTallin">—</div></div>
+      </div>
+    </div>
+    <div class="settle" id="cSettle"></div>
+  </div>
+</div>
+
+<div id="curvesView" class="hide">
+  <p class="curve-help">Curvas que alimentam as operações: <b>CDI/PRÉ</b> (perna em R$), <b>cupom cambial</b> (perna USD do NDF) e <b>SOFR USD</b> (perna USD da trava). Baixe as Taxas Referenciais da B3 / a curva SOFR e suba o arquivo — ou cole pares <b>dias&nbsp;;&nbsp;taxa</b>. O motor interpola pelo prazo e abastece as abas. <span style="color:var(--ink-faint)">Duas colunas (dias, taxa a.a. %), separadas por <code>;</code>, tab, vírgula ou espaço. Cabeçalho ignorado. Decimal com vírgula ou ponto.</span></p>
+  <div style="max-width:1240px;margin:14px auto 0;padding:0 40px">
+    <div class="panel">
+      <div class="ph"><span class="dot"></span><h2>Fonte de dados — captura online</h2>
+        <span id="feedStatus" style="margin-left:auto;font-size:11.5px;color:var(--ink-faint);font-family:'IBM Plex Mono'">Manual / upload</span>
+      </div>
+      <div class="group">
+        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end">
+          <div style="flex:2;min-width:220px">
+            <label style="display:block;font-size:12.5px;color:var(--ink-dim);margin-bottom:6px">Provedor</label>
+            <select class="inp" id="feedProvider" onchange="onProvider()">
+              <option value="custom">Endpoint próprio (backend)</option>
+              <option value="b3">B3 — CDI &amp; Cupom cambial</option>
+              <option value="chatham">Chatham — SOFR</option>
+              <option value="bluegamma">BlueGamma — SOFR (API)</option>
+              <option value="bbg">Bloomberg / Broadcast (feeder)</option>
+            </select>
+          </div>
+          <div style="flex:3;min-width:240px">
+            <label style="display:block;font-size:12.5px;color:var(--ink-dim);margin-bottom:6px">Endpoint — URL do backend que devolve o JSON</label>
+            <input class="inp" id="feedUrl" value="curvas.json" placeholder="https://seu-backend.com/curvas.json">
+          </div>
+        </div>
+        <div class="uprow" style="margin-top:12px">
+          <button class="ghost" onclick="fetchCurves()">Atualizar agora</button>
+          <label style="display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--ink-dim);cursor:pointer">
+            <input type="checkbox" id="autoCap" onchange="toggleAuto()"> Captura automática
+          </label>
+          <select class="inp" id="autoInt" style="width:auto" onchange="toggleAuto()">
+            <option value="300">a cada 5 min</option>
+            <option value="900">a cada 15 min</option>
+            <option value="3600">a cada 60 min</option>
+          </select>
+        </div>
+        <p class="note" id="feedNote"></p>
+        <details style="margin-top:10px">
+          <summary style="cursor:pointer;color:var(--gold-soft);font-size:12px">Contrato JSON esperado do backend</summary>
+          <pre style="background:var(--navy-900);border:1px solid var(--line);border-radius:6px;padding:12px;margin-top:8px;font-family:'IBM Plex Mono';font-size:11px;line-height:1.5;color:var(--ink-dim);overflow:auto">{
+  "asOf": "2026-06-10T18:40:00-03:00",
+  "source": "B3",
+  "curves": {
+    "pre":   { "unit": "du", "vertices": [[21,11.90],[63,12.01],[252,12.40]] },
+    "cupom": { "unit": "dc", "vertices": [[30,4.40],[90,4.55],[360,4.90]] },
+    "sofr":  { "unit": "dc", "vertices": [[30,4.33],[180,4.15],[1825,3.80]] }
+  }
+}</pre>
+        </details>
+      </div>
+    </div>
+  </div>
+  <div class="curves-grid">
+    <!-- PRE -->
+    <div class="panel">
+      <div class="ph"><span class="dot"></span><h2>Curva CDI / PRÉ (base 252)</h2></div>
+      <div class="group">
+        <div class="uprow">
+          <button class="ghost file-btn">Upload arquivo<input type="file" accept=".csv,.txt,.tsv" onchange="onFile(event,'pre')"></button>
+          <select class="inp" id="unitPre" style="width:auto" onchange="compute()">
+            <option value="du">vértice em dias úteis</option>
+            <option value="dc">vértice em dias corridos</option>
+          </select>
+        </div>
+        <textarea class="inp" id="pastePre" placeholder="21 ; 11,90&#10;42 ; 11,95&#10;63 ; 12,01&#10;126 ; 12,30 ..."></textarea>
+        <div class="uprow" style="margin-top:8px">
+          <button class="ghost" onclick="loadPaste('pre')">Carregar texto</button>
+          <button class="ghost" onclick="clearCurve('pre')">Limpar</button>
+        </div>
+        <div class="statline" id="statPre">Nenhuma curva carregada.</div>
+        <svg id="chartPre" class="curve-chart" viewBox="0 0 600 150" preserveAspectRatio="none"></svg>
+        <div class="tbl-wrap"><table class="vtable"><thead><tr><th>Dias</th><th>Taxa&nbsp;%&nbsp;a.a.</th><th></th></tr></thead><tbody id="tbPre"></tbody></table></div>
+        <div class="uprow" style="margin-top:8px"><button class="ghost" onclick="addRow('pre')">+ vértice</button></div>
+      </div>
+    </div>
+    <!-- CUPOM -->
+    <div class="panel">
+      <div class="ph"><span class="dot"></span><h2>Curva Cupom Cambial (ACT/360)</h2></div>
+      <div class="group">
+        <div class="uprow">
+          <button class="ghost file-btn">Upload arquivo<input type="file" accept=".csv,.txt,.tsv" onchange="onFile(event,'cupom')"></button>
+          <select class="inp" id="unitCupom" style="width:auto" onchange="compute()">
+            <option value="dc">vértice em dias corridos</option>
+            <option value="du">vértice em dias úteis</option>
+          </select>
+        </div>
+        <textarea class="inp" id="pasteCupom" placeholder="30 ; 4,40&#10;60 ; 4,48&#10;90 ; 4,55&#10;180 ; 4,80 ..."></textarea>
+        <div class="uprow" style="margin-top:8px">
+          <button class="ghost" onclick="loadPaste('cupom')">Carregar texto</button>
+          <button class="ghost" onclick="clearCurve('cupom')">Limpar</button>
+        </div>
+        <div class="statline" id="statCupom">Nenhuma curva carregada.</div>
+        <svg id="chartCupom" class="curve-chart" viewBox="0 0 600 150" preserveAspectRatio="none"></svg>
+        <div class="tbl-wrap"><table class="vtable"><thead><tr><th>Dias</th><th>Taxa&nbsp;%&nbsp;a.a.</th><th></th></tr></thead><tbody id="tbCupom"></tbody></table></div>
+        <div class="uprow" style="margin-top:8px"><button class="ghost" onclick="addRow('cupom')">+ vértice</button></div>
+      </div>
+    </div>
+    <!-- SOFR -->
+    <div class="panel">
+      <div class="ph"><span class="dot"></span><h2>Curva SOFR USD (ACT/360)</h2></div>
+      <div class="group">
+        <div class="uprow">
+          <button class="ghost file-btn">Upload arquivo<input type="file" accept=".csv,.txt,.tsv" onchange="onFile(event,'sofr')"></button>
+          <select class="inp" id="unitSofr" style="width:auto" onchange="compute()">
+            <option value="dc">vértice em dias corridos</option>
+            <option value="du">vértice em dias úteis</option>
+          </select>
+        </div>
+        <textarea class="inp" id="pasteSofr" placeholder="30 ; 4,33&#10;90 ; 4,28&#10;180 ; 4,15&#10;360 ; 3,95 ..."></textarea>
+        <div class="uprow" style="margin-top:8px">
+          <button class="ghost" onclick="loadPaste('sofr')">Carregar texto</button>
+          <button class="ghost" onclick="clearCurve('sofr')">Limpar</button>
+        </div>
+        <div class="statline" id="statSofr">Nenhuma curva carregada.</div>
+        <svg id="chartSofr" class="curve-chart" viewBox="0 0 600 150" preserveAspectRatio="none"></svg>
+        <div class="tbl-wrap"><table class="vtable"><thead><tr><th>Dias</th><th>Taxa&nbsp;%&nbsp;a.a.</th><th></th></tr></thead><tbody id="tbSofr"></tbody></table></div>
+        <div class="uprow" style="margin-top:8px"><button class="ghost" onclick="addRow('sofr')">+ vértice</button></div>
+      </div>
+    </div>
+  </div>
+  <p class="curve-help" style="padding-top:16px;padding-bottom:0">As curvas ficam na sessão (não são salvas em disco). Depois de carregar, selecione <b>Curva</b> em "Fonte das taxas". Interpolação <b>flat-forward 252</b> no CDI/PRÉ; linear na taxa no cupom e no SOFR (ACT/360) — uso indicativo.</p>
+</div>
+
+<footer class="app">
+  Ferramenta interna · forward por paridade coberta (pré × cupom cambial). NDF: liquidação por diferença contra PTAX no vencimento. Valores indicativos — confira convenções e curvas vigentes antes de uso com cliente.
+</footer>
+
+<script>
+const $=id=>document.getElementById(id);
+let tab='ndf', dir='compra', dirS='ativoUSD', src='manual';
+const curves={pre:[],cupom:[],sofr:[]};
+const cap=s=>s.charAt(0).toUpperCase()+s.slice(1);
+const idsuf=k=>cap(k); // 'pre'->'Pre', 'cupom'->'Cupom', 'sofr'->'Sofr'
+
+const n4=v=>v.toLocaleString('pt-BR',{minimumFractionDigits:4,maximumFractionDigits:4});
+const n2=v=>v.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+const money=v=>'R$ '+v.toLocaleString('pt-BR',{minimumFractionDigits:0,maximumFractionDigits:0});
+const rawNum=id=>parseFloat(($(id).value+'').replace(/\./g,'').replace(',','.'))||0; // tolera milhar
+const rate=id=>parseFloat(($(id).value+'').replace(',','.'))||0; // taxa/cotação: vírgula decimal
+
+function setTab(t){
+  tab=t;
+  ['ndf','trava','comp','swap','curvas'].forEach(x=>$('tab'+cap(x)).classList.toggle('on',x===t));
+  const ops=(t!=='curvas');
+  $('opsView').classList.toggle('hide',!ops);
+  $('curvesView').classList.toggle('hide',t!=='curvas');
+  if(ops){
+    const fwd=(t==='ndf'||t==='trava');
+    $('grpNdf').classList.toggle('hide',!fwd);
+    $('grpSwap').classList.toggle('hide',t!=='swap');
+    $('grpComp').classList.toggle('hide',t!=='comp');
+    $('resultsView').classList.toggle('hide',t==='comp');
+    $('compView').classList.toggle('hide',t!=='comp');
+    $('viz').classList.toggle('hide',!fwd);
+    if(fwd) $('grpTitle').textContent = t==='ndf'?'Operação NDF':'Operação Trava cambial';
+    $('inHead').textContent = t==='ndf'?'Parâmetros do NDF':t==='trava'?'Parâmetros da Trava cambial':t==='comp'?'Comparador NDF × Trava':'Parâmetros do Swap';
+    // pernas USD visíveis: trava=SOFR; comp=cupom+SOFR; demais=cupom
+    $('wrapCupom').classList.toggle('hide', t==='trava');
+    $('wrapSofr').classList.toggle('hide', !(t==='trava'||t==='comp'));
+    updateLegNote();
+    updateSpot();                                   // base de data muda (D+0 x D+2)
+    if($('venc').value) syncFromVenc(); else syncFromDc(); // mantém o vencimento, recalcula o prazo
+    updateSrcStatus();
+    compute();
+  }
+}
+function updateLegNote(){
+  const el=$('legNote'); if(!el) return;
+  el.innerHTML = tab==='trava'
+    ? 'CDI/Pré 252 du (exp.) · SOFR ACT/360 (linear). Início em <b>D+2</b>.'
+    : tab==='comp'
+    ? 'NDF: CDI × cupom (D+0) · Trava: CDI × SOFR (D+2). O comparador calcula os dois.'
+    : 'CDI/Pré 252 du (exp.) · cupom cambial ACT/360 (linear). Início em <b>D+0</b>.';
+}
+function setSrc(m){
+  src=m;
+  document.querySelectorAll('#srcMode button').forEach(b=>b.classList.toggle('on',b.dataset.m===m));
+  const ro=(m==='curva');
+  ['pre','cupom','sofr'].forEach(f=>{ $(f).readOnly=ro; $(f).style.opacity=ro?0.65:1; });
+  updateSrcStatus();
+  compute();
+}
+function updateSrcStatus(){
+  const el=$('srcStatus');
+  if(src==='manual'){ el.innerHTML='Modo manual. Carregue as curvas na aba <b>Curvas</b> para interpolar automaticamente.'; return; }
+  if(tab==='comp'){
+    const ok=curves.pre.length>=2 && curves.cupom.length>=2 && curves.sofr.length>=2;
+    el.innerHTML = ok
+      ? 'CDI/Pré, cupom e SOFR <span style="color:var(--green)">interpolados da curva</span> por prazo.'
+      : '<b>Curvas incompletas.</b> Para o comparador carregue CDI/Pré, cupom e SOFR. Usando valores manuais por ora.';
+    return;
+  }
+  const usdKey = tab==='trava'?'sofr':'cupom';
+  const usdName = tab==='trava'?'SOFR':'cupom';
+  const okP=curves.pre.length>=2, okU=curves[usdKey].length>=2;
+  el.innerHTML = (okP&&okU)
+    ? `CDI/Pré e ${usdName} <span style="color:var(--green)">interpolados da curva</span> pelo prazo da operação.`
+    : `<b>Curvas incompletas.</b> Carregue CDI/Pré e ${usdName} (mín. 2 vértices) na aba Curvas. Usando valores manuais por ora.`;
+}
+function setDir(d){dir=d;document.querySelectorAll('#dirMode button, #dirModeC button').forEach(b=>b.classList.toggle('on',b.dataset.m===d));compute();}
+function setDirS(d){dirS=d;document.querySelectorAll('#dirModeS button').forEach(b=>b.classList.toggle('on',b.dataset.m===d));compute();}
+
+function maskCurrency(el){
+  const digits=(el.value+'').replace(/\D/g,'');
+  if(digits==='')return;
+  el.value=(parseInt(digits,10)/100).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+}
+
+// vencimento -> dias
+// ===== Datas: vencimento <-> dias corridos <-> dias úteis =====
+const holidayCache={};
+function easter(y){
+  const a=y%19,b=Math.floor(y/100),c=y%100,d=Math.floor(b/4),e=b%4,
+    f=Math.floor((b+8)/25),g=Math.floor((b-f+1)/3),
+    h=(19*a+b-d-g+15)%30,i=Math.floor(c/4),k=c%4,
+    l=(32+2*e+2*i-h-k)%7,m=Math.floor((a+11*h+22*l)/451),
+    mo=Math.floor((h+l-7*m+114)/31),da=((h+l-7*m+114)%31)+1;
+  return new Date(y,mo-1,da);
+}
+function holidays(y){
+  if(holidayCache[y]) return holidayCache[y];
+  const s=new Set(), add=(mo,da)=>s.add(new Date(y,mo-1,da).getTime());
+  add(1,1);add(4,21);add(5,1);add(9,7);add(10,12);add(11,2);add(11,15);add(12,25);
+  if(y>=2024) add(11,20); // Consciência Negra (feriado nacional)
+  const E=easter(y), addOff=off=>{ const d=new Date(E); d.setDate(d.getDate()+off); s.add(new Date(d.getFullYear(),d.getMonth(),d.getDate()).getTime()); };
+  addOff(-48); addOff(-47); addOff(-2); addOff(60); // Carnaval seg/ter, Sexta Santa, Corpus Christi
+  holidayCache[y]=s; return s;
+}
+function isBiz(d){ const wd=d.getDay(); if(wd===0||wd===6) return false; return !holidays(d.getFullYear()).has(new Date(d.getFullYear(),d.getMonth(),d.getDate()).getTime()); }
+function duBetween(start,end){ if(end<=start) return 0; let c=0; const d=new Date(start); while(d<end){ d.setDate(d.getDate()+1); if(isBiz(d)) c++; } return c; }
+function dateFromDu(start,du){ const d=new Date(start); let c=0; while(c<du){ d.setDate(d.getDate()+1); if(isBiz(d)) c++; } return d; }
+function fmtD(d){ const p=n=>(''+n).padStart(2,'0'); return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate()); }
+function today0(){ const t=new Date(); t.setHours(0,0,0,0); return t; }
+function addBiz(d,n){ const r=new Date(d); let c=0; while(c<n){ r.setDate(r.getDate()+1); if(isBiz(r)) c++; } return r; }
+function inicioDate(){ const v=$('inicio').value; return v?new Date(v+'T00:00:00'):today0(); }
+function liqBase(){ return (tab==='ndf'||tab==='comp') ? inicioDate() : addBiz(inicioDate(),2); } // D+0 (NDF/comp) ou D+2 (trava/swap)
+function fmtBR(d){ const p=n=>(''+n).padStart(2,'0'); return p(d.getDate())+'/'+p(d.getMonth()+1)+'/'+d.getFullYear(); }
+function updateSpot(){
+  const d0=(tab==='ndf'||tab==='comp');
+  $('liqLbl').textContent=d0?'Liquidação (D+0)':'Liquidação (spot D+2)';
+  $('spotD').value=fmtBR(liqBase());
+  const pn=$('prazoNote'); if(pn) pn.innerHTML = tab==='comp'
+    ? 'Comparador: NDF conta de <b>D+0</b>, Trava de <b>D+2</b> — cada perna com seu próprio prazo.'
+    : `Prazo contado da <b>liquidação (${d0?'D+0':'spot D+2'})</b> até o vencimento.`;
+}
+function flagVenc(d){ const bad=!isBiz(d); $('venc').classList.toggle('venc-bad',bad); $('vencNote').style.display=bad?'block':'none'; }
+
+function syncFromVenc(){
+  const v=$('venc').value; if(!v) return;
+  const s=liqBase(), d=new Date(v+'T00:00:00');
+  $('dc').value=Math.max(0,Math.round((d-s)/86400000));
+  $('du').value=duBetween(s,d);
+  flagVenc(d); compute();
+}
+function syncFromDc(){
+  const s=liqBase(), d=new Date(s); d.setDate(d.getDate()+Math.max(0,Math.round(rawNum('dc'))));
+  $('venc').value=fmtD(d); $('du').value=duBetween(s,d);
+  flagVenc(d); compute();
+}
+function syncFromDu(){
+  const s=liqBase(), d=dateFromDu(s,Math.max(0,Math.round(rawNum('du'))));
+  $('venc').value=fmtD(d); $('dc').value=Math.round((d-s)/86400000);
+  flagVenc(d); compute(); // du-ésimo dia útil é sempre útil -> não fica vermelho
+}
+function onInicio(){ updateSpot(); if($('venc').value) syncFromVenc(); else syncFromDc(); } // mantém o vencimento, recalcula o prazo a partir do novo spot
+$('inicio').addEventListener('change',onInicio);
+$('venc').addEventListener('change',syncFromVenc);
+$('dc').addEventListener('input',syncFromDc);
+$('du').addEventListener('input',syncFromDu);
+
+function interpLin(arr,x){
+  if(arr.length===0) return 0;
+  if(arr.length===1) return arr[0].r;
+  if(x<=arr[0].d) return arr[0].r;
+  if(x>=arr[arr.length-1].d) return arr[arr.length-1].r;
+  for(let i=1;i<arr.length;i++){
+    if(x<=arr[i].d){ const a=arr[i-1],b=arr[i]; return a.r+(b.r-a.r)*(x-a.d)/(b.d-a.d); }
+  }
+  return arr[arr.length-1].r;
+}
+// Flat-forward base 252 (metodologia B3) — vértices e alvo em dias úteis, taxa % a.a. exponencial
+function interpFFwd(arr,duT){
+  if(arr.length===0||duT<=0) return 0;
+  if(arr.length===1) return arr[0].r;
+  const a=[...arr].sort((p,q)=>p.d-q.d);
+  if(duT<=a[0].d) return a[0].r;
+  if(duT>=a[a.length-1].d) return a[a.length-1].r; // extrapolação flat
+  let lo,hi;
+  for(let i=1;i<a.length;i++){ if(duT<=a[i].d){ lo=a[i-1]; hi=a[i]; break; } }
+  const f1=Math.pow(1+lo.r/100, lo.d/252);
+  const f2=Math.pow(1+hi.r/100, hi.d/252);
+  const ft=f1*Math.pow(f2/f1,(duT-lo.d)/(hi.d-lo.d));
+  return (Math.pow(ft,252/duT)-1)*100;
+}
+function curveRate(key){
+  const dc=rawNum('dc'), du=rawNum('du');
+  const arr=curves[key];
+  if(!(src==='curva' && arr.length>=2)) return rate(key)/100;
+  let r;
+  if(key==='pre'){
+    // pré: flat-forward 252 sempre em dias úteis (converte vértices em dc -> du se preciso)
+    const unit=$('unitPre').value;
+    const pts=arr.map(o=>({d: unit==='du'?o.d:Math.max(1,Math.round(o.d*252/365)), r:o.r}));
+    r=interpFFwd(pts,du);
+  } else {
+    // cupom / sofr: ACT/360 linear na taxa
+    const unit=$('unit'+idsuf(key)).value;
+    r=interpLin(arr, unit==='du'?du:dc);
+  }
+  $(key).value=r.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+  return r/100;
+}
+function factors(usdKey){
+  const spot=rate('spot'), dc=rawNum('dc'), du=rawNum('du');
+  const pre=curveRate('pre');         // CDI/Pré — flat-forward 252
+  const usd=curveRate(usdKey);        // cupom (NDF) ou SOFR (trava) — ACT/360 linear
+  const preF=Math.pow(1+pre,du/252);
+  const usdF=1+usd*dc/360;
+  const fwd=spot*preF/usdF;
+  return {spot,dc,du,pre,usd,preF,usdF,fwd};
+}
+
+function drawLine(spot,just,banco){
+  const svg=$('fxLine'),W=700,H=120,padL=20,padR=20,y=64;
+  const cFaint=getC('--ink-faint'),cLine=getC('--line');
+  const lo=Math.min(spot,just,banco),hi=Math.max(spot,just,banco);
+  const span=Math.max(hi-lo,1e-6),m=span*0.25;
+  const x=v=>padL+((v-(lo-m))/((hi+m)-(lo-m)))*(W-padL-padR);
+  const xs=x(spot),xj=x(just),xb=x(banco);
+  const tick=(xx,val,lbl,col,up)=>`
+    <line x1="${xx}" y1="${y-8}" x2="${xx}" y2="${y+8}" stroke="${col}" stroke-width="2"/>
+    <text x="${xx}" y="${up?y-16:y+26}" fill="${col}" font-family="IBM Plex Mono" font-size="13" font-weight="600" text-anchor="middle">${n4(val)}</text>
+    <text x="${xx}" y="${up?y-30:y+40}" fill="${cFaint}" font-family="IBM Plex Sans" font-size="10.5" text-anchor="middle">${lbl}</text>`;
+  const segCarry=`<line x1="${xs}" y1="${y}" x2="${xj}" y2="${y}" stroke="#c9a227" stroke-width="4" stroke-linecap="round"/>`;
+  const segSpread=`<line x1="${xj}" y1="${y}" x2="${xb}" y2="${y}" stroke="#e0707a" stroke-width="4" stroke-linecap="round"/>`;
+  const base=`<line x1="${padL}" y1="${y}" x2="${W-padR}" y2="${y}" stroke="${cLine}" stroke-width="1"/>`;
+  const carryLbl=`<text x="${(xs+xj)/2}" y="${y-12}" fill="#c9a227" font-family="IBM Plex Sans" font-size="10" text-anchor="middle">carrego</text>`;
+  const spreadLbl=Math.abs(xb-xj)>30?`<text x="${(xj+xb)/2}" y="${y-12}" fill="#e0707a" font-family="IBM Plex Sans" font-size="10" text-anchor="middle">spread</text>`:'';
+  svg.innerHTML=base+segCarry+segSpread+carryLbl+spreadLbl+
+    tick(xs,spot,'Spot',getC('--ink-dim'),false)+
+    tick(xj,just,'Forward justo',getC('--gold'),true)+
+    tick(xb,banco,'Forward banco',getC('--red'),false);
+}
+function getC(v){return getComputedStyle(document.documentElement).getPropertyValue(v).trim()||'#fff';}
+
+function compute(){
+  if(tab==='ndf') computeFwd('cupom');
+  else if(tab==='trava') computeFwd('sofr');
+  else if(tab==='comp') computeComp();
+  else if(tab==='swap') computeSwap();
+}
+
+function computeFwd(usdKey){
+  const isCupom=(usdKey==='cupom');
+  const f=factors(usdKey);
+  const N=rawNum('notional');
+  const fb=rate('fwdBanco');
+  const pts=f.fwd-f.spot;
+  const margemUSD = dir==='compra' ? (fb-f.fwd) : (f.fwd-fb); // positiva = banco ganha
+  const custo=margemUSD*N;
+  const usdBank=((f.spot*f.preF/fb)-1)*360/f.dc; // taxa USD implícita do banco (ACT/360)
+  const margemBps=(dir==='compra' ? (f.usd-usdBank) : (usdBank-f.usd))*10000;
+
+  $('k1l').textContent='Forward teórico'; $('k1v').textContent=n4(f.fwd); $('k1s').textContent='R$/USD';
+  $('k2l').textContent='Forward points'; $('k2v').textContent=(pts>=0?'+':'')+n4(pts); $('k2s').textContent=n2(pts/f.spot*100)+'% sobre spot';
+  $('k3l').textContent='Custo do spread'; $('k3v').textContent=money(custo); $('k3s').textContent=n2(Math.abs(margemUSD)/f.spot*100)+'% do notional';
+
+  $('smL').textContent='Margem do banco (R$/USD)';
+  $('smBig').textContent=(margemUSD>=0?'+':'')+n4(margemUSD);
+  $('smBig').style.color = margemUSD<=0?'var(--green)':Math.abs(margemBps)<100?'var(--green)':Math.abs(margemBps)<250?'var(--amber)':'var(--red)';
+  let v;
+  if(margemUSD<=0) v='Cotação melhor que o justo — confirme spot e curvas usadas.';
+  else if(Math.abs(margemBps)<100) v='Spread enxuto. Banco competitivo neste vértice.';
+  else if(Math.abs(margemBps)<250) v='Spread na média do mid-market. Há espaço pra apertar.';
+  else v='Spread gordo. Forte caso para cotar concorrência ou renegociar.';
+  $('smVerdict').textContent=v;
+  $('smPill').innerHTML=`equivale a <b>${(margemBps>=0?'+':'')+Math.round(margemBps)} bps</b> ${isCupom?'de cupom embutido':'embutidos no SOFR'}`;
+
+  $('decH').textContent=isCupom?'Cupom cambial implícito':'SOFR implícito';
+  $('c1l').textContent=isCupom?'Cupom de mercado':'SOFR de mercado'; $('c1v').textContent=n2(f.usd*100)+'% a.a.';
+  $('c2l').textContent=isCupom?'Cupom implícito do banco':'SOFR implícito do banco'; $('c2v').textContent=n2(usdBank*100)+'% a.a.';
+
+  const head = isCupom
+    ? 'No vencimento, o NDF (início D+0) liquida pela diferença entre a taxa contratada e a PTAX'
+    : 'A trava cambial (início D+2) fixa a taxa de entrega no vencimento';
+  $('settle').innerHTML=`${head}, sobre o notional de <b>US$ ${N.toLocaleString('pt-BR')}</b>. ${dir==='compra'?'Como comprador a termo, o cliente trava o custo em USD':'Como vendedor a termo, o cliente trava a receita em USD'} em <b>${n4(fb)}</b> — ${margemUSD>=0?'pagando':'capturando'} <b>${money(Math.abs(custo))}</b> de spread vs. o justo de <b>${n4(f.fwd)}</b> ${isCupom?'(CDI × cupom cambial)':'(CDI × SOFR)'}.`;
+  drawLine(f.spot,f.fwd,fb);
+}
+
+function computeSwap(){
+  const f=factors('cupom');
+  const N=rawNum('notionalS');
+  const cupB=rate('cupomBanco')/100;
+  // diferença de cupom (positiva = banco ganha) conforme posição
+  const dCup = dirS==='ativoUSD' ? (f.usd-cupB) : (cupB-f.usd); // recebe USD: pior se cupom oferecido < mercado
+  const margemBps=dCup*10000;
+  // impacto aprox em R$: notional * dCup * dc/360, descontado pela pré
+  const impacto = N*Math.abs(dCup)*(f.dc/360)/f.preF;
+
+  $('k1l').textContent='Cupom de mercado'; $('k1v').textContent=n2(f.usd*100)+'%'; $('k1s').textContent='a.a.';
+  $('k2l').textContent='Cupom do banco'; $('k2v').textContent=n2(cupB*100)+'%'; $('k2s').textContent='a.a.';
+  $('k3l').textContent='Impacto estimado'; $('k3v').textContent=money(impacto); $('k3s').textContent='VP sobre o notional';
+
+  $('smL').textContent='Margem do banco (cupom)';
+  $('smBig').textContent=(margemBps>=0?'+':'')+Math.round(margemBps)+' bps';
+  const col=margemBps<=0?'var(--green)':margemBps<50?'var(--green)':margemBps<150?'var(--amber)':'var(--red)';
+  $('smBig').style.color=col;
+  let v;
+  if(margemBps<=0) v='Cupom melhor que o mercado — confirme a curva de referência.';
+  else if(margemBps<50) v='Diferença pequena. Condição competitiva.';
+  else if(margemBps<150) v='Margem típica. Vale negociar o cupom.';
+  else v='Margem alta no cupom. Forte caso de renegociação.';
+  $('smVerdict').textContent=v;
+  $('smPill').innerHTML=`${dirS==='ativoUSD'?'Cliente recebe a variação cambial + cupom':'Cliente paga a variação cambial + cupom'}`;
+
+  $('decH').textContent='Pernas do swap';
+  $('c1l').textContent='Perna em R$ (CDI/pré)'; $('c1v').textContent=n2(f.pre*100)+'% a.a.';
+  $('c2l').textContent='Perna em USD (cupom banco)'; $('c2v').textContent=n2(cupB*100)+'% a.a.';
+
+  $('settle').innerHTML=`Swap de <b>${money(N)}</b> por ${rawNum('dc')} dias. O banco oferece cupom de <b>${n2(cupB*100)}%</b> contra um justo de <b>${n2(f.usd*100)}%</b> — margem de <b>${Math.round(Math.abs(margemBps))} bps</b>, ~<b>${money(impacto)}</b> em valor presente. <span style="color:var(--ink-faint)">Estimativa linear; MtM completo das duas pernas entra na evolução do módulo.</span>`;
+}
+
+// ===== Comparador NDF × Trava =====
+// taxa sem escrever nos campos (interpola da curva se ativa; senão usa o manual)
+function rateAt(key,du,dc){
+  const arr=curves[key];
+  if(src==='curva' && arr.length>=2){
+    if(key==='pre'){
+      const unit=$('unitPre').value;
+      const pts=arr.map(o=>({d:unit==='du'?o.d:Math.max(1,Math.round(o.d*252/365)),r:o.r}));
+      return interpFFwd(pts,du)/100;
+    }
+    const unit=$('unit'+idsuf(key)).value;
+    return interpLin(arr, unit==='du'?du:dc)/100;
+  }
+  return rate(key)/100;
+}
+function computeComp(){
+  const spot=rate('spot');
+  const vstr=$('venc').value;
+  if(!vstr){ $('cRecBig').textContent='—'; $('cRec').textContent='Defina o vencimento para comparar os instrumentos.'; return; }
+  const ini=inicioDate(), venc=new Date(vstr+'T00:00:00');
+  const N=rawNum('notionalC');
+  // NDF: base D+0, CDI × cupom
+  const dcN=Math.max(1,Math.round((venc-ini)/86400000)), duN=Math.max(1,duBetween(ini,venc));
+  const preN=rateAt('pre',duN,dcN), cup=rateAt('cupom',duN,dcN);
+  const fwdN=spot*Math.pow(1+preN,duN/252)/(1+cup*dcN/360);
+  // Trava: base D+2, CDI × SOFR
+  const baseT=addBiz(ini,2), dcT=Math.max(1,Math.round((venc-baseT)/86400000)), duT=Math.max(1,duBetween(baseT,venc));
+  const preT=rateAt('pre',duT,dcT), sofr=rateAt('sofr',duT,dcT);
+  const fwdT=spot*Math.pow(1+preT,duT/252)/(1+sofr*dcT/360);
+  const premium=fwdT-fwdN, cupSofrBps=(cup-sofr)*10000;
+
+  $('cN').textContent=n4(fwdN); $('cT').textContent=n4(fwdT);
+  $('cP').textContent=(premium>=0?'+':'')+n4(premium); $('cP').style.color=premium>=0?'var(--gold)':'var(--green)';
+  $('cPs').textContent='cupom − SOFR = '+(cupSofrBps>=0?'+':'')+Math.round(cupSofrBps)+' bps';
+
+  // cotações do banco (opcionais) e all-in
+  const qN=rate('fwdNdf'), qT=rate('fwdTrava');
+  const allInN=qN>0?qN:fwdN, allInT=qT>0?qT:fwdT;
+  const spN = qN>0 ? (dir==='compra'?(qN-fwdN):(fwdN-qN)) : null;
+  const spT = qT>0 ? (dir==='compra'?(qT-fwdT):(fwdT-qT)) : null;
+  $('cNallin').innerHTML = n4(allInN)+(spN!==null?` · spread ${(spN>=0?'+':'')}${n4(spN)}`:' · <span style="color:var(--ink-faint)">só justo</span>');
+  $('cTallin').innerHTML = n4(allInT)+(spT!==null?` · spread ${(spT>=0?'+':'')}${n4(spT)}`:' · <span style="color:var(--ink-faint)">só justo</span>');
+
+  // melhor instrumento p/ o cliente
+  let winner, diff;
+  if(dir==='compra'){ winner=allInN<=allInT?'NDF':'Trava'; }   // comprar mais barato = menor forward
+  else { winner=allInN>=allInT?'NDF':'Trava'; }                // vender mais caro = maior forward
+  diff=Math.abs(allInN-allInT);
+  const saving=diff*N;
+  $('cRecBig').textContent=winner+'   ·   '+money(saving);
+  $('cRecBig').style.color='var(--gold)';
+  const obj = dir==='compra'?'compra USD mais barato':'vende USD mais caro';
+  const basis = (qN>0&&qT>0)?'considerando as cotações do banco':'pelo forward justo das curvas';
+  $('cRec').innerHTML=`Para <b>${dir==='compra'?'compra':'venda'} de USD</b>, o <b>${winner}</b> ${obj} — vantagem de <b>${n4(diff)} R$/USD</b> (~${money(saving)} no notional), ${basis}.`;
+
+  $('cSettle').innerHTML=`O NDF parte de D+0 e usa CDI × cupom cambial (${n2(cup*100)}%); a trava parte de D+2 e usa CDI × SOFR (${n2(sofr*100)}%). A diferença de <b>${Math.round(Math.abs(cupSofrBps))} bps</b> entre cupom e SOFR é o <b>prêmio do dólar onshore</b> — aparece como <b>${n4(Math.abs(premium))} R$/USD</b> entre os dois forwards justos. <span style="color:var(--ink-faint)">Cada perna usa o prazo a partir da sua própria liquidação.</span>`;
+  drawCompLine(fwdN,fwdT);
+}
+function drawCompLine(a,b){
+  const svg=$('compLine'),W=700,H=120,padL=34,padR=34,y=58;
+  const cFaint=getC('--ink-faint'),cLine=getC('--line'),cInk=getC('--ink');
+  const lo=Math.min(a,b),hi=Math.max(a,b),span=Math.max(hi-lo,1e-6),m=span*0.7;
+  const x=v=>padL+((v-(lo-m))/((hi+m)-(lo-m)))*(W-padL-padR);
+  const xa=x(a),xb=x(b);
+  const base=`<line x1="${padL}" y1="${y}" x2="${W-padR}" y2="${y}" stroke="${cLine}" stroke-width="1"/>`;
+  const band=`<line x1="${Math.min(xa,xb)}" y1="${y}" x2="${Math.max(xa,xb)}" y2="${y}" stroke="#c9a227" stroke-width="5" stroke-linecap="round"/>`;
+  const prem=`<text x="${(xa+xb)/2}" y="${y-14}" fill="#c9a227" font-size="10.5" font-family="IBM Plex Sans" text-anchor="middle">prêmio onshore ${n4(Math.abs(b-a))}</text>`;
+  const mk=(xx,val,lbl,up)=>`<line x1="${xx}" y1="${y-7}" x2="${xx}" y2="${y+7}" stroke="${cInk}" stroke-width="2"/>
+    <text x="${xx}" y="${up?y-22:y+24}" fill="${cInk}" font-size="13" font-weight="600" font-family="IBM Plex Mono" text-anchor="middle">${n4(val)}</text>
+    <text x="${xx}" y="${up?y-36:y+38}" fill="${cFaint}" font-size="10.5" font-family="IBM Plex Sans" text-anchor="middle">${lbl}</text>`;
+  svg.innerHTML=base+band+prem+mk(xa,a,'NDF',false)+mk(xb,b,'Trava',true);
+}
+
+// ===== Curvas =====
+function normNum(t){
+  t=(t||'').trim().replace(/%/g,'').replace(/"/g,'');
+  if(t==='') return NaN;
+  if(t.includes(',')) t=t.replace(/\./g,'').replace(',','.');
+  return parseFloat(t);
+}
+function splitLine(ln){
+  if(ln.includes(';')) return ln.split(';');
+  if(ln.includes('\t')) return ln.split('\t');
+  if(ln.includes(',')&&ln.includes('.')) return ln.split(',');
+  return ln.trim().split(/\s+/);
+}
+function parseCurve(text){
+  const map=new Map();
+  (text+'').split(/\r?\n/).forEach(ln=>{
+    if(!ln.trim()) return;
+    const parts=splitLine(ln);
+    const nums=[];
+    for(const p of parts){ const v=normNum(p); if(!isNaN(v)){ nums.push(v); if(nums.length===2) break; } }
+    if(nums.length===2 && nums[0]>0) map.set(Math.round(nums[0]), nums[1]);
+  });
+  return [...map.entries()].map(([d,r])=>({d,r})).sort((a,b)=>a.d-b.d);
+}
+function setCurve(key,arr){ curves[key]=arr; afterCurveChange(key); }
+function clearCurve(key){ curves[key]=[]; const ta=$(key==='pre'?'pastePre':'pasteCupom'); if(ta) ta.value=''; afterCurveChange(key); }
+function loadPaste(key){ setCurve(key, parseCurve($(key==='pre'?'pastePre':'pasteCupom').value)); }
+function onFile(e,key){
+  const f=e.target.files[0]; if(!f) return;
+  const r=new FileReader();
+  r.onload=()=>{ setCurve(key, parseCurve(r.result)); };
+  r.readAsText(f,'ISO-8859-1'); // arquivos B3 costumam vir em latin-1
+}
+function addRow(key){ curves[key].push({d:0,r:0}); afterCurveChange(key); }
+function delRow(key,i){ curves[key].splice(i,1); afterCurveChange(key); }
+function editCell(key,i,field,val){
+  const n=normNum(val); if(isNaN(n)) return;
+  curves[key][i][field] = field==='d'?Math.round(n):n;
+  curves[key].sort((a,b)=>a.d-b.d);
+  afterCurveChange(key);
+}
+function afterCurveChange(key){ renderVTable(key); drawCurve(key); updateStat(key); updateSrcStatus(); compute(); }
+
+function renderVTable(key){
+  const tb=$(key==='pre'?'tbPre':'tbCupom'); const arr=curves[key];
+  tb.innerHTML = arr.map((o,i)=>`<tr>
+    <td><input value="${o.d}" onchange="editCell('${key}',${i},'d',this.value)"></td>
+    <td><input value="${(''+o.r).replace('.',',')}" onchange="editCell('${key}',${i},'r',this.value)"></td>
+    <td class="del" onclick="delRow('${key}',${i})">×</td></tr>`).join('');
+}
+function updateStat(key){
+  const el=$(key==='pre'?'statPre':'statCupom'); const arr=curves[key];
+  if(arr.length===0){ el.textContent='Nenhuma curva carregada.'; return; }
+  const ds=arr.map(o=>o.d), rs=arr.map(o=>o.r);
+  el.textContent=`${arr.length} vértices · ${Math.min(...ds)}–${Math.max(...ds)} dias · ${Math.min(...rs).toFixed(2)}–${Math.max(...rs).toFixed(2)}% a.a.`;
+}
+function drawCurve(key){
+  const svg=$(key==='pre'?'chartPre':'chartCupom'); const arr=curves[key];
+  const W=600,H=150,p=26;
+  if(arr.length<2){ svg.innerHTML=`<text x="${W/2}" y="${H/2}" fill="${getC('--ink-faint')}" font-family="IBM Plex Sans" font-size="12" text-anchor="middle">sem dados suficientes</text>`; return; }
+  const ds=arr.map(o=>o.d), rs=arr.map(o=>o.r);
+  const dmin=Math.min(...ds), dmax=Math.max(...ds);
+  let rmin=Math.min(...rs), rmax=Math.max(...rs); if(rmax-rmin<0.05){rmin-=0.3;rmax+=0.3;}
+  const x=d=>p+(d-dmin)/((dmax-dmin)||1)*(W-2*p);
+  const y=r=>p+(1-(r-rmin)/((rmax-rmin)||1))*(H-2*p);
+  let d='M'+x(arr[0].d).toFixed(1)+','+y(arr[0].r).toFixed(1);
+  arr.forEach(o=>{ d+=' L'+x(o.d).toFixed(1)+','+y(o.r).toFixed(1); });
+  const dots=arr.map(o=>`<circle cx="${x(o.d).toFixed(1)}" cy="${y(o.r).toFixed(1)}" r="2.4" fill="${getC('--gold')}"/>`).join('');
+  svg.innerHTML=`<path d="${d}" fill="none" stroke="${getC('--gold')}" stroke-width="2"/>${dots}
+    <text x="${p}" y="${H-5}" fill="${getC('--ink-faint')}" font-size="10" font-family="IBM Plex Mono">${dmin}d</text>
+    <text x="${W-p}" y="${H-5}" fill="${getC('--ink-faint')}" font-size="10" font-family="IBM Plex Mono" text-anchor="end">${dmax}d</text>
+    <text x="${p}" y="${p-9}" fill="${getC('--ink-faint')}" font-size="10" font-family="IBM Plex Mono">${rmax.toFixed(2)}%</text>
+    <text x="${p}" y="${H-p+12}" fill="${getC('--ink-faint')}" font-size="10" font-family="IBM Plex Mono">${rmin.toFixed(2)}%</text>`;
+}
+
+// ===== Captura online (feed) =====
+let autoTimer=null;
+const providerNotes={
+  custom:'Seu backend devolve o JSON no formato abaixo, com CORS liberado para este domínio. É a forma neutra — serve para qualquer fonte que você normalize no servidor.',
+  b3:'A B3 publica as Taxas Referenciais (CDI/pré e cupom cambial, com vértices longos) em arquivo diário, após o fechamento. <b>Não é acessível direto do navegador (CORS)</b>: um backend baixa e normaliza o arquivo 1×/dia. Aponte o endpoint para o seu serviço.',
+  chatham:'A Chatham disponibiliza a SOFR forward curve em Excel com atualização diária, sem API pública aberta. O backend baixa a planilha e normaliza. Aponte o endpoint para o seu serviço.',
+  bluegamma:'A BlueGamma oferece API e Excel Add-in para a SOFR forward curve (até 5–10 anos). É o caminho mais limpo para automatizar SOFR — configure a chave no backend e aponte o endpoint aqui.',
+  bbg:'Bloomberg/Broadcast exigem terminal licenciado e entitlements; a integração roda no backend via API do provedor (BLPAPI / API do Broadcast). Aponte o endpoint para o seu serviço de captura.'
+};
+function onProvider(){ $('feedNote').innerHTML=providerNotes[$('feedProvider').value]||''; }
+function setFeedStatus(msg,kind){
+  const el=$('feedStatus'); el.textContent=msg;
+  el.style.color = kind==='ok'?'var(--green)':kind==='err'?'var(--red)':kind==='pending'?'var(--amber)':'var(--ink-faint)';
+}
+async function fetchCurves(){
+  const url=($('feedUrl').value||'').trim();
+  if(!url){ setFeedStatus('Informe o endpoint do backend.','err'); return; }
+  setFeedStatus('Buscando…','pending');
+  try{
+    const ctrl=new AbortController(); const to=setTimeout(()=>ctrl.abort(),12000);
+    const res=await fetch(url,{signal:ctrl.signal,headers:{'Accept':'application/json'}});
+    clearTimeout(to);
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    const data=await res.json();
+    applyFeed(data);
+  }catch(e){
+    const netcors=/Failed to fetch|NetworkError|aborted|Load failed/i.test(e.message);
+    setFeedStatus((netcors?'Falha de rede/CORS':'Falha')+': '+e.message+' — a captura precisa rodar no backend. Use upload/colar por ora.','err');
+  }
+}
+function applyFeed(data){
+  if(!data||!data.curves) throw new Error('JSON sem campo "curves"');
+  let n=0;
+  ['pre','cupom','sofr'].forEach(k=>{
+    const c=data.curves[k]; if(!c||!Array.isArray(c.vertices)) return;
+    curves[k]=c.vertices.map(v=>({d:Math.round(+v[0]),r:+v[1]})).filter(o=>o.d>0&&!isNaN(o.r)).sort((a,b)=>a.d-b.d);
+    if(c.unit && $('unit'+idsuf(k))) $('unit'+idsuf(k)).value=c.unit;
+    afterCurveChange(k); n++;
+  });
+  if(n===0) throw new Error('nenhuma curva reconhecida no JSON');
+  const stamp=data.asOf?new Date(data.asOf):new Date();
+  setFeedStatus('Atualizado '+stamp.toLocaleString('pt-BR')+' · '+(data.source||'endpoint')+' · '+n+' curva(s)','ok');
+}
+function toggleAuto(){
+  if(autoTimer){ clearInterval(autoTimer); autoTimer=null; }
+  if($('autoCap').checked){
+    autoTimer=setInterval(fetchCurves, parseInt($('autoInt').value,10)*1000);
+    fetchCurves();
+  }
+}
+
+// listeners
+$('notional').addEventListener('input',()=>maskCurrency($('notional')));
+$('notionalS').addEventListener('input',()=>maskCurrency($('notionalS')));
+$('notionalC').addEventListener('input',()=>maskCurrency($('notionalC')));
+document.querySelectorAll('.inp').forEach(el=>el.addEventListener('input',compute));
+$('inicio').value=fmtD(today0()); // data de início = hoje (automático)
+onProvider();                      // nota do provedor de dados
+updateSpot();                      // liquidação D+2
+syncFromDc();                      // preenche vencimento e dias úteis a partir do dc padrão
+
+// Carrega a folhinha de curvas (curvas.json) do mesmo diretório ao abrir.
+// No GitHub Pages funciona direto; aberto localmente (file://) o navegador
+// bloqueia a leitura e a calculadora segue em modo manual, sem erro.
+(async function autoCarregaCurvas(){
+  try{
+    const res=await fetch('curvas.json',{headers:{'Accept':'application/json'}});
+    if(!res.ok) return;
+    applyFeed(await res.json());
+    if(curves.pre.length>=2 && (curves.cupom.length>=2 || curves.sofr.length>=2)) setSrc('curva');
+  }catch(e){ /* offline / file:// — segue em modo manual */ }
+})();
+</script>
+</body>
+</html>
