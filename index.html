@@ -119,6 +119,8 @@
     transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease;
   }
   .card:hover{transform:translateY(-3px);border-color:var(--gold);box-shadow:0 14px 38px -18px rgba(201,162,75,.4)}
+  .card.soon{opacity:.5}
+  .card.soon:hover{transform:none;border-color:var(--line);box-shadow:none}
   .card .idx{
     font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.12em;
     color:var(--ink-mute);margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;
@@ -149,8 +151,10 @@
     padding-top:14px;margin-top:auto;transition:color .15s;
   }
   .card:hover .open{color:var(--gold-bright)}
+  .open.soon-label{color:var(--ink-mute);cursor:default}
+  .card.soon:hover .open{color:var(--ink-mute)}
   .open .arrow{font-family:"IBM Plex Mono",monospace;transition:transform .18s}
-  .card:hover .open .arrow{transform:translateX(4px)}
+  .card:hover .open:not(.soon-label) .arrow{transform:translateX(4px)}
   .stretch{position:absolute;inset:0;border-radius:11px}
 
   .empty{padding:48px 0;text-align:center;color:var(--ink-mute);font-family:"IBM Plex Mono",monospace;font-size:.85rem;grid-column:1/-1}
@@ -190,8 +194,8 @@
     <p>Precificação, diagnóstico e projeção em um único acesso. Abra qualquer motor com um clique — pronto para análise interna ou para apresentar ao cliente.</p>
     <div class="meta">
       <span><b id="count-total">0</b> motores</span>
-      <span><b id="count-prod">0</b> em produção</span>
-      <span><b id="count-cal">0</b> em calibração</span>
+      <span><b id="count-on">0</b> disponíveis</span>
+      <span><b id="count-soon">0</b> a recuperar</span>
     </div>
   </header>
 
@@ -215,53 +219,49 @@
 <script>
 /* ───────────────────────────────────────────────────────────────
    MOTORES — edite aqui para adicionar / remover / renomear.
-   • file   : caminho do arquivo (relativo a este index.html no GitHub Pages)
-   • cat    : "Precificação" | "Diagnóstico" | "Estratégia"
-   • type   : "app" | "agente" | "xlsx"
-   • status : "ok" (produção) | "warn" (calibração) | "dev" (em desenvolvimento)
+   • file       : nome do arquivo (igual ao que está no GitHub)
+   • cat        : "Precificação" | "Diagnóstico" | "Estratégia"
+   • type       : "app" | "agente" | "xlsx"
+   • status     : "ok" (verde) | "warn" (âmbar) | "dev" (cinza)  ← só a corzinha
+   • disponivel : true  = card clicável (arquivo já está no GitHub)
+                  false = card acinzentado "A recuperar" (ainda sem arquivo)
    ─────────────────────────────────────────────────────────────── */
 const MOTORES = [
   {
     nome:"Motor de Câmbio",
     desc:"NDF, Trava cambial, Swap cambial e Comparador. Precificação multi-instrumento com curvas do dia.",
     file:"motor-cambio.html",
-    cat:"Precificação", type:"app", status:"warn", statusLabel:"Em calibração"
+    cat:"Precificação", type:"app", status:"ok", statusLabel:"Em produção", disponivel:true
   },
   {
     nome:"Motor de Crédito / CET",
     desc:"CET e spread efetivo com interpolação flat-forward 252. Comparação de propostas de crédito.",
     file:"motor-credito-cet.html",
-    cat:"Precificação", type:"app", status:"ok", statusLabel:"Produção"
+    cat:"Precificação", type:"app", status:"ok", statusLabel:"Em produção", disponivel:true
   },
   {
     nome:"Diagnóstico MPA",
     desc:"Modelo quantitativo de risco: índices de EBITDA, zonas Fleuriet (CGP×NCG), stress-test e Rating MPA.",
     file:"motor-mpa.html",
-    cat:"Diagnóstico", type:"app", status:"ok", statusLabel:"Produção"
+    cat:"Diagnóstico", type:"app", status:"dev", statusLabel:"A recuperar", disponivel:false
   },
   {
-    nome:"Diagnóstico GRCorp",
-    desc:"Maturidade de governança (IBGC GRCorp). Questionário interativo com pontuação por dimensão.",
-    file:"motor-grcorp.html",
-    cat:"Diagnóstico", type:"app", status:"dev", statusLabel:"Em integração"
-  },
-  {
-    nome:"Agente de Balanço",
-    desc:"Lê o balanço e gera o diagnóstico automaticamente via API. Acelera a leitura inicial do cliente.",
-    file:"agente-balanco.html",
-    cat:"Diagnóstico", type:"agente", status:"dev", statusLabel:"Beta"
+    nome:"Maturidade & Riscos",
+    desc:"Diagnóstico de maturidade em gestão de riscos. Questionário interativo com pontuação por dimensão.",
+    file:"motor-maturidade-riscos.html",
+    cat:"Diagnóstico", type:"app", status:"ok", statusLabel:"Em produção", disponivel:true
   },
   {
     nome:"Estratégia de Valor",
     desc:"Projeção financeira plurianual. Constrói o cenário-base e simula alavancas de geração de valor.",
-    file:"motor-estrategia-valor.html",
-    cat:"Estratégia", type:"app", status:"dev", statusLabel:"Em desenvolvimento"
+    file:"motor-estrategia.html",
+    cat:"Estratégia", type:"app", status:"warn", statusLabel:"Beta", disponivel:true
   },
   {
     nome:"Análise de Recebíveis",
     desc:"Modelo de aging, concentração e simulador de carteira. Dashboard em planilha para download.",
     file:"recebiveis.xlsx",
-    cat:"Estratégia", type:"xlsx", status:"ok", statusLabel:"Produção"
+    cat:"Estratégia", type:"xlsx", status:"dev", statusLabel:"A recuperar", disponivel:false
   }
 ];
 
@@ -273,7 +273,6 @@ let query = "";
 const grid = document.getElementById("grid");
 const filters = document.getElementById("filters");
 
-// filtros
 CATS.forEach(c=>{
   const b=document.createElement("button");
   b.className="pill"; b.textContent=c;
@@ -297,9 +296,13 @@ function render(){
   list.forEach((m,i)=>{
     const idx=String(i+1).padStart(2,"0");
     const card=document.createElement("article");
-    card.className="card";
+    card.className="card"+(m.disponivel?"":" soon");
+    const stretch=m.disponivel?`<a class="stretch" href="${m.file}" aria-label="Abrir ${m.nome}"></a>`:"";
+    const footer=m.disponivel
+      ? `<a class="open" href="${m.file}">Abrir motor <span class="arrow">→</span></a>`
+      : `<span class="open soon-label">A recuperar <span class="arrow">·</span></span>`;
     card.innerHTML=`
-      <a class="stretch" href="${m.file}" aria-label="Abrir ${m.nome}"></a>
+      ${stretch}
       <div class="idx"><span>M-${idx}</span>
         <span class="type-tag type-${m.type==='agente'?'agent':m.type==='xlsx'?'xlsx':'app'}">${typeLabel[m.type]}</span>
       </div>
@@ -310,25 +313,21 @@ function render(){
         <span class="cat">·</span>
         <span class="status s-${m.status}"><span class="s-dot"></span>${m.statusLabel}</span>
       </div>
-      <a class="open" href="${m.file}">Abrir motor <span class="arrow">→</span></a>`;
+      ${footer}`;
     grid.appendChild(card);
   });
 }
 
-// contadores
 document.getElementById("count-total").textContent=MOTORES.length;
-document.getElementById("count-prod").textContent=MOTORES.filter(m=>m.status==="ok").length;
-document.getElementById("count-cal").textContent=MOTORES.filter(m=>m.status==="warn").length;
+document.getElementById("count-on").textContent=MOTORES.filter(m=>m.disponivel).length;
+document.getElementById("count-soon").textContent=MOTORES.filter(m=>!m.disponivel).length;
 document.getElementById("year").textContent=new Date().getFullYear();
 
-// busca
 document.getElementById("search").addEventListener("input",e=>{query=e.target.value;render();});
 
-// relógio
 function tick(){
   const d=new Date();
-  document.getElementById("clock").textContent=
-    d.toLocaleTimeString("pt-BR",{hour12:false});
+  document.getElementById("clock").textContent=d.toLocaleTimeString("pt-BR",{hour12:false});
 }
 tick(); setInterval(tick,1000);
 
