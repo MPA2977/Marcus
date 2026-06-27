@@ -268,10 +268,22 @@ const MOTORES = [
     desc:"Modelo de aging, concentração e simulador de carteira. Dashboard em planilha para download.",
     file:"recebiveis.xlsx",
     cat:"Estratégia", type:"xlsx", status:"dev", statusLabel:"A recuperar", disponivel:false
+  },
+  {
+    nome:"Copiloto do Dono",
+    desc:"Pergunte em português; a IA roteia para o motor certo e devolve o número real — câmbio, CET e caixa calculados de verdade. Interface única dos motores.",
+    file:"copiloto-do-dono.html",
+    cat:"Inteligência Artificial", type:"agente", status:"warn", statusLabel:"Beta", disponivel:true
+  },
+  {
+    nome:"Recuperação Tributária",
+    desc:"Varre XML de NF-e e SPED dos últimos 60 meses, cruza NCM/CST/CFOP e devolve achados de crédito com prova por chave de acesso.",
+    file:"relatorio-achados-tributario-mpa.html",
+    cat:"Inteligência Artificial", type:"agente", status:"warn", statusLabel:"Beta", disponivel:true
   }
 ];
 
-const CATS = ["Todos","Precificação","Diagnóstico","Estratégia"];
+const CATS = ["Todos","Precificação","Diagnóstico","Estratégia","Inteligência Artificial"];
 const typeLabel = {app:"App", agente:"Agente", xlsx:"Planilha"};
 let active = "Todos";
 let query = "";
