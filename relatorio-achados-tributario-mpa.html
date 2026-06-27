@@ -16,63 +16,77 @@
     --ink:#10202F; --ink-soft:#33414F; --mut:#8A99AC;
     --green:#3F9D6E; --green-bg:#E7F3EC; --green-bd:#BFE0CC;
     --amber:#C98A1E; --amber-bg:#FBF1DD; --amber-bd:#EBD7AC;
+    --blue:#2C5BA8;
   }
   *{box-sizing:border-box}
-  body{margin:0;background:#DED9CB;color:var(--ink);
-    font-family:'IBM Plex Sans',sans-serif;font-size:15px;line-height:1.6}
+  body{margin:0;background:#DED9CB;color:var(--ink);font-family:'IBM Plex Sans',sans-serif;font-size:15px;line-height:1.6}
   .doc{max-width:900px;margin:0 auto;background:var(--paper);box-shadow:0 0 80px -28px rgba(11,31,58,.45)}
-  section{padding:34px 46px}
-  @media(max-width:640px){section{padding:26px 22px}}
-
-  .eyebrow{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:1.3px;
-    text-transform:uppercase;color:#9A6B12;font-weight:600;margin-bottom:12px;display:flex;align-items:center;gap:9px}
+  section{padding:32px 46px}
+  @media(max-width:640px){section{padding:24px 20px}}
+  .eyebrow{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:1.3px;text-transform:uppercase;
+    color:#9A6B12;font-weight:600;margin-bottom:12px;display:flex;align-items:center;gap:9px}
   .eyebrow::before{content:"";width:20px;height:1.5px;background:var(--gold)}
   h2{font-family:'Spectral',serif;font-weight:600;font-size:24px;letter-spacing:-.2px;margin:0 0 8px}
-  .sub{color:var(--ink-soft);max-width:64ch;margin:0 0 22px}
+  .sub{color:var(--ink-soft);max-width:64ch;margin:0 0 20px}
   p{margin:0 0 13px}
 
   /* HEADER */
-  .head{background:var(--navy);color:#EAF0F7;
-    background-image:radial-gradient(820px 380px at 90% -10%, rgba(201,162,39,.16), transparent 62%)}
-  .head-inner{padding:40px 46px 34px}
-  @media(max-width:640px){.head-inner{padding:30px 22px 26px}}
-  .brandline{display:flex;align-items:center;gap:13px;margin-bottom:30px}
+  .head{background:var(--navy);color:#EAF0F7;background-image:radial-gradient(820px 380px at 90% -10%, rgba(201,162,39,.16), transparent 62%)}
+  .head-inner{padding:36px 46px 32px}
+  @media(max-width:640px){.head-inner{padding:28px 20px 24px}}
+  .brandline{display:flex;align-items:center;gap:13px;margin-bottom:26px}
   .mark{width:42px;height:42px;border-radius:10px;background:linear-gradient(150deg,var(--navy-2),var(--navy-3));
-    border:1px solid var(--line-2);display:grid;place-items:center;
-    font-family:'Spectral',serif;font-weight:700;font-size:20px;color:var(--gold)}
+    border:1px solid var(--line-2);display:grid;place-items:center;font-family:'Spectral',serif;font-weight:700;font-size:20px;color:var(--gold)}
   .brandline .b1{font-family:'Spectral',serif;font-weight:600;font-size:16px}
   .brandline .b2{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--mut);letter-spacing:.5px}
-  .rtitle{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--gold-soft);margin-bottom:10px}
-  h1{font-family:'Spectral',serif;font-weight:600;font-size:clamp(26px,4.6vw,34px);line-height:1.14;margin:0 0 18px;max-width:22ch}
-  .meta{display:flex;flex-wrap:wrap;gap:8px 20px;font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:#B6C4D4;border-top:1px solid var(--line);padding-top:16px}
+  .rtitle{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--gold-soft);margin-bottom:10px;display:flex;align-items:center;gap:10px}
+  .modeflag{font-size:9px;letter-spacing:.8px;padding:3px 8px;border-radius:99px;font-weight:700}
+  .modeflag.ex{background:rgba(224,161,46,.18);color:var(--gold-soft);border:1px solid var(--line-2)}
+  .modeflag.real{background:rgba(63,157,110,.22);color:#8FD9B3;border:1px solid rgba(63,157,110,.4)}
+  h1{font-family:'Spectral',serif;font-weight:600;font-size:clamp(24px,4.4vw,32px);line-height:1.14;margin:0 0 16px;max-width:22ch}
+  .meta{display:flex;flex-wrap:wrap;gap:8px 20px;font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:#B6C4D4;border-top:1px solid var(--line);padding-top:14px}
   .meta b{color:#EAF0F7;font-weight:500}
-
-  /* HERO NUMBER */
-  .headline{background:var(--navy-2);border:1px solid var(--line-2);border-radius:14px;padding:20px 22px;margin-top:24px;
+  .headline{background:var(--navy-2);border:1px solid var(--line-2);border-radius:14px;padding:20px 22px;margin-top:22px;
     display:flex;flex-wrap:wrap;align-items:flex-end;gap:8px 28px}
-  .headline .big{font-family:'Spectral',serif;font-weight:600;font-size:clamp(34px,8vw,48px);line-height:1;color:#fff}
-  .headline .big small{font-size:.32em;font-family:'IBM Plex Mono',monospace;color:var(--gold-soft);letter-spacing:.4px;display:block;margin-bottom:6px}
-  .headline .side{font-size:12.5px;color:#C6D2E0;max-width:30ch}
+  .headline .big{font-family:'Spectral',serif;font-weight:600;font-size:clamp(32px,7.5vw,46px);line-height:1;color:#fff}
+  .headline .big small{font-size:.3em;font-family:'IBM Plex Mono',monospace;color:var(--gold-soft);letter-spacing:.4px;display:block;margin-bottom:6px}
+  .headline .side{font-size:12.5px;color:#C6D2E0;max-width:32ch}
   .headline .side b{color:var(--gold-soft)}
 
-  /* URGENCY STRIP */
-  .urg{background:linear-gradient(90deg,rgba(201,162,39,.14),transparent);border-left:3px solid var(--gold);
-    padding:14px 18px;margin:22px 0 0;border-radius:0 8px 8px 0;font-size:13.5px;color:#E7EDF5}
-  .urg b{color:var(--gold-soft)}
+  /* UPLOAD */
+  .upload{background:var(--navy-3);border-top:1px solid var(--line)}
+  .uin{padding:24px 46px}
+  @media(max-width:640px){.uin{padding:20px 20px}}
+  .drop{border:1.5px dashed var(--line-2);border-radius:14px;padding:26px 22px;text-align:center;cursor:pointer;
+    transition:.18s;background:rgba(255,255,255,.02)}
+  .drop:hover,.drop.over{border-color:var(--gold);background:rgba(201,162,39,.06)}
+  .drop .ic{width:44px;height:44px;margin:0 auto 12px;border-radius:11px;background:var(--navy-2);border:1px solid var(--line-2);
+    display:grid;place-items:center;color:var(--gold-soft)}
+  .drop .ic svg{width:22px;height:22px}
+  .drop .t{font-family:'Spectral',serif;font-size:17px;color:#EAF0F7;margin-bottom:4px}
+  .drop .d{font-size:12.5px;color:var(--mut)}
+  .drop .d b{color:#C6D2E0}
+  .privacy{display:flex;align-items:center;gap:9px;justify-content:center;margin-top:14px;
+    font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:#8FD9B3;letter-spacing:.3px}
+  .privacy svg{width:13px;height:13px}
+  .ustatus{margin-top:14px;font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:#C6D2E0;text-align:center;min-height:16px}
+  .ustatus b{color:var(--gold-soft)}
+  .resetbtn{display:none;margin:12px auto 0;background:transparent;border:1px solid var(--line-2);color:#C6D2E0;
+    font-family:'IBM Plex Mono',monospace;font-size:11px;padding:7px 14px;border-radius:8px;cursor:pointer;letter-spacing:.3px}
+  .resetbtn:hover{border-color:var(--gold);color:#fff}
 
-  /* SUMMARY STATS */
+  /* RESUMO */
   .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:rgba(16,32,47,.10);border:1px solid rgba(16,32,47,.10);border-radius:12px;overflow:hidden}
   @media(max-width:640px){.stats{grid-template-columns:1fr 1fr}}
-  .stat{background:#fff;padding:16px 16px}
-  .stat .v{font-family:'Spectral',serif;font-weight:600;font-size:22px;color:var(--ink)}
-  .stat .l{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.4px;text-transform:uppercase;color:#9A8763;margin-top:3px}
-
-  /* CHART */
+  .stat{background:#fff;padding:15px 15px}
+  .stat .v{font-family:'Spectral',serif;font-weight:600;font-size:21px;color:var(--ink)}
+  .stat .l{font-family:'IBM Plex Mono',monospace;font-size:9.5px;letter-spacing:.4px;text-transform:uppercase;color:#9A8763;margin-top:3px}
   .chartbox{background:#fff;border:1px solid rgba(16,32,47,.10);border-radius:12px;padding:18px 18px 14px;margin-top:18px}
   .chart-title{font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.5px;text-transform:uppercase;color:#9A8763;margin-bottom:12px}
 
-  /* THESIS CARDS */
+  /* TESES */
   .tese{background:#fff;border:1px solid rgba(16,32,47,.11);border-radius:12px;margin-bottom:12px;overflow:hidden}
+  .tese.na{opacity:.78}
   .tese-head{padding:16px 18px;display:flex;gap:14px;align-items:flex-start;cursor:pointer;transition:background .15s}
   .tese-head:hover{background:#FBFAF6}
   .tese-main{flex:1;min-width:0}
@@ -81,15 +95,15 @@
   .badge{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.6px;text-transform:uppercase;font-weight:600;padding:3px 7px;border-radius:99px}
   .badge.ok{background:var(--green-bg);color:var(--green);border:1px solid var(--green-bd)}
   .badge.an{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-bd)}
+  .badge.det{background:#E9F0FB;color:var(--blue);border:1px solid #CFE0F5}
   .tese-legal{font-family:'IBM Plex Mono',monospace;font-size:11px;color:#9A8763;letter-spacing:.2px}
   .tese-val{text-align:right;flex:none}
   .tese-val .vv{font-family:'Spectral',serif;font-weight:600;font-size:19px;color:var(--ink);white-space:nowrap}
   .tese-val .vl{font-family:'IBM Plex Mono',monospace;font-size:9.5px;color:#9A8763;letter-spacing:.3px;text-transform:uppercase}
   .chev{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--gold);margin-top:4px;display:flex;align-items:center;gap:5px;justify-content:flex-end}
-
-  .ev{max-height:0;overflow:hidden;transition:max-height .3s ease;background:#FAF8F2;border-top:0 solid transparent}
-  .ev.open{max-height:600px;border-top:1px solid rgba(16,32,47,.08)}
-  .ev-in{padding:14px 18px}
+  .ev{max-height:0;overflow:hidden;transition:max-height .3s ease}
+  .ev.open{max-height:700px;border-top:1px solid rgba(16,32,47,.08)}
+  .ev-in{padding:14px 18px;background:#FAF8F2}
   .ev-cap{font-family:'IBM Plex Mono',monospace;font-size:9.5px;letter-spacing:.5px;text-transform:uppercase;color:#9A8763;margin-bottom:9px}
   .ev-table{width:100%;border-collapse:collapse;font-family:'IBM Plex Mono',monospace;font-size:11px}
   .ev-table th{text-align:left;color:#9A8763;font-weight:500;padding:5px 8px;border-bottom:1px solid rgba(16,32,47,.1);font-size:9.5px;letter-spacing:.3px;text-transform:uppercase}
@@ -99,35 +113,11 @@
   .ev-table .right{color:var(--green)}
   .ev-note{font-size:12px;color:var(--ink-soft);margin-top:11px;line-height:1.5}
 
-  /* IMPACT */
-  .impact{background:var(--navy);color:#EAF0F7;background-image:radial-gradient(620px 280px at 8% 120%, rgba(201,162,39,.12), transparent 60%)}
-  .impact h2{color:#fff}
-  .impact .sub{color:#C6D2E0}
-  .imp-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:12px;overflow:hidden}
-  @media(max-width:640px){.imp-grid{grid-template-columns:1fr}}
-  .imp{background:var(--navy);padding:18px 17px}
-  .imp .iv{font-family:'Spectral',serif;font-weight:600;font-size:24px;color:var(--gold-soft)}
-  .imp .il{font-size:12.5px;color:#B6C4D4;margin-top:4px}
-  .pull{margin-top:22px;font-family:'Spectral',serif;font-style:italic;font-size:17px;line-height:1.45;color:#E7EDF5;border-left:2px solid var(--gold);padding-left:16px;max-width:60ch}
-
-  /* METHOD / BOUNDARY */
-  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:22px}
-  @media(max-width:640px){.grid2{grid-template-columns:1fr;gap:14px}}
-  .panel{background:#fff;border:1px solid rgba(16,32,47,.11);border-radius:12px;padding:18px 18px}
-  .panel h3{font-family:'Spectral',serif;font-weight:600;font-size:16px;margin:0 0 9px}
-  .panel ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:7px}
-  .panel li{font-size:13px;color:var(--ink-soft);display:flex;gap:8px;align-items:flex-start}
-  .panel li::before{content:"";flex:none;width:5px;height:5px;border-radius:50%;background:var(--gold);margin-top:7px}
-  .boundary{background:var(--amber-bg);border:1px solid var(--amber-bd);border-radius:10px;padding:13px 15px;font-size:12.5px;color:#6E4D12;margin-top:14px}
+  /* boundary */
+  .boundary{background:var(--amber-bg);border:1px solid var(--amber-bd);border-radius:10px;padding:13px 15px;font-size:12.5px;color:#6E4D12;margin-top:18px}
   .boundary b{color:#5A3E0A}
-
-  /* CLOSE */
-  .close{background:var(--navy-2);color:#EAF0F7;text-align:center}
-  .close h2{color:#fff;max-width:26ch;margin:0 auto 10px}
-  .close p{color:#C6D2E0;max-width:50ch;margin:0 auto 18px}
-  .cta{display:inline-flex;gap:18px;flex-wrap:wrap;justify-content:center;font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:var(--gold-soft)}
-  .foot{font-family:'IBM Plex Mono',monospace;font-size:9.5px;color:#7A8696;letter-spacing:.3px;padding:18px 46px;line-height:1.7;background:var(--navy);text-align:center}
-  @media(max-width:640px){.foot{padding:18px 22px}}
+  .foot{font-family:'IBM Plex Mono',monospace;font-size:9.5px;color:#7A8696;letter-spacing:.3px;padding:18px 46px;background:var(--navy);text-align:center;line-height:1.7}
+  @media(max-width:640px){.foot{padding:18px 20px}}
 </style>
 </head>
 <body>
@@ -138,227 +128,272 @@
     <div class="head-inner">
       <div class="brandline">
         <div class="mark">M</div>
-        <div>
-          <div class="b1">MPA · Consultoria Financeira</div>
-          <div class="b2">tesouraria + CFO por demanda</div>
-        </div>
+        <div><div class="b1">MPA · Consultoria Financeira</div><div class="b2">tesouraria + CFO por demanda</div></div>
       </div>
-      <div class="rtitle">Relatório de Achados · Diagnóstico</div>
-      <h1>Recuperação Tributária — créditos do sistema antigo</h1>
-      <div class="meta">
+      <div class="rtitle">Relatório de Achados · Diagnóstico <span class="modeflag ex" id="modeflag">dados de exemplo</span></div>
+      <h1 id="h1">Recuperação Tributária — créditos do sistema antigo</h1>
+      <div class="meta" id="meta">
         <span>Cliente <b>Metalúrgica Vértice Ltda</b></span>
         <span>Regime <b>Lucro Real</b></span>
-        <span>Período <b>jun/2021 – mai/2026 (60 meses)</b></span>
-        <span>Base <b>XML NF-e + SPED Fiscal + EFD-Contribuições</b></span>
+        <span>Período <b>jun/2021 – mai/2026</b></span>
+        <span>Base <b>XML NF-e + SPED Fiscal</b></span>
       </div>
-
       <div class="headline">
-        <div class="big"><small>Potencial a recuperar · corrigido pela Selic</small>R$ 2,18 mi</div>
-        <div class="side">Crédito bruto identificado nos últimos 5 anos. Estimativa líquida prudente após triagem de glosa: <b>R$ 1,85 mi</b>.</div>
-      </div>
-
-      <div class="urg">
-        <b>Janela com prazo.</b> PIS e COFINS são extintos em 2027 e o ICMS migra para o IBS entre 2029 e 2033. O crédito acumulado do sistema antigo precisa ser levantado e protocolado agora — depois ele trava na transição.
+        <div class="big" id="heroNum"><small id="heroLbl">Potencial a recuperar · exemplo</small>R$ 2,18 mi</div>
+        <div class="side" id="heroSide">Crédito bruto ilustrativo. Anexe as NF-e abaixo para uma <b>prévia real</b> a partir dos seus arquivos.</div>
       </div>
     </div>
+
+    <!-- UPLOAD -->
+    <div class="upload"><div class="uin">
+      <div class="drop" id="drop">
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></svg></div>
+        <div class="t">Anexe os XMLs das suas NF-e</div>
+        <div class="d">Arraste os arquivos aqui ou <b>clique para selecionar</b> · aceita vários .xml de uma vez</div>
+        <input type="file" id="file" accept=".xml,text/xml,application/xml" multiple style="display:none">
+      </div>
+      <div class="privacy"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l8 4v6c0 5-3.5 8-8 10-4.5-2-8-5-8-10V6z"/><path d="M9 12l2 2 4-4"/></svg> Os arquivos são lidos no seu navegador — nada é enviado para nenhum servidor.</div>
+      <div class="ustatus" id="ustatus"></div>
+      <button class="resetbtn" id="reset">← voltar ao exemplo</button>
+    </div></div>
   </header>
 
   <!-- RESUMO -->
   <section>
     <div class="eyebrow">resumo executivo</div>
-    <h2>Seis frentes de crédito, todas com prova documental</h2>
-    <p class="sub">A varredura cruzou cada item de nota com NCM, CST e CFOP contra a legislação e a jurisprudência. Abaixo, o estoque por tese; mais adiante, a evidência por chave de acesso.</p>
-    <div class="stats">
-      <div class="stat"><div class="v">R$ 2,18 mi</div><div class="l">corrigido (Selic)</div></div>
-      <div class="stat"><div class="v">~14.800</div><div class="l">NF-e analisadas</div></div>
-      <div class="stat"><div class="v">2,4%</div><div class="l">da carga do período</div></div>
-      <div class="stat"><div class="v">&lt; 5%</div><div class="l">glosa estimada</div></div>
-    </div>
-
-    <div class="chartbox">
-      <div class="chart-title">Crédito identificado por tese (R$ mil, corrigido)</div>
-      <div id="chart"></div>
-    </div>
+    <h2 id="resumoTitle">Frentes de crédito identificadas</h2>
+    <p class="sub" id="resumoSub">A varredura cruza cada item de nota com NCM, CST e CFOP. Abaixo, o estoque por tese; mais adiante, a evidência por chave de acesso.</p>
+    <div class="stats" id="stats"></div>
+    <div class="chartbox"><div class="chart-title" id="chartTitle">Crédito identificado por tese (R$ mil)</div><div id="chart"></div></div>
   </section>
 
   <!-- ACHADOS -->
   <section style="padding-top:6px">
     <div class="eyebrow">achados detalhados</div>
     <h2>As teses — e a prova de cada uma</h2>
-    <p class="sub">Toque em cada frente para ver a amostra de evidência. Cada crédito é rastreável até a chave da NF-e — sem isso, não há sustentação numa fiscalização.</p>
-
+    <p class="sub">Toque em cada frente para ver a evidência. No modo real, as linhas vêm das suas próprias notas.</p>
     <div id="teses"></div>
-  </section>
-
-  <!-- IMPACTO -->
-  <section class="impact">
-    <div class="eyebrow" style="color:var(--gold-soft)">o que isso faz pelo caixa</div>
-    <h2>Não é só imposto de volta. É giro liberado.</h2>
-    <p class="sub">Recuperação tributária vista pela ótica de tesouraria: o crédito vira capital de giro e abate dívida. Sobre a estrutura atual da Vértice, o efeito:</p>
-    <div class="imp-grid">
-      <div class="imp"><div class="iv">~2,1 meses</div><div class="il">de necessidade de capital de giro (NCG) coberta pelo crédito líquido</div></div>
-      <div class="imp"><div class="iv">R$ 1,85 mi</div><div class="il">de caixa novo sem tomar dívida — alívio direto na Tesouraria</div></div>
-      <div class="imp"><div class="iv">+R$ 1,85 mi</div><div class="il">de efeito não recorrente no resultado, mais economia estrutural daqui pra frente</div></div>
-    </div>
-    <div class="pull">"O crédito que resgatamos não é dinheiro extra — é o seu, que estava parado no Fisco. A diferença é que agora ele banca o seu giro em vez do banco."</div>
-  </section>
-
-  <!-- METODO + LIMITE -->
-  <section>
-    <div class="eyebrow">como foi feito</div>
-    <h2>Metodologia e responsabilidade</h2>
-    <div class="grid2">
-      <div class="panel">
-        <h3>O que analisamos</h3>
-        <ul>
-          <li>XMLs de NF-e de entrada e saída dos últimos 60 meses, puxados da Sefaz — não só do ERP</li>
-          <li>SPED Fiscal (registros C100/C170) e EFD-Contribuições, cruzados item a item</li>
-          <li>NCM, CST e CFOP de cada linha contra a legislação e teses pacificadas</li>
-          <li>Cada crédito corrigido mês a mês pela Selic até a data-base</li>
-        </ul>
-      </div>
-      <div class="panel">
-        <h3>Como o crédito volta</h3>
-        <ul>
-          <li>Teses pacificadas: via administrativa, por PER/DCOMP na Receita</li>
-          <li>Compensação com tributos futuros ou restituição em espécie</li>
-          <li>Retificação das obrigações acessórias do período</li>
-          <li>Meta de qualidade: glosa abaixo de 5% nos créditos incontestes</li>
-        </ul>
-      </div>
-    </div>
     <div class="boundary">
-      <b>Divisão de papéis.</b> A MPA origina, quantifica e enquadra a oportunidade no contexto financeiro da empresa. A execução fiscal — protocolo, retificação e sustentação das teses — é conduzida em conjunto com o escritório tributarista parceiro, que assina tecnicamente. É essa separação que protege a empresa de apropriação indevida (autuação e multa de até 75%).
+      <b>Triagem preliminar, não parecer.</b> Esta prévia detecta apenas o que está na face da NF-e (ICMS na base de PIS/COFINS e possíveis itens monofásicos). Teses de insumos, energia e CIAP exigem SPED e documentos adicionais. A execução fiscal é conduzida com o escritório tributarista parceiro, que assina tecnicamente — apropriação indevida gera autuação e multa de até 75%.
     </div>
   </section>
 
-  <!-- CLOSE -->
-  <section class="close">
-    <div class="eyebrow" style="justify-content:center;color:var(--gold-soft)">próximo passo</div>
-    <h2>Validar as teses em análise e iniciar o protocolo</h2>
-    <p>As frentes pacificadas podem entrar em compensação de imediato. As frentes em análise passam pela validação do parceiro tributarista antes do pedido.</p>
-    <div class="cta">
-      <span>◷ Honorário sobre êxito · 20–30% do líquido homologado</span>
-    </div>
-  </section>
-
-  <div class="foot">
-    Documento ilustrativo de demonstração · valores, cliente e evidências são exemplos · não constitui parecer fiscal ou jurídico ·
-    a viabilidade de cada crédito depende de análise documental e da legislação vigente na data do pedido · MPA Consultoria Financeira
+  <div class="foot" id="foot">
+    Documento de demonstração · no modo exemplo, cliente e valores são fictícios · a triagem real estima apenas teses detectáveis pela NF-e ·
+    não constitui parecer fiscal ou jurídico · MPA Consultoria Financeira
   </div>
 
 </div>
 
 <script>
-const BRL = v => 'R$ '+v.toLocaleString('pt-BR',{minimumFractionDigits:0,maximumFractionDigits:0});
+const BRL = v => 'R$ '+Math.round(v).toLocaleString('pt-BR');
+const BRLmi = v => v>=1e6 ? 'R$ '+(v/1e6).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})+' mi'
+                          : 'R$ '+(v/1000).toLocaleString('pt-BR',{maximumFractionDigits:0})+' mil';
 const milK = v => (v/1000).toLocaleString('pt-BR',{maximumFractionDigits:0});
 
-/* dados de exemplo (corrigido pela Selic, R$) */
-const TESES = [
-  { nome:"Exclusão do ICMS da base de PIS/COFINS", legal:"STF · Tema 69 (\"Tese do Século\")", status:"ok", statusTxt:"pacificada", valor:712000,
-    cap:"Amostra · NF-e de saída com ICMS destacado indevidamente na base de PIS/COFINS",
-    cols:["Chave NF-e (mascarada)","Base c/ ICMS","Base correta","PIS/COFINS pago a maior"],
-    rows:[
-      ["3522 0904 ****  **** 8841","R$ 184.200","R$ 152.900","<b>R$ 2.895</b>"],
-      ["3523 1107 ****  **** 2207","R$ 96.500","R$ 80.100","<b>R$ 1.517</b>"],
-      ["3524 0302 ****  **** 6650","R$ 311.800","R$ 258.700","<b>R$ 4.912</b>"]
-    ],
-    note:"Replicado em ~9.200 notas de saída do período. O ICMS destacado não é faturamento, logo não compõe a base das contribuições." },
+/* NCMs com forte indício de tributação monofásica/concentrada (lista de TRIAGEM, não exaustiva) */
+const MONO = ["2710","2711","3003","3004","3303","3304","3305","3306","3307","3401",
+  "4011","4013","2201","2202","2203","21069010","4016","7007","8301","8407","8408",
+  "8409","8413","8483","8511","8536","8544","8708","9032","8421","8527","8539"];
+const isMono = ncm => { const n=(ncm||'').replace(/\D/g,''); return MONO.some(p=>n.startsWith(p)); };
+const TRIB_PIS = c => ['01','02','03','04','05'].includes(c);
 
-  { nome:"PIS/COFINS sobre insumos (conceito ampliado)", legal:"STJ · REsp 1.221.170 · essencialidade e relevância", status:"an", statusTxt:"requer análise", valor:548000,
-    cap:"Amostra · despesas essenciais à produção sem crédito apropriado",
-    cols:["Item","Natureza","CST aplicado","Crédito devido"],
-    rows:[
-      ["Energia elétrica — fornos","Insumo de produção","<span class='wrong'>sem crédito</span>","<b>R$ 9,25%</b>"],
-      ["Frete entre estabelecimentos","Essencial à atividade","<span class='wrong'>sem crédito</span>","<b>elegível</b>"],
-      ["Manutenção de máquinas (PJ)","Relevante à produção","<span class='wrong'>sem crédito</span>","<b>elegível</b>"]
-    ],
-    note:"O conceito de insumo vai além da matéria-prima. Cada rubrica precisa de laudo de essencialidade — frente conduzida com o parceiro tributarista." },
+/* ---------- DADOS DE EXEMPLO ---------- */
+const EXEMPLO = {
+  mode:'ex', cliente:'Metalúrgica Vértice Ltda', regime:'Lucro Real', periodo:'jun/2021 – mai/2026',
+  notas:14800, base:'XML NF-e + SPED Fiscal',
+  stats:[['R$ 2,18 mi','potencial (exemplo)'],['~14.800','NF-e (exemplo)'],['2,4%','da carga'],['< 5%','glosa estimada']],
+  teses:[
+    {nome:"Exclusão do ICMS da base de PIS/COFINS",legal:"STF · Tema 69 (\"Tese do Século\")",badge:'ok',btxt:'pacificada',valor:712000,
+     cap:"Amostra · saídas com ICMS na base das contribuições",
+     cols:["Chave NF-e","Base c/ ICMS","Base correta","Pago a maior"],
+     rows:[["3522 0904 **** 8841","R$ 184.200","R$ 152.900","<b>R$ 2.895</b>"],["3524 0302 **** 6650","R$ 311.800","R$ 258.700","<b>R$ 4.912</b>"]],
+     note:"Replicado em ~9.200 notas de saída. O ICMS destacado não é faturamento."},
+    {nome:"PIS/COFINS sobre insumos (conceito ampliado)",legal:"STJ · REsp 1.221.170",badge:'an',btxt:'requer análise',valor:548000,
+     cap:"Despesas essenciais sem crédito apropriado",cols:["Item","Natureza","CST","Crédito"],
+     rows:[["Energia — fornos","Insumo","<span class='wrong'>sem crédito</span>","<b>9,25%</b>"],["Frete interno","Essencial","<span class='wrong'>sem crédito</span>","<b>elegível</b>"]],
+     note:"Exige laudo de essencialidade — fora do alcance da NF-e isolada."},
+    {nome:"ICMS sobre energia elétrica de produção",legal:"LC 87/96",badge:'an',btxt:'requer análise',valor:318000,
+     cap:"ICMS de energia da produção não creditado",cols:["Chave NF-e","ICMS","% produção","Recuperável"],
+     rows:[["3522 0610 **** 1190","R$ 41.300","78%","<b>R$ 32.214</b>"]],note:"Requer laudo técnico de consumo industrial."},
+    {nome:"Exclusão do ICMS-ST da base de PIS/COFINS",legal:"STJ · Tema 1125",badge:'ok',btxt:'pacificada',valor:241000,
+     cap:"ICMS-ST compondo a base das contribuições",cols:["Chave NF-e","ICMS-ST","Base","Crédito"],
+     rows:[["3522 1205 **** 4418","R$ 12.700","reduzida","<b>R$ 1.175</b>"]],note:"Tese consolidada — cálculo, não discussão."},
+    {nome:"ICMS de ativo imobilizado (CIAP)",legal:"LC 87/96 · 1/48 avos",badge:'an',btxt:'requer análise',valor:184000,
+     cap:"Máquinas sem crédito via CIAP",cols:["Bem","NF-e","ICMS","Crédito/mês"],
+     rows:[["Centro CNC","3521 0307 *** 3340","R$ 96.000","<b>R$ 2.000</b>"]],note:"Apropriável em 48 parcelas — frequentemente esquecido."},
+    {nome:"PIS/COFINS monofásico — NCM incorreto",legal:"erro de cadastro em revenda",badge:'ok',btxt:'pacificada',valor:97000,
+     cap:"Monofásicos tributados na alíquota cheia",cols:["Produto","NCM","Tributado","Devido"],
+     rows:[["Lubrificante","2710.19.32","<span class='wrong'>9,25%</span>","<span class='right'>monofásico</span>"]],note:"NCM mal cadastrado fez item pagar de novo."}
+  ]
+};
 
-  { nome:"ICMS sobre energia elétrica de produção", legal:"LC 87/96 · uso em processo industrial", status:"an", statusTxt:"requer análise", valor:318000,
-    cap:"Amostra · ICMS de energia consumida no processo, não creditado",
-    cols:["Chave NF-e (energia)","ICMS destacado","% produção","Crédito recuperável"],
-    rows:[
-      ["3522 0610 ****  **** 1190","R$ 41.300","78%","<b>R$ 32.214</b>"],
-      ["3523 0411 ****  **** 7723","R$ 38.900","78%","<b>R$ 30.342</b>"]
-    ],
-    note:"Exige laudo técnico de quanto da energia entra na produção (vs. administrativo). Recuperável a parcela industrial." },
+/* ---------- RENDER ---------- */
+function render(D){
+  document.getElementById('modeflag').className='modeflag '+(D.mode==='ex'?'ex':'real');
+  document.getElementById('modeflag').textContent = D.mode==='ex'?'dados de exemplo':'seus dados';
+  document.getElementById('meta').innerHTML =
+    `<span>Cliente <b>${D.cliente}</b></span><span>Regime <b>${D.regime}</b></span>`+
+    `<span>Período <b>${D.periodo}</b></span><span>Base <b>${D.base}</b></span>`;
+  const total = D.teses.filter(t=>t.badge!=='an').reduce((s,t)=>s+t.valor,0);
+  const totalAll = D.teses.reduce((s,t)=>s+t.valor,0);
+  if(D.mode==='ex'){
+    document.getElementById('heroLbl').textContent='Potencial a recuperar · exemplo';
+    document.getElementById('heroNum').innerHTML='<small id="heroLbl">Potencial a recuperar · exemplo</small>R$ 2,18 mi';
+    document.getElementById('heroSide').innerHTML='Crédito bruto ilustrativo. Anexe as NF-e abaixo para uma <b>prévia real</b> a partir dos seus arquivos.';
+  } else {
+    document.getElementById('heroNum').innerHTML=`<small>Detectável na NF-e · prévia dos seus arquivos</small>${BRLmi(total)}`;
+    document.getElementById('heroSide').innerHTML=`Estimativa preliminar sobre <b>${D.notas.toLocaleString('pt-BR')} notas</b> lidas. Teses de insumos/energia/CIAP entram na análise completa com o SPED.`;
+  }
+  document.getElementById('stats').innerHTML = D.stats.map(s=>`<div class="stat"><div class="v">${s[0]}</div><div class="l">${s[1]}</div></div>`).join('');
+  document.getElementById('chartTitle').textContent = D.mode==='ex'?'Crédito por tese (R$ mil · exemplo)':'Crédito detectável por tese (R$ mil · seus dados)';
 
-  { nome:"Exclusão do ICMS-ST da base de PIS/COFINS", legal:"STJ · Tema 1125", status:"ok", statusTxt:"pacificada", valor:241000,
-    cap:"Amostra · ICMS-ST compondo indevidamente a base das contribuições",
-    cols:["Chave NF-e (entrada)","ICMS-ST","Base reduzida","Crédito"],
-    rows:[
-      ["3522 1205 ****  **** 4418","R$ 12.700","aplicada","<b>R$ 1.175</b>"],
-      ["3523 0808 ****  **** 9931","R$ 28.400","aplicada","<b>R$ 2.627</b>"]
-    ],
-    note:"Tese consolidada — execução técnica de cálculo, não discussão. Aplica-se ao contribuinte substituído." },
+  const chartItems = D.teses.filter(t=>t.valor>0).slice().sort((a,b)=>b.valor-a.valor).map(t=>({
+    n:t.nome.length>30?t.nome.slice(0,28)+'…':t.nome, v:t.valor, c: t.badge==='an'?'#C98A1E':(t.badge==='det'?'#2C5BA8':'#3F9D6E')
+  }));
+  document.getElementById('chart').innerHTML = chartItems.length? barChart(chartItems)
+    : '<div style="font-family:IBM Plex Mono;font-size:12px;color:#9A8763;padding:8px 0">Nenhum crédito detectável nas notas lidas para as teses de face da NF-e.</div>';
 
-  { nome:"ICMS de ativo imobilizado (CIAP)", legal:"LC 87/96 · 1/48 avos mensais", status:"an", statusTxt:"requer análise", valor:184000,
-    cap:"Amostra · máquinas com crédito de ICMS não apropriado via CIAP",
-    cols:["Bem","NF-e aquisição","ICMS","Crédito (48 avos)"],
-    rows:[
-      ["Centro de usinagem CNC","3521 0307 **** 3340","R$ 96.000","<b>R$ 2.000/mês</b>"],
-      ["Prensa hidráulica 200t","3522 1109 **** 8852","R$ 61.500","<b>R$ 1.281/mês</b>"]
-    ],
-    note:"Crédito de bens do imobilizado usado na produção, apropriável em 48 parcelas — frequentemente esquecido." },
-
-  { nome:"PIS/COFINS monofásico — NCM incorreto", legal:"erro de cadastro em revenda", status:"ok", statusTxt:"pacificada", valor:97000,
-    cap:"Amostra · produtos monofásicos tributados na alíquota cheia por NCM errado",
-    cols:["Produto","NCM","Tributado","Devido"],
-    rows:[
-      ["Lubrificante industrial","2710.19.32","<span class='wrong'>9,25%</span>","<span class='right'>monofásico</span>"],
-      ["Pneu de empilhadeira","4011.80.00","<span class='wrong'>9,25%</span>","<span class='right'>monofásico</span>"]
-    ],
-    note:"NCM mal cadastrado no ERP fez itens já tributados na origem pagarem de novo. Correção e restituição diretas." }
-];
-
-/* render teses */
-const cont = document.getElementById('teses');
-TESES.forEach((t,i)=>{
-  const el=document.createElement('div'); el.className='tese';
-  const head=document.createElement('div'); head.className='tese-head';
-  head.innerHTML=`
-    <div class="tese-main">
-      <div class="tese-top">
-        <span class="tese-name">${t.nome}</span>
-        <span class="badge ${t.status}">${t.statusTxt}</span>
-      </div>
-      <div class="tese-legal">${t.legal}</div>
-    </div>
-    <div class="tese-val">
-      <div class="vv">${BRL(t.valor)}</div>
-      <div class="vl">corrigido</div>
-      <div class="chev"><span class="chv">ver evidências</span> ›</div>
-    </div>`;
-  const ev=document.createElement('div'); ev.className='ev';
-  ev.innerHTML=`<div class="ev-in">
-      <div class="ev-cap">${t.cap}</div>
-      <table class="ev-table"><thead><tr>${t.cols.map(c=>`<th>${c}</th>`).join('')}</tr></thead>
-      <tbody>${t.rows.map(r=>`<tr>${r.map(c=>`<td>${c}</td>`).join('')}</tr>`).join('')}</tbody></table>
-      <div class="ev-note">${t.note}</div>
-    </div>`;
-  head.onclick=()=>{ const open=ev.classList.toggle('open'); head.querySelector('.chv').textContent=open?'ocultar evidências':'ver evidências'; };
-  el.appendChild(head); el.appendChild(ev); cont.appendChild(el);
-});
-
-/* chart */
+  const cont=document.getElementById('teses'); cont.innerHTML='';
+  D.teses.forEach(t=>{
+    const el=document.createElement('div'); el.className='tese'+(t.badge==='an'?' na':'');
+    const head=document.createElement('div'); head.className='tese-head';
+    head.innerHTML=`<div class="tese-main"><div class="tese-top"><span class="tese-name">${t.nome}</span>
+        <span class="badge ${t.badge}">${t.btxt}</span></div><div class="tese-legal">${t.legal}</div></div>
+      <div class="tese-val"><div class="vv">${t.valor>0?BRL(t.valor):'—'}</div><div class="vl">${t.badge==='an'?'a analisar':'estimado'}</div>
+      ${t.rows&&t.rows.length?'<div class="chev"><span class="chv">ver evidências</span> ›</div>':''}</div>`;
+    const ev=document.createElement('div'); ev.className='ev';
+    if(t.rows&&t.rows.length){
+      ev.innerHTML=`<div class="ev-in"><div class="ev-cap">${t.cap}</div>
+        <table class="ev-table"><thead><tr>${t.cols.map(c=>`<th>${c}</th>`).join('')}</tr></thead>
+        <tbody>${t.rows.map(r=>`<tr>${r.map(c=>`<td>${c}</td>`).join('')}</tr>`).join('')}</tbody></table>
+        <div class="ev-note">${t.note}</div></div>`;
+      head.onclick=()=>{const o=ev.classList.toggle('open');const c=head.querySelector('.chv');if(c)c.textContent=o?'ocultar evidências':'ver evidências';};
+    }
+    el.appendChild(head); el.appendChild(ev); cont.appendChild(el);
+  });
+}
 function barChart(items){
-  const max=Math.max(...items.map(i=>i.v)), W=560, rowH=30, gap=10, H=items.length*(rowH+gap);
+  const max=Math.max(...items.map(i=>i.v))||1, W=560, rowH=30, gap=10, H=items.length*(rowH+gap);
   let s=`<svg viewBox="0 0 ${W} ${H}" width="100%" preserveAspectRatio="xMidYMid meet">`;
-  items.forEach((it,k)=>{
-    const y=k*(rowH+gap), w=Math.max(3,it.v/max*(W-300));
+  items.forEach((it,k)=>{const y=k*(rowH+gap), w=Math.max(3,it.v/max*(W-300));
     s+=`<text x="0" y="${y+19}" font-family="IBM Plex Mono" font-size="11" fill="#5A4E34">${it.n}</text>`;
     s+=`<rect x="240" y="${y+5}" width="${w}" height="${rowH-10}" rx="4" fill="${it.c}"/>`;
-    s+=`<text x="${240+w+8}" y="${y+19}" font-family="IBM Plex Mono" font-size="11.5" font-weight="600" fill="#10202F">${milK(it.v)}</text>`;
-  });
+    s+=`<text x="${240+w+8}" y="${y+19}" font-family="IBM Plex Mono" font-size="11.5" font-weight="600" fill="#10202F">${milK(it.v)}</text>`;});
   return s+`</svg>`;
 }
-document.getElementById('chart').innerHTML = barChart(
-  TESES.slice().sort((a,b)=>b.valor-a.valor).map(t=>({
-    n: t.nome.length>30 ? t.nome.slice(0,28)+'…' : t.nome,
-    v: t.valor, c: t.status==='ok' ? '#3F9D6E' : '#C98A1E'
-  }))
-);
+
+/* ---------- PARSE NF-e ---------- */
+function parseNFe(xmlText){
+  const doc=new DOMParser().parseFromString(xmlText,"application/xml");
+  if(doc.getElementsByTagName("parsererror").length) return null;
+  const N=(el,tag)=>{ if(!el)return null; const n=el.getElementsByTagNameNS("*",tag); return n.length?n[0].textContent.trim():null; };
+  const inf=doc.getElementsByTagNameNS("*","infNFe")[0]; if(!inf) return null;
+  let chave=(inf.getAttribute("Id")||"").replace(/^NFe/i,""); if(!chave) chave=N(doc.documentElement,"chNFe")||"";
+  const ide=doc.getElementsByTagNameNS("*","ide")[0];
+  const tpNF=N(ide,"tpNF"); const dh=N(ide,"dhEmi")||N(ide,"dEmi");
+  const dets=doc.getElementsByTagNameNS("*","det"); const items=[];
+  for(const det of dets){
+    const prod=det.getElementsByTagNameNS("*","prod")[0]; if(!prod) continue;
+    const icms=det.getElementsByTagNameNS("*","ICMS")[0];
+    const pis=det.getElementsByTagNameNS("*","PIS")[0];
+    const cof=det.getElementsByTagNameNS("*","COFINS")[0];
+    items.push({
+      ncm:N(prod,"NCM"), cfop:N(prod,"CFOP"), xProd:N(prod,"xProd"), vProd:+(N(prod,"vProd")||0),
+      vICMS:+(N(icms,"vICMS")||0), vICMSST:+(N(icms,"vICMSST")||0),
+      vPIS:+(N(pis,"vPIS")||0), pPIS:+(N(pis,"pPIS")||0), cstPIS:N(pis,"CST"),
+      vCOFINS:+(N(cof,"vCOFINS")||0), pCOFINS:+(N(cof,"pCOFINS")||0)
+    });
+  }
+  return {chave, tpNF, dh, items};
+}
+function mask(ch){ if(!ch||ch.length<44) return ch||'—'; return ch.slice(0,8)+' **** '+ch.slice(-4); }
+function fmtPeriodo(dates){
+  if(!dates.length) return '—';
+  const ds=dates.map(d=>new Date(d)).filter(d=>!isNaN(d)).sort((a,b)=>a-b);
+  if(!ds.length) return '—';
+  const f=d=>d.toLocaleDateString('pt-BR',{month:'short',year:'numeric'}).replace('.','');
+  return f(ds[0])+' – '+f(ds[ds.length-1]);
+}
+
+function analisar(notas){
+  let saidaSeculoBase=0, seculoRecup=0, monoRecup=0, stTotal=0;
+  let evSeculo=[], evMono=[], dates=[];
+  notas.forEach(nf=>{
+    if(nf.dh) dates.push(nf.dh);
+    const saida = nf.tpNF==='1';
+    nf.items.forEach(it=>{
+      stTotal += it.vICMSST||0;
+      // Tese do Século: ICMS na base de PIS/COFINS em saídas tributadas
+      if(saida && it.vICMS>0 && it.vPIS>0){
+        const aliq=((it.pPIS||1.65)+(it.pCOFINS||7.6))/100;
+        const r=it.vICMS*aliq; seculoRecup+=r; saidaSeculoBase+=it.vICMS;
+        if(evSeculo.length<6) evSeculo.push([mask(nf.chave),BRL(it.vProd),BRL(it.vProd-it.vICMS),'<b>'+BRL(r)+'</b>']);
+      }
+      // Monofásico: NCM monofásico tributado na alíquota cheia
+      if(isMono(it.ncm) && (it.vPIS>0||it.vCOFINS>0)){
+        const r=(it.vPIS||0)+(it.vCOFINS||0); monoRecup+=r;
+        if(evMono.length<6) evMono.push([(it.xProd||'item').slice(0,20),(it.ncm||'—'),"<span class='wrong'>"+BRL(r)+"</span>","<span class='right'>rever</span>"]);
+      }
+    });
+  });
+  return {seculoRecup,monoRecup,stTotal,evSeculo,evMono,dates};
+}
+
+function buildReal(notas){
+  const a=analisar(notas);
+  const D={mode:'real', cliente:'Seus arquivos', regime:'a confirmar', periodo:fmtPeriodo(a.dates), notas:notas.length, base:'XML NF-e (triagem)'};
+  D.stats=[
+    [BRLmi(a.seculoRecup+a.monoRecup),'detectável (prévia)'],
+    [notas.length.toLocaleString('pt-BR'),'NF-e lidas'],
+    [BRL(a.stTotal),'ICMS-ST destacado'],
+    ['< 5%','glosa-alvo']
+  ];
+  D.teses=[
+    {nome:"Exclusão do ICMS da base de PIS/COFINS",legal:"STF · Tema 69 (\"Tese do Século\")",badge:'det',btxt:'detectado na NF-e',valor:Math.round(a.seculoRecup),
+     cap:"Suas saídas com ICMS na base das contribuições",cols:["Chave NF-e","Base c/ ICMS","Base correta","Pago a maior"],
+     rows:a.evSeculo.length?a.evSeculo:[["—","—","—","sem ocorrência nas notas lidas"]],
+     note:"Estimativa = ICMS destacado × alíquota de PIS/COFINS das próprias notas. Valor histórico, antes da correção pela Selic."},
+    {nome:"PIS/COFINS monofásico — NCM na alíquota cheia",legal:"triagem por NCM · confirmar enquadramento",badge:'det',btxt:'a confirmar',valor:Math.round(a.monoRecup),
+     cap:"Itens com NCM de indício monofásico que pagaram contribuição",cols:["Produto","NCM","PIS+COFINS pago","Ação"],
+     rows:a.evMono.length?a.evMono:[["—","—","—","nenhum item sinalizado"]],
+     note:"Lista de triagem, não exaustiva. Cada NCM precisa de confirmação de enquadramento com o tributarista antes do pedido."},
+    {nome:"ICMS-ST destacado nas notas",legal:"base para Tema 1125 e ST a maior",badge:'an',btxt:'requer SPED',valor:0,
+     cap:"",cols:[],rows:[],note:""},
+    {nome:"PIS/COFINS sobre insumos / energia / CIAP",legal:"exige SPED e documentos",badge:'an',btxt:'fora da NF-e',valor:0,
+     cap:"",cols:[],rows:[],note:""}
+  ];
+  return D;
+}
+
+/* ---------- UPLOAD HANDLING ---------- */
+const drop=document.getElementById('drop'), fileInput=document.getElementById('file'),
+      ustatus=document.getElementById('ustatus'), resetBtn=document.getElementById('reset');
+drop.onclick=()=>fileInput.click();
+['dragover','dragenter'].forEach(e=>drop.addEventListener(e,ev=>{ev.preventDefault();drop.classList.add('over');}));
+['dragleave','drop'].forEach(e=>drop.addEventListener(e,ev=>{ev.preventDefault();drop.classList.remove('over');}));
+drop.addEventListener('drop',ev=>handleFiles(ev.dataTransfer.files));
+fileInput.addEventListener('change',e=>handleFiles(e.target.files));
+resetBtn.onclick=()=>{render(EXEMPLO);ustatus.textContent='';resetBtn.style.display='none';fileInput.value='';};
+
+async function handleFiles(files){
+  const list=[...files].filter(f=>/\.xml$/i.test(f.name)||/xml/.test(f.type));
+  if(!list.length){ ustatus.innerHTML='Nenhum arquivo .xml reconhecido.'; return; }
+  ustatus.innerHTML=`Lendo <b>${list.length}</b> arquivo(s)…`;
+  const notas=[]; let falhas=0;
+  for(const f of list){
+    try{ const txt=await f.text(); const nf=parseNFe(txt); if(nf&&nf.items.length) notas.push(nf); else falhas++; }
+    catch(e){ falhas++; }
+  }
+  if(!notas.length){ ustatus.innerHTML='Não consegui ler NF-e válidas nesses arquivos. Confirme que são XMLs de NF-e (modelo 55).'; return; }
+  render(buildReal(notas));
+  ustatus.innerHTML=`<b>${notas.length}</b> NF-e analisadas${falhas?` · ${falhas} ignorado(s)`:''} · prévia gerada acima.`;
+  resetBtn.style.display='block';
+  document.getElementById('resumoTitle').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+/* init */
+render(EXEMPLO);
 </script>
 </body>
 </html>
