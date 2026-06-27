@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Central de Motores · Projeto Consultoria</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy-900:#08111f;
+    --navy-850:#0a1424;
+    --navy-800:#0f1d33;
+    --navy-700:#13243f;
+    --line:#1e3252;
+    --line-soft:#16273f;
+    --gold:#c9a24b;
+    --gold-bright:#e0be6a;
+    --gold-dim:rgba(201,162,75,.14);
+    --ink:#eceae3;
+    --ink-soft:#9aa8bc;
+    --ink-mute:#67768d;
+    --ok:#6fae7e;
+    --warn:#d69a3c;
+    --dev:#7c8aa3;
+    --agent:#9b86c4;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    font-family:"IBM Plex Sans",system-ui,sans-serif;
+    background:
+      radial-gradient(1200px 600px at 80% -10%, rgba(201,162,75,.06), transparent 60%),
+      linear-gradient(180deg,var(--navy-850),var(--navy-900));
+    color:var(--ink);
+    min-height:100vh;
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1180px;margin:0 auto;padding:0 28px}
+
+  /* Top bar */
+  .topbar{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:20px 0 18px;
+    border-bottom:1px solid var(--line-soft);
+  }
+  .brand{display:flex;align-items:baseline;gap:12px}
+  .brand .mark{
+    font-family:"IBM Plex Mono",monospace;
+    font-size:.72rem;letter-spacing:.18em;color:var(--gold);
+    border:1px solid var(--gold);border-radius:3px;
+    padding:3px 7px;text-transform:uppercase;
+  }
+  .brand .name{font-family:"Spectral",serif;font-size:1.05rem;font-weight:500;letter-spacing:.01em}
+  .brand .name span{color:var(--ink-mute)}
+  .clock{
+    font-family:"IBM Plex Mono",monospace;font-size:.74rem;
+    color:var(--ink-mute);letter-spacing:.04em;
+    display:flex;align-items:center;gap:8px;
+  }
+  .clock .dot{width:6px;height:6px;border-radius:50%;background:var(--ok);box-shadow:0 0 8px var(--ok)}
+
+  /* Hero */
+  .hero{padding:46px 0 30px}
+  .hero .eyebrow{
+    font-family:"IBM Plex Mono",monospace;font-size:.72rem;
+    letter-spacing:.22em;text-transform:uppercase;color:var(--gold);
+    margin-bottom:14px;
+  }
+  .hero h1{
+    font-family:"Spectral",serif;font-weight:500;
+    font-size:clamp(2rem,5vw,3.1rem);line-height:1.06;
+    letter-spacing:-.01em;margin-bottom:14px;
+  }
+  .hero h1 em{font-style:italic;color:var(--gold-bright)}
+  .hero p{color:var(--ink-soft);max-width:54ch;font-size:1.02rem}
+  .hero .meta{
+    margin-top:22px;display:flex;gap:26px;flex-wrap:wrap;
+    font-family:"IBM Plex Mono",monospace;font-size:.78rem;color:var(--ink-mute);
+  }
+  .hero .meta b{color:var(--ink);font-weight:500}
+
+  /* Controls */
+  .controls{
+    display:flex;align-items:center;gap:16px;flex-wrap:wrap;
+    padding:24px 0 8px;position:sticky;top:0;z-index:5;
+    background:linear-gradient(180deg,var(--navy-850) 70%,transparent);
+    margin-top:14px;
+  }
+  .search{position:relative;flex:1 1 280px;min-width:220px}
+  .search input{
+    width:100%;background:var(--navy-800);border:1px solid var(--line);
+    color:var(--ink);font-family:"IBM Plex Sans",sans-serif;font-size:.92rem;
+    padding:11px 14px 11px 38px;border-radius:7px;outline:none;transition:border-color .15s;
+  }
+  .search input::placeholder{color:var(--ink-mute)}
+  .search input:focus{border-color:var(--gold)}
+  .search svg{position:absolute;left:13px;top:50%;transform:translateY(-50%);stroke:var(--ink-mute);width:15px;height:15px}
+  .filters{display:flex;gap:8px;flex-wrap:wrap}
+  .pill{
+    font-family:"IBM Plex Mono",monospace;font-size:.74rem;letter-spacing:.03em;
+    background:transparent;border:1px solid var(--line);color:var(--ink-soft);
+    padding:8px 14px;border-radius:20px;cursor:pointer;transition:all .15s;
+  }
+  .pill:hover{border-color:var(--gold);color:var(--ink)}
+  .pill[aria-pressed="true"]{background:var(--gold-dim);border-color:var(--gold);color:var(--gold-bright)}
+
+  /* Grid */
+  .grid{
+    display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));
+    gap:18px;padding:26px 0 10px;
+  }
+  .card{
+    position:relative;background:linear-gradient(180deg,var(--navy-800),var(--navy-850));
+    border:1px solid var(--line);border-radius:11px;padding:22px 22px 18px;
+    display:flex;flex-direction:column;min-height:212px;
+    transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease;
+  }
+  .card:hover{transform:translateY(-3px);border-color:var(--gold);box-shadow:0 14px 38px -18px rgba(201,162,75,.4)}
+  .card.soon{opacity:.5}
+  .card.soon:hover{transform:none;border-color:var(--line);box-shadow:none}
+  .card .idx{
+    font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.12em;
+    color:var(--ink-mute);margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;
+  }
+  .type-tag{
+    font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.1em;
+    text-transform:uppercase;padding:3px 7px;border-radius:4px;border:1px solid;
+  }
+  .type-app{color:var(--ink-soft);border-color:var(--line)}
+  .type-agent{color:var(--agent);border-color:rgba(155,134,196,.4);background:rgba(155,134,196,.08)}
+  .type-xlsx{color:var(--ok);border-color:rgba(111,174,126,.4);background:rgba(111,174,126,.07)}
+  .card h3{font-family:"Spectral",serif;font-weight:500;font-size:1.28rem;line-height:1.15;margin-bottom:8px}
+  .card .desc{color:var(--ink-soft);font-size:.86rem;flex:1}
+  .card .tags{display:flex;gap:7px;align-items:center;margin:16px 0 14px;flex-wrap:wrap}
+  .cat{font-family:"IBM Plex Mono",monospace;font-size:.68rem;letter-spacing:.05em;color:var(--ink-mute)}
+  .status{
+    font-family:"IBM Plex Mono",monospace;font-size:.68rem;letter-spacing:.04em;
+    display:inline-flex;align-items:center;gap:6px;
+  }
+  .status .s-dot{width:6px;height:6px;border-radius:50%}
+  .s-ok{color:var(--ok)} .s-ok .s-dot{background:var(--ok)}
+  .s-warn{color:var(--warn)} .s-warn .s-dot{background:var(--warn)}
+  .s-dev{color:var(--dev)} .s-dev .s-dot{background:var(--dev)}
+  .open{
+    display:flex;align-items:center;justify-content:space-between;
+    text-decoration:none;color:var(--ink);font-family:"IBM Plex Sans",sans-serif;
+    font-size:.86rem;font-weight:500;border-top:1px solid var(--line-soft);
+    padding-top:14px;margin-top:auto;transition:color .15s;
+  }
+  .card:hover .open{color:var(--gold-bright)}
+  .open.soon-label{color:var(--ink-mute);cursor:default}
+  .card.soon:hover .open{color:var(--ink-mute)}
+  .open .arrow{font-family:"IBM Plex Mono",monospace;transition:transform .18s}
+  .card:hover .open:not(.soon-label) .arrow{transform:translateX(4px)}
+  .stretch{position:absolute;inset:0;border-radius:11px}
+
+  .empty{padding:48px 0;text-align:center;color:var(--ink-mute);font-family:"IBM Plex Mono",monospace;font-size:.85rem;grid-column:1/-1}
+
+  footer{
+    border-top:1px solid var(--line-soft);margin-top:30px;padding:26px 0 40px;
+    display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;
+    font-family:"IBM Plex Mono",monospace;font-size:.72rem;color:var(--ink-mute);letter-spacing:.04em;
+  }
+  footer .gold{color:var(--gold)}
+
+  @media (max-width:560px){
+    .wrap{padding:0 18px}
+    .grid{grid-template-columns:1fr}
+    .hero{padding:34px 0 22px}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{transition:none!important;animation:none!important}
+  }
+  :focus-visible{outline:2px solid var(--gold);outline-offset:3px;border-radius:4px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="topbar">
+    <div class="brand">
+      <span class="mark">PC</span>
+      <span class="name">Projeto Consultoria <span>· CFO sob demanda</span></span>
+    </div>
+    <div class="clock"><span class="dot"></span><span id="clock">--:--:--</span></div>
+  </div>
+
+  <header class="hero">
+    <div class="eyebrow">Central de Motores</div>
+    <h1>Seus instrumentos de <em>desk</em>,<br>num só painel.</h1>
+    <p>Precificação, diagnóstico e projeção em um único acesso. Abra qualquer motor com um clique — pronto para análise interna ou para apresentar ao cliente.</p>
+    <div class="meta">
+      <span><b id="count-total">0</b> motores</span>
+      <span><b id="count-on">0</b> disponíveis</span>
+      <span><b id="count-soon">0</b> a recuperar</span>
+    </div>
+  </header>
+
+  <div class="controls">
+    <div class="search">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+      <input id="search" type="search" placeholder="Buscar motor…" aria-label="Buscar motor">
+    </div>
+    <div class="filters" id="filters" role="group" aria-label="Filtrar por categoria"></div>
+  </div>
+
+  <main class="grid" id="grid"></main>
+
+  <footer>
+    <span>Diagnóstico Financeiro · <span class="gold">MPA</span></span>
+    <span>São Paulo · <span id="year"></span></span>
+  </footer>
+
+</div>
+
+<script>
+/* ───────────────────────────────────────────────────────────────
+   MOTORES — edite aqui para adicionar / remover / renomear.
+   • file       : nome do arquivo (igual ao que está no GitHub)
+   • cat        : "Precificação" | "Diagnóstico" | "Estratégia"
+   • type       : "app" | "agente" | "xlsx"
+   • status     : "ok" (verde) | "warn" (âmbar) | "dev" (cinza)  ← só a corzinha
+   • disponivel : true  = card clicável (arquivo já está no GitHub)
+                  false = card acinzentado "A recuperar" (ainda sem arquivo)
+   ─────────────────────────────────────────────────────────────── */
+const MOTORES = [
+  {
+    nome:"Motor de Câmbio",
+    desc:"NDF, Trava cambial, Swap cambial e Comparador. Precificação multi-instrumento com curvas do dia.",
+    file:"motor-cambio.html",
+    cat:"Precificação", type:"app", status:"ok", statusLabel:"Em produção", disponivel:true
+  },
+  {
+    nome:"Motor de Crédito / CET",
+    desc:"CET e spread efetivo com interpolação flat-forward 252. Comparação de propostas de crédito.",
+    file:"motor-credito-cet.html",
+    cat:"Precificação", type:"app", status:"ok", statusLabel:"Em produção", disponivel:true
+  },
+  {
+    nome:"Diagnóstico MPA",
+    desc:"Modelo quantitativo de risco: índices de EBITDA, zonas Fleuriet (CGP×NCG), stress-test e Rating MPA.",
+    file:"motor-mpa.html",
+    cat:"Diagnóstico", type:"app", status:"dev", statusLabel:"A recuperar", disponivel:false
+  },
+  {
+    nome:"Maturidade & Riscos",
+    desc:"Diagnóstico de maturidade em gestão de riscos. Questionário interativo com pontuação por dimensão.",
+    file:"motor-maturidade-riscos.html",
+    cat:"Diagnóstico", type:"app", status:"ok", statusLabel:"Em produção", disponivel:true
+  },
+  {
+    nome:"Prompts de Diagnóstico",
+    desc:"5 prompts prontos (DRE, crédito, câmbio, caixa, síntese). Copie, cole os dados do cliente e rode no Claude.",
+    file:"prompts-diagnostico.html",
+    cat:"Diagnóstico", type:"agente", status:"ok", statusLabel:"Em produção", disponivel:true
+  },
+  {
+    nome:"Estratégia de Valor",
+    desc:"Projeção financeira plurianual. Constrói o cenário-base e simula alavancas de geração de valor.",
+    file:"motor-estrategia.html",
+    cat:"Estratégia", type:"app", status:"warn", statusLabel:"Beta", disponivel:true
+  },
+  {
+    nome:"Análise de Recebíveis",
+    desc:"Modelo de aging, concentração e simulador de carteira. Dashboard em planilha para download.",
+    file:"recebiveis.xlsx",
+    cat:"Estratégia", type:"xlsx", status:"dev", statusLabel:"A recuperar", disponivel:false
+  },
+  {
+    nome:"Copiloto do Dono",
+    desc:"Pergunte em português; a IA roteia para o motor certo e devolve o número real — câmbio, CET e caixa calculados de verdade. Interface única dos motores.",
+    file:"copiloto-do-dono.html",
+    cat:"Inteligência Artificial", type:"agente", status:"warn", statusLabel:"Beta", disponivel:true
+  },
+  {
+    nome:"Recuperação Tributária",
+    desc:"Varre XML de NF-e e SPED dos últimos 60 meses, cruza NCM/CST/CFOP e devolve achados de crédito com prova por chave de acesso.",
+    file:"relatorio-achados-tributario-mpa.html",
+    cat:"Inteligência Artificial", type:"agente", status:"warn", statusLabel:"Beta", disponivel:true
+  }
+];
+
+const CATS = ["Todos","Precificação","Diagnóstico","Estratégia","Inteligência Artificial"];
+const typeLabel = {app:"App", agente:"Agente", xlsx:"Planilha"};
+let active = "Todos";
+let query = "";
+
+const grid = document.getElementById("grid");
+const filters = document.getElementById("filters");
+
+CATS.forEach(c=>{
+  const b=document.createElement("button");
+  b.className="pill"; b.textContent=c;
+  b.setAttribute("aria-pressed", c===active);
+  b.onclick=()=>{active=c; [...filters.children].forEach(x=>x.setAttribute("aria-pressed", x.textContent===c)); render();};
+  filters.appendChild(b);
+});
+
+function render(){
+  const q=query.trim().toLowerCase();
+  const list=MOTORES.filter(m=>{
+    const okCat = active==="Todos" || m.cat===active;
+    const okQ = !q || (m.nome+" "+m.desc+" "+m.cat).toLowerCase().includes(q);
+    return okCat && okQ;
+  });
+  grid.innerHTML="";
+  if(!list.length){
+    grid.innerHTML='<div class="empty">Nenhum motor encontrado.</div>';
+    return;
+  }
+  list.forEach((m,i)=>{
+    const idx=String(i+1).padStart(2,"0");
+    const card=document.createElement("article");
+    card.className="card"+(m.disponivel?"":" soon");
+    const stretch=m.disponivel?`<a class="stretch" href="${m.file}" aria-label="Abrir ${m.nome}"></a>`:"";
+    const footer=m.disponivel
+      ? `<a class="open" href="${m.file}">Abrir motor <span class="arrow">→</span></a>`
+      : `<span class="open soon-label">A recuperar <span class="arrow">·</span></span>`;
+    card.innerHTML=`
+      ${stretch}
+      <div class="idx"><span>M-${idx}</span>
+        <span class="type-tag type-${m.type==='agente'?'agent':m.type==='xlsx'?'xlsx':'app'}">${typeLabel[m.type]}</span>
+      </div>
+      <h3>${m.nome}</h3>
+      <p class="desc">${m.desc}</p>
+      <div class="tags">
+        <span class="cat">${m.cat}</span>
+        <span class="cat">·</span>
+        <span class="status s-${m.status}"><span class="s-dot"></span>${m.statusLabel}</span>
+      </div>
+      ${footer}`;
+    grid.appendChild(card);
+  });
+}
+
+document.getElementById("count-total").textContent=MOTORES.length;
+document.getElementById("count-on").textContent=MOTORES.filter(m=>m.disponivel).length;
+document.getElementById("count-soon").textContent=MOTORES.filter(m=>!m.disponivel).length;
+document.getElementById("year").textContent=new Date().getFullYear();
+
+document.getElementById("search").addEventListener("input",e=>{query=e.target.value;render();});
+
+function tick(){
+  const d=new Date();
+  document.getElementById("clock").textContent=d.toLocaleTimeString("pt-BR",{hour12:false});
+}
+tick(); setInterval(tick,1000);
+
+render();
+</script>
+</body>
+</html>
