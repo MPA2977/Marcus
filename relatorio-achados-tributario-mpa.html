@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Relatório de Achados · Recuperação Tributária · MPA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#0B1F3A; --navy-2:#14375E; --navy-3:#1B2E4A;
+    --line:rgba(255,255,255,.10); --line-2:rgba(255,255,255,.18);
+    --gold:#C9A227; --gold-soft:#E3C766;
+    --paper:#F5F2EA; --paper-2:#EDE8DA;
+    --ink:#10202F; --ink-soft:#33414F; --mut:#8A99AC;
+    --green:#3F9D6E; --green-bg:#E7F3EC; --green-bd:#BFE0CC;
+    --amber:#C98A1E; --amber-bg:#FBF1DD; --amber-bd:#EBD7AC;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:#DED9CB;color:var(--ink);
+    font-family:'IBM Plex Sans',sans-serif;font-size:15px;line-height:1.6}
+  .doc{max-width:900px;margin:0 auto;background:var(--paper);box-shadow:0 0 80px -28px rgba(11,31,58,.45)}
+  section{padding:34px 46px}
+  @media(max-width:640px){section{padding:26px 22px}}
+
+  .eyebrow{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:1.3px;
+    text-transform:uppercase;color:#9A6B12;font-weight:600;margin-bottom:12px;display:flex;align-items:center;gap:9px}
+  .eyebrow::before{content:"";width:20px;height:1.5px;background:var(--gold)}
+  h2{font-family:'Spectral',serif;font-weight:600;font-size:24px;letter-spacing:-.2px;margin:0 0 8px}
+  .sub{color:var(--ink-soft);max-width:64ch;margin:0 0 22px}
+  p{margin:0 0 13px}
+
+  /* HEADER */
+  .head{background:var(--navy);color:#EAF0F7;
+    background-image:radial-gradient(820px 380px at 90% -10%, rgba(201,162,39,.16), transparent 62%)}
+  .head-inner{padding:40px 46px 34px}
+  @media(max-width:640px){.head-inner{padding:30px 22px 26px}}
+  .brandline{display:flex;align-items:center;gap:13px;margin-bottom:30px}
+  .mark{width:42px;height:42px;border-radius:10px;background:linear-gradient(150deg,var(--navy-2),var(--navy-3));
+    border:1px solid var(--line-2);display:grid;place-items:center;
+    font-family:'Spectral',serif;font-weight:700;font-size:20px;color:var(--gold)}
+  .brandline .b1{font-family:'Spectral',serif;font-weight:600;font-size:16px}
+  .brandline .b2{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--mut);letter-spacing:.5px}
+  .rtitle{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--gold-soft);margin-bottom:10px}
+  h1{font-family:'Spectral',serif;font-weight:600;font-size:clamp(26px,4.6vw,34px);line-height:1.14;margin:0 0 18px;max-width:22ch}
+  .meta{display:flex;flex-wrap:wrap;gap:8px 20px;font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:#B6C4D4;border-top:1px solid var(--line);padding-top:16px}
+  .meta b{color:#EAF0F7;font-weight:500}
+
+  /* HERO NUMBER */
+  .headline{background:var(--navy-2);border:1px solid var(--line-2);border-radius:14px;padding:20px 22px;margin-top:24px;
+    display:flex;flex-wrap:wrap;align-items:flex-end;gap:8px 28px}
+  .headline .big{font-family:'Spectral',serif;font-weight:600;font-size:clamp(34px,8vw,48px);line-height:1;color:#fff}
+  .headline .big small{font-size:.32em;font-family:'IBM Plex Mono',monospace;color:var(--gold-soft);letter-spacing:.4px;display:block;margin-bottom:6px}
+  .headline .side{font-size:12.5px;color:#C6D2E0;max-width:30ch}
+  .headline .side b{color:var(--gold-soft)}
+
+  /* URGENCY STRIP */
+  .urg{background:linear-gradient(90deg,rgba(201,162,39,.14),transparent);border-left:3px solid var(--gold);
+    padding:14px 18px;margin:22px 0 0;border-radius:0 8px 8px 0;font-size:13.5px;color:#E7EDF5}
+  .urg b{color:var(--gold-soft)}
+
+  /* SUMMARY STATS */
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:rgba(16,32,47,.10);border:1px solid rgba(16,32,47,.10);border-radius:12px;overflow:hidden}
+  @media(max-width:640px){.stats{grid-template-columns:1fr 1fr}}
+  .stat{background:#fff;padding:16px 16px}
+  .stat .v{font-family:'Spectral',serif;font-weight:600;font-size:22px;color:var(--ink)}
+  .stat .l{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.4px;text-transform:uppercase;color:#9A8763;margin-top:3px}
+
+  /* CHART */
+  .chartbox{background:#fff;border:1px solid rgba(16,32,47,.10);border-radius:12px;padding:18px 18px 14px;margin-top:18px}
+  .chart-title{font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.5px;text-transform:uppercase;color:#9A8763;margin-bottom:12px}
+
+  /* THESIS CARDS */
+  .tese{background:#fff;border:1px solid rgba(16,32,47,.11);border-radius:12px;margin-bottom:12px;overflow:hidden}
+  .tese-head{padding:16px 18px;display:flex;gap:14px;align-items:flex-start;cursor:pointer;transition:background .15s}
+  .tese-head:hover{background:#FBFAF6}
+  .tese-main{flex:1;min-width:0}
+  .tese-top{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-bottom:3px}
+  .tese-name{font-family:'Spectral',serif;font-weight:600;font-size:16.5px;color:var(--ink)}
+  .badge{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.6px;text-transform:uppercase;font-weight:600;padding:3px 7px;border-radius:99px}
+  .badge.ok{background:var(--green-bg);color:var(--green);border:1px solid var(--green-bd)}
+  .badge.an{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-bd)}
+  .tese-legal{font-family:'IBM Plex Mono',monospace;font-size:11px;color:#9A8763;letter-spacing:.2px}
+  .tese-val{text-align:right;flex:none}
+  .tese-val .vv{font-family:'Spectral',serif;font-weight:600;font-size:19px;color:var(--ink);white-space:nowrap}
+  .tese-val .vl{font-family:'IBM Plex Mono',monospace;font-size:9.5px;color:#9A8763;letter-spacing:.3px;text-transform:uppercase}
+  .chev{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--gold);margin-top:4px;display:flex;align-items:center;gap:5px;justify-content:flex-end}
+
+  .ev{max-height:0;overflow:hidden;transition:max-height .3s ease;background:#FAF8F2;border-top:0 solid transparent}
+  .ev.open{max-height:600px;border-top:1px solid rgba(16,32,47,.08)}
+  .ev-in{padding:14px 18px}
+  .ev-cap{font-family:'IBM Plex Mono',monospace;font-size:9.5px;letter-spacing:.5px;text-transform:uppercase;color:#9A8763;margin-bottom:9px}
+  .ev-table{width:100%;border-collapse:collapse;font-family:'IBM Plex Mono',monospace;font-size:11px}
+  .ev-table th{text-align:left;color:#9A8763;font-weight:500;padding:5px 8px;border-bottom:1px solid rgba(16,32,47,.1);font-size:9.5px;letter-spacing:.3px;text-transform:uppercase}
+  .ev-table td{padding:6px 8px;border-bottom:1px solid rgba(16,32,47,.05);color:var(--ink-soft)}
+  .ev-table td b{color:var(--ink)}
+  .ev-table .wrong{color:#C0392B}
+  .ev-table .right{color:var(--green)}
+  .ev-note{font-size:12px;color:var(--ink-soft);margin-top:11px;line-height:1.5}
+
+  /* IMPACT */
+  .impact{background:var(--navy);color:#EAF0F7;background-image:radial-gradient(620px 280px at 8% 120%, rgba(201,162,39,.12), transparent 60%)}
+  .impact h2{color:#fff}
+  .impact .sub{color:#C6D2E0}
+  .imp-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+  @media(max-width:640px){.imp-grid{grid-template-columns:1fr}}
+  .imp{background:var(--navy);padding:18px 17px}
+  .imp .iv{font-family:'Spectral',serif;font-weight:600;font-size:24px;color:var(--gold-soft)}
+  .imp .il{font-size:12.5px;color:#B6C4D4;margin-top:4px}
+  .pull{margin-top:22px;font-family:'Spectral',serif;font-style:italic;font-size:17px;line-height:1.45;color:#E7EDF5;border-left:2px solid var(--gold);padding-left:16px;max-width:60ch}
+
+  /* METHOD / BOUNDARY */
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+  @media(max-width:640px){.grid2{grid-template-columns:1fr;gap:14px}}
+  .panel{background:#fff;border:1px solid rgba(16,32,47,.11);border-radius:12px;padding:18px 18px}
+  .panel h3{font-family:'Spectral',serif;font-weight:600;font-size:16px;margin:0 0 9px}
+  .panel ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:7px}
+  .panel li{font-size:13px;color:var(--ink-soft);display:flex;gap:8px;align-items:flex-start}
+  .panel li::before{content:"";flex:none;width:5px;height:5px;border-radius:50%;background:var(--gold);margin-top:7px}
+  .boundary{background:var(--amber-bg);border:1px solid var(--amber-bd);border-radius:10px;padding:13px 15px;font-size:12.5px;color:#6E4D12;margin-top:14px}
+  .boundary b{color:#5A3E0A}
+
+  /* CLOSE */
+  .close{background:var(--navy-2);color:#EAF0F7;text-align:center}
+  .close h2{color:#fff;max-width:26ch;margin:0 auto 10px}
+  .close p{color:#C6D2E0;max-width:50ch;margin:0 auto 18px}
+  .cta{display:inline-flex;gap:18px;flex-wrap:wrap;justify-content:center;font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:var(--gold-soft)}
+  .foot{font-family:'IBM Plex Mono',monospace;font-size:9.5px;color:#7A8696;letter-spacing:.3px;padding:18px 46px;line-height:1.7;background:var(--navy);text-align:center}
+  @media(max-width:640px){.foot{padding:18px 22px}}
+</style>
+</head>
+<body>
+<div class="doc">
+
+  <!-- HEADER -->
+  <header class="head">
+    <div class="head-inner">
+      <div class="brandline">
+        <div class="mark">M</div>
+        <div>
+          <div class="b1">MPA · Consultoria Financeira</div>
+          <div class="b2">tesouraria + CFO por demanda</div>
+        </div>
+      </div>
+      <div class="rtitle">Relatório de Achados · Diagnóstico</div>
+      <h1>Recuperação Tributária — créditos do sistema antigo</h1>
+      <div class="meta">
+        <span>Cliente <b>Metalúrgica Vértice Ltda</b></span>
+        <span>Regime <b>Lucro Real</b></span>
+        <span>Período <b>jun/2021 – mai/2026 (60 meses)</b></span>
+        <span>Base <b>XML NF-e + SPED Fiscal + EFD-Contribuições</b></span>
+      </div>
+
+      <div class="headline">
+        <div class="big"><small>Potencial a recuperar · corrigido pela Selic</small>R$ 2,18 mi</div>
+        <div class="side">Crédito bruto identificado nos últimos 5 anos. Estimativa líquida prudente após triagem de glosa: <b>R$ 1,85 mi</b>.</div>
+      </div>
+
+      <div class="urg">
+        <b>Janela com prazo.</b> PIS e COFINS são extintos em 2027 e o ICMS migra para o IBS entre 2029 e 2033. O crédito acumulado do sistema antigo precisa ser levantado e protocolado agora — depois ele trava na transição.
+      </div>
+    </div>
+  </header>
+
+  <!-- RESUMO -->
+  <section>
+    <div class="eyebrow">resumo executivo</div>
+    <h2>Seis frentes de crédito, todas com prova documental</h2>
+    <p class="sub">A varredura cruzou cada item de nota com NCM, CST e CFOP contra a legislação e a jurisprudência. Abaixo, o estoque por tese; mais adiante, a evidência por chave de acesso.</p>
+    <div class="stats">
+      <div class="stat"><div class="v">R$ 2,18 mi</div><div class="l">corrigido (Selic)</div></div>
+      <div class="stat"><div class="v">~14.800</div><div class="l">NF-e analisadas</div></div>
+      <div class="stat"><div class="v">2,4%</div><div class="l">da carga do período</div></div>
+      <div class="stat"><div class="v">&lt; 5%</div><div class="l">glosa estimada</div></div>
+    </div>
+
+    <div class="chartbox">
+      <div class="chart-title">Crédito identificado por tese (R$ mil, corrigido)</div>
+      <div id="chart"></div>
+    </div>
+  </section>
+
+  <!-- ACHADOS -->
+  <section style="padding-top:6px">
+    <div class="eyebrow">achados detalhados</div>
+    <h2>As teses — e a prova de cada uma</h2>
+    <p class="sub">Toque em cada frente para ver a amostra de evidência. Cada crédito é rastreável até a chave da NF-e — sem isso, não há sustentação numa fiscalização.</p>
+
+    <div id="teses"></div>
+  </section>
+
+  <!-- IMPACTO -->
+  <section class="impact">
+    <div class="eyebrow" style="color:var(--gold-soft)">o que isso faz pelo caixa</div>
+    <h2>Não é só imposto de volta. É giro liberado.</h2>
+    <p class="sub">Recuperação tributária vista pela ótica de tesouraria: o crédito vira capital de giro e abate dívida. Sobre a estrutura atual da Vértice, o efeito:</p>
+    <div class="imp-grid">
+      <div class="imp"><div class="iv">~2,1 meses</div><div class="il">de necessidade de capital de giro (NCG) coberta pelo crédito líquido</div></div>
+      <div class="imp"><div class="iv">R$ 1,85 mi</div><div class="il">de caixa novo sem tomar dívida — alívio direto na Tesouraria</div></div>
+      <div class="imp"><div class="iv">+R$ 1,85 mi</div><div class="il">de efeito não recorrente no resultado, mais economia estrutural daqui pra frente</div></div>
+    </div>
+    <div class="pull">"O crédito que resgatamos não é dinheiro extra — é o seu, que estava parado no Fisco. A diferença é que agora ele banca o seu giro em vez do banco."</div>
+  </section>
+
+  <!-- METODO + LIMITE -->
+  <section>
+    <div class="eyebrow">como foi feito</div>
+    <h2>Metodologia e responsabilidade</h2>
+    <div class="grid2">
+      <div class="panel">
+        <h3>O que analisamos</h3>
+        <ul>
+          <li>XMLs de NF-e de entrada e saída dos últimos 60 meses, puxados da Sefaz — não só do ERP</li>
+          <li>SPED Fiscal (registros C100/C170) e EFD-Contribuições, cruzados item a item</li>
+          <li>NCM, CST e CFOP de cada linha contra a legislação e teses pacificadas</li>
+          <li>Cada crédito corrigido mês a mês pela Selic até a data-base</li>
+        </ul>
+      </div>
+      <div class="panel">
+        <h3>Como o crédito volta</h3>
+        <ul>
+          <li>Teses pacificadas: via administrativa, por PER/DCOMP na Receita</li>
+          <li>Compensação com tributos futuros ou restituição em espécie</li>
+          <li>Retificação das obrigações acessórias do período</li>
+          <li>Meta de qualidade: glosa abaixo de 5% nos créditos incontestes</li>
+        </ul>
+      </div>
+    </div>
+    <div class="boundary">
+      <b>Divisão de papéis.</b> A MPA origina, quantifica e enquadra a oportunidade no contexto financeiro da empresa. A execução fiscal — protocolo, retificação e sustentação das teses — é conduzida em conjunto com o escritório tributarista parceiro, que assina tecnicamente. É essa separação que protege a empresa de apropriação indevida (autuação e multa de até 75%).
+    </div>
+  </section>
+
+  <!-- CLOSE -->
+  <section class="close">
+    <div class="eyebrow" style="justify-content:center;color:var(--gold-soft)">próximo passo</div>
+    <h2>Validar as teses em análise e iniciar o protocolo</h2>
+    <p>As frentes pacificadas podem entrar em compensação de imediato. As frentes em análise passam pela validação do parceiro tributarista antes do pedido.</p>
+    <div class="cta">
+      <span>◷ Honorário sobre êxito · 20–30% do líquido homologado</span>
+    </div>
+  </section>
+
+  <div class="foot">
+    Documento ilustrativo de demonstração · valores, cliente e evidências são exemplos · não constitui parecer fiscal ou jurídico ·
+    a viabilidade de cada crédito depende de análise documental e da legislação vigente na data do pedido · MPA Consultoria Financeira
+  </div>
+
+</div>
+
+<script>
+const BRL = v => 'R$ '+v.toLocaleString('pt-BR',{minimumFractionDigits:0,maximumFractionDigits:0});
+const milK = v => (v/1000).toLocaleString('pt-BR',{maximumFractionDigits:0});
+
+/* dados de exemplo (corrigido pela Selic, R$) */
+const TESES = [
+  { nome:"Exclusão do ICMS da base de PIS/COFINS", legal:"STF · Tema 69 (\"Tese do Século\")", status:"ok", statusTxt:"pacificada", valor:712000,
+    cap:"Amostra · NF-e de saída com ICMS destacado indevidamente na base de PIS/COFINS",
+    cols:["Chave NF-e (mascarada)","Base c/ ICMS","Base correta","PIS/COFINS pago a maior"],
+    rows:[
+      ["3522 0904 ****  **** 8841","R$ 184.200","R$ 152.900","<b>R$ 2.895</b>"],
+      ["3523 1107 ****  **** 2207","R$ 96.500","R$ 80.100","<b>R$ 1.517</b>"],
+      ["3524 0302 ****  **** 6650","R$ 311.800","R$ 258.700","<b>R$ 4.912</b>"]
+    ],
+    note:"Replicado em ~9.200 notas de saída do período. O ICMS destacado não é faturamento, logo não compõe a base das contribuições." },
+
+  { nome:"PIS/COFINS sobre insumos (conceito ampliado)", legal:"STJ · REsp 1.221.170 · essencialidade e relevância", status:"an", statusTxt:"requer análise", valor:548000,
+    cap:"Amostra · despesas essenciais à produção sem crédito apropriado",
+    cols:["Item","Natureza","CST aplicado","Crédito devido"],
+    rows:[
+      ["Energia elétrica — fornos","Insumo de produção","<span class='wrong'>sem crédito</span>","<b>R$ 9,25%</b>"],
+      ["Frete entre estabelecimentos","Essencial à atividade","<span class='wrong'>sem crédito</span>","<b>elegível</b>"],
+      ["Manutenção de máquinas (PJ)","Relevante à produção","<span class='wrong'>sem crédito</span>","<b>elegível</b>"]
+    ],
+    note:"O conceito de insumo vai além da matéria-prima. Cada rubrica precisa de laudo de essencialidade — frente conduzida com o parceiro tributarista." },
+
+  { nome:"ICMS sobre energia elétrica de produção", legal:"LC 87/96 · uso em processo industrial", status:"an", statusTxt:"requer análise", valor:318000,
+    cap:"Amostra · ICMS de energia consumida no processo, não creditado",
+    cols:["Chave NF-e (energia)","ICMS destacado","% produção","Crédito recuperável"],
+    rows:[
+      ["3522 0610 ****  **** 1190","R$ 41.300","78%","<b>R$ 32.214</b>"],
+      ["3523 0411 ****  **** 7723","R$ 38.900","78%","<b>R$ 30.342</b>"]
+    ],
+    note:"Exige laudo técnico de quanto da energia entra na produção (vs. administrativo). Recuperável a parcela industrial." },
+
+  { nome:"Exclusão do ICMS-ST da base de PIS/COFINS", legal:"STJ · Tema 1125", status:"ok", statusTxt:"pacificada", valor:241000,
+    cap:"Amostra · ICMS-ST compondo indevidamente a base das contribuições",
+    cols:["Chave NF-e (entrada)","ICMS-ST","Base reduzida","Crédito"],
+    rows:[
+      ["3522 1205 ****  **** 4418","R$ 12.700","aplicada","<b>R$ 1.175</b>"],
+      ["3523 0808 ****  **** 9931","R$ 28.400","aplicada","<b>R$ 2.627</b>"]
+    ],
+    note:"Tese consolidada — execução técnica de cálculo, não discussão. Aplica-se ao contribuinte substituído." },
+
+  { nome:"ICMS de ativo imobilizado (CIAP)", legal:"LC 87/96 · 1/48 avos mensais", status:"an", statusTxt:"requer análise", valor:184000,
+    cap:"Amostra · máquinas com crédito de ICMS não apropriado via CIAP",
+    cols:["Bem","NF-e aquisição","ICMS","Crédito (48 avos)"],
+    rows:[
+      ["Centro de usinagem CNC","3521 0307 **** 3340","R$ 96.000","<b>R$ 2.000/mês</b>"],
+      ["Prensa hidráulica 200t","3522 1109 **** 8852","R$ 61.500","<b>R$ 1.281/mês</b>"]
+    ],
+    note:"Crédito de bens do imobilizado usado na produção, apropriável em 48 parcelas — frequentemente esquecido." },
+
+  { nome:"PIS/COFINS monofásico — NCM incorreto", legal:"erro de cadastro em revenda", status:"ok", statusTxt:"pacificada", valor:97000,
+    cap:"Amostra · produtos monofásicos tributados na alíquota cheia por NCM errado",
+    cols:["Produto","NCM","Tributado","Devido"],
+    rows:[
+      ["Lubrificante industrial","2710.19.32","<span class='wrong'>9,25%</span>","<span class='right'>monofásico</span>"],
+      ["Pneu de empilhadeira","4011.80.00","<span class='wrong'>9,25%</span>","<span class='right'>monofásico</span>"]
+    ],
+    note:"NCM mal cadastrado no ERP fez itens já tributados na origem pagarem de novo. Correção e restituição diretas." }
+];
+
+/* render teses */
+const cont = document.getElementById('teses');
+TESES.forEach((t,i)=>{
+  const el=document.createElement('div'); el.className='tese';
+  const head=document.createElement('div'); head.className='tese-head';
+  head.innerHTML=`
+    <div class="tese-main">
+      <div class="tese-top">
+        <span class="tese-name">${t.nome}</span>
+        <span class="badge ${t.status}">${t.statusTxt}</span>
+      </div>
+      <div class="tese-legal">${t.legal}</div>
+    </div>
+    <div class="tese-val">
+      <div class="vv">${BRL(t.valor)}</div>
+      <div class="vl">corrigido</div>
+      <div class="chev"><span class="chv">ver evidências</span> ›</div>
+    </div>`;
+  const ev=document.createElement('div'); ev.className='ev';
+  ev.innerHTML=`<div class="ev-in">
+      <div class="ev-cap">${t.cap}</div>
+      <table class="ev-table"><thead><tr>${t.cols.map(c=>`<th>${c}</th>`).join('')}</tr></thead>
+      <tbody>${t.rows.map(r=>`<tr>${r.map(c=>`<td>${c}</td>`).join('')}</tr>`).join('')}</tbody></table>
+      <div class="ev-note">${t.note}</div>
+    </div>`;
+  head.onclick=()=>{ const open=ev.classList.toggle('open'); head.querySelector('.chv').textContent=open?'ocultar evidências':'ver evidências'; };
+  el.appendChild(head); el.appendChild(ev); cont.appendChild(el);
+});
+
+/* chart */
+function barChart(items){
+  const max=Math.max(...items.map(i=>i.v)), W=560, rowH=30, gap=10, H=items.length*(rowH+gap);
+  let s=`<svg viewBox="0 0 ${W} ${H}" width="100%" preserveAspectRatio="xMidYMid meet">`;
+  items.forEach((it,k)=>{
+    const y=k*(rowH+gap), w=Math.max(3,it.v/max*(W-300));
+    s+=`<text x="0" y="${y+19}" font-family="IBM Plex Mono" font-size="11" fill="#5A4E34">${it.n}</text>`;
+    s+=`<rect x="240" y="${y+5}" width="${w}" height="${rowH-10}" rx="4" fill="${it.c}"/>`;
+    s+=`<text x="${240+w+8}" y="${y+19}" font-family="IBM Plex Mono" font-size="11.5" font-weight="600" fill="#10202F">${milK(it.v)}</text>`;
+  });
+  return s+`</svg>`;
+}
+document.getElementById('chart').innerHTML = barChart(
+  TESES.slice().sort((a,b)=>b.valor-a.valor).map(t=>({
+    n: t.nome.length>30 ? t.nome.slice(0,28)+'…' : t.nome,
+    v: t.valor, c: t.status==='ok' ? '#3F9D6E' : '#C98A1E'
+  }))
+);
+</script>
+</body>
+</html>
