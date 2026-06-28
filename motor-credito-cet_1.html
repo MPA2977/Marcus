@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Motor de Crédito — CET &amp; Spread</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Spectral:wght@300;400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy-900:#08111f;
+    --navy-800:#0b1a2e;
+    --navy-700:#0f223b;
+    --navy-600:#16304f;
+    --line:#1f3a5c;
+    --gold:#c9a227;
+    --gold-soft:#d8be63;
+    --ink:#eaf0f7;
+    --ink-dim:#9bb0c9;
+    --ink-faint:#5e7896;
+    --green:#4fb286;
+    --red:#e0707a;
+    --amber:#e0a44c;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--navy-900);color:var(--ink);font-family:'IBM Plex Sans',sans-serif;-webkit-font-smoothing:antialiased}
+  body{
+    background:
+      radial-gradient(1100px 600px at 85% -10%, rgba(201,162,39,.07), transparent 60%),
+      radial-gradient(900px 500px at -10% 110%, rgba(22,48,79,.6), transparent 55%),
+      var(--navy-900);
+    min-height:100vh;
+    padding:0 0 64px;
+  }
+  .num{font-family:'IBM Plex Mono',monospace;font-feature-settings:"tnum" 1}
+
+  /* Header */
+  header.app{
+    border-bottom:1px solid var(--line);
+    padding:26px 40px 22px;
+    display:flex;align-items:flex-end;justify-content:space-between;
+    background:linear-gradient(180deg, rgba(11,26,46,.6), transparent);
+  }
+  .brand{display:flex;flex-direction:column;gap:6px}
+  .brand .mark{display:flex;align-items:center;gap:12px}
+  .brand .glyph{
+    width:34px;height:34px;border:1px solid var(--gold);border-radius:3px;
+    display:grid;place-items:center;color:var(--gold);
+    font-family:'Spectral',serif;font-weight:600;font-size:19px;
+    box-shadow:inset 0 0 0 3px rgba(201,162,39,.08);
+  }
+  .brand h1{font-family:'Spectral',serif;font-weight:500;font-size:22px;letter-spacing:.2px}
+  .brand .sub{color:var(--ink-dim);font-size:12px;letter-spacing:.14em;text-transform:uppercase}
+  .phase-tag{
+    color:var(--gold-soft);font-size:11px;letter-spacing:.16em;text-transform:uppercase;
+    border:1px solid var(--line);border-radius:999px;padding:6px 13px;
+  }
+  .actions{display:flex;gap:10px}
+  button.ghost{
+    background:transparent;border:1px solid var(--line);color:var(--ink-dim);
+    font-family:'IBM Plex Sans';font-size:13px;padding:9px 16px;border-radius:4px;cursor:pointer;
+    transition:.18s;
+  }
+  button.ghost:hover{border-color:var(--gold);color:var(--gold-soft)}
+
+  /* Layout */
+  .wrap{max-width:1240px;margin:0 auto;padding:30px 40px 0;display:grid;grid-template-columns:minmax(360px,420px) 1fr;gap:30px;align-items:start}
+  @media(max-width:980px){.wrap{grid-template-columns:1fr}}
+
+  .panel{
+    background:linear-gradient(180deg, var(--navy-800), var(--navy-700));
+    border:1px solid var(--line);border-radius:10px;
+    box-shadow:0 18px 40px -24px rgba(0,0,0,.8);
+  }
+  .panel > .ph{
+    padding:16px 22px;border-bottom:1px solid var(--line);
+    display:flex;align-items:center;gap:10px;
+  }
+  .ph .dot{width:7px;height:7px;border-radius:50%;background:var(--gold)}
+  .ph h2{font-family:'Spectral',serif;font-weight:500;font-size:15px;letter-spacing:.3px}
+  .ph .hint{margin-left:auto;color:var(--ink-faint);font-size:11px}
+
+  /* Inputs */
+  .group{padding:18px 22px;border-bottom:1px solid rgba(31,58,92,.5)}
+  .group:last-child{border-bottom:none}
+  .group-title{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold-soft);margin-bottom:14px}
+  .field{margin-bottom:14px}
+  .field:last-child{margin-bottom:0}
+  .field label{display:block;font-size:12.5px;color:var(--ink-dim);margin-bottom:6px}
+  .field .row{display:flex;gap:10px}
+  .inp{
+    width:100%;background:var(--navy-900);border:1px solid var(--line);border-radius:5px;
+    color:var(--ink);font-family:'IBM Plex Mono',monospace;font-size:14px;padding:10px 12px;
+    transition:.15s;
+  }
+  .inp:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(201,162,39,.1)}
+  .inp::placeholder{color:var(--ink-faint)}
+  select.inp{font-family:'IBM Plex Sans';cursor:pointer}
+  .suffix{position:relative}
+  .suffix span{position:absolute;right:12px;top:50%;transform:translateY(-50%);color:var(--ink-faint);font-size:12px;font-family:'IBM Plex Mono'}
+  .seg{display:flex;border:1px solid var(--line);border-radius:5px;overflow:hidden}
+  .seg button{flex:1;background:var(--navy-900);border:none;color:var(--ink-dim);padding:9px;font-size:12px;cursor:pointer;font-family:'IBM Plex Sans';transition:.15s}
+  .seg button.on{background:rgba(201,162,39,.14);color:var(--gold-soft)}
+  .note{font-size:11px;color:var(--ink-faint);line-height:1.5;margin-top:8px}
+  .note b{color:var(--amber);font-weight:500}
+
+  /* Results */
+  .kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border-radius:10px 10px 0 0;overflow:hidden}
+  .kpi{background:var(--navy-700);padding:20px 20px 18px}
+  .kpi .lbl{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-faint);margin-bottom:9px}
+  .kpi .val{font-family:'IBM Plex Mono';font-size:27px;font-weight:500;letter-spacing:-.5px}
+  .kpi .val.gold{color:var(--gold)}
+  .kpi .sub2{font-size:11.5px;color:var(--ink-dim);margin-top:5px;font-family:'IBM Plex Mono'}
+  @media(max-width:560px){.kpis{grid-template-columns:1fr}}
+
+  .spread-card{padding:22px;border-bottom:1px solid var(--line);display:flex;gap:24px;align-items:center;flex-wrap:wrap}
+  .spread-main{flex:1;min-width:220px}
+  .spread-main .lbl{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-faint);margin-bottom:8px}
+  .spread-main .big{font-family:'IBM Plex Mono';font-size:40px;font-weight:600;letter-spacing:-1px;line-height:1}
+  .spread-main .verdict{font-size:13px;margin-top:10px;line-height:1.5;color:var(--ink-dim)}
+  .gauge{flex:1;min-width:200px}
+  .gauge-bar{height:10px;border-radius:6px;background:linear-gradient(90deg,var(--green),var(--amber) 55%,var(--red));position:relative;margin:8px 0 6px}
+  .gauge-mark{position:absolute;top:-5px;width:3px;height:20px;background:var(--ink);border-radius:2px;box-shadow:0 0 0 2px var(--navy-700)}
+  .gauge-scale{display:flex;justify-content:space-between;font-size:10.5px;color:var(--ink-faint);font-family:'IBM Plex Mono'}
+
+  .decomp{padding:20px 22px;border-bottom:1px solid var(--line)}
+  .decomp h3, .schedule h3, .chartbox h3{font-family:'Spectral',serif;font-weight:500;font-size:14px;margin-bottom:14px;color:var(--ink)}
+  .bar-row{display:grid;grid-template-columns:160px 1fr 96px;align-items:center;gap:12px;margin-bottom:10px;font-size:12.5px}
+  .bar-row .nm{color:var(--ink-dim)}
+  .bar-track{height:8px;background:var(--navy-900);border-radius:5px;overflow:hidden}
+  .bar-fill{height:100%;border-radius:5px}
+  .bar-row .vv{text-align:right;font-family:'IBM Plex Mono';color:var(--ink)}
+
+  .chartbox{padding:20px 22px;border-bottom:1px solid var(--line)}
+  #saldoChart{width:100%;height:180px;display:block}
+
+  .schedule{padding:20px 22px}
+  .tbl-scroll{max-height:320px;overflow:auto;border:1px solid var(--line);border-radius:7px}
+  table{width:100%;border-collapse:collapse;font-size:12.5px}
+  thead th{position:sticky;top:0;background:var(--navy-600);color:var(--ink-dim);text-align:right;padding:10px 14px;font-weight:500;font-size:11px;letter-spacing:.06em;text-transform:uppercase;border-bottom:1px solid var(--line)}
+  thead th:first-child{text-align:center}
+  tbody td{padding:8px 14px;text-align:right;font-family:'IBM Plex Mono';border-bottom:1px solid rgba(31,58,92,.4);color:var(--ink)}
+  tbody td:first-child{text-align:center;color:var(--ink-faint)}
+  tbody tr:hover td{background:rgba(201,162,39,.05)}
+
+  footer.app{max-width:1240px;margin:24px auto 0;padding:0 40px;color:var(--ink-faint);font-size:11px;line-height:1.6}
+
+  /* Tabs + curva */
+  .tabs{max-width:1240px;margin:24px auto 0;padding:0 40px;display:flex;gap:8px}
+  .tab{background:transparent;border:1px solid var(--line);border-bottom:none;color:var(--ink-dim);font-family:'Spectral',serif;font-size:14.5px;padding:11px 22px;border-radius:8px 8px 0 0;cursor:pointer;transition:.16s}
+  .tab.on{background:var(--navy-800);color:var(--gold-soft);border-color:var(--gold)}
+  .hide{display:none}
+  .curve-help{max-width:1240px;margin:0 auto;padding:18px 40px 0;color:var(--ink-dim);font-size:12.5px;line-height:1.6}
+  .curve-help b{color:var(--ink)}
+  .curve-wrap{max-width:760px;margin:14px auto 0;padding:0 40px}
+  .uprow{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px}
+  .file-btn{position:relative;overflow:hidden}
+  .file-btn input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;font-size:0}
+  textarea.inp{font-family:'IBM Plex Mono';font-size:12px;resize:vertical;min-height:80px;line-height:1.5}
+  .statline{font-size:11.5px;color:var(--gold-soft);font-family:'IBM Plex Mono';margin:10px 0 4px}
+  .curve-chart{width:100%;height:160px;display:block;margin:6px 0}
+  .tbl-wrap{max-height:220px;overflow:auto;border:1px solid var(--line);border-radius:7px;margin-top:6px}
+  .vtable{width:100%;border-collapse:collapse;font-size:12.5px}
+  .vtable th{position:sticky;top:0;background:var(--navy-600);color:var(--ink-faint);font-size:10px;text-transform:uppercase;letter-spacing:.08em;text-align:left;padding:7px 8px;border-bottom:1px solid var(--line)}
+  .vtable td{padding:2px 4px;border-bottom:1px solid rgba(31,58,92,.4)}
+  .vtable input{width:100%;background:transparent;border:none;color:var(--ink);font-family:'IBM Plex Mono';font-size:12.5px;padding:6px}
+  .vtable input:focus{outline:none;background:var(--navy-900);border-radius:4px}
+  .vtable .del{color:var(--ink-faint);cursor:pointer;text-align:center;width:30px;font-size:15px}
+  .vtable .del:hover{color:var(--red)}
+
+  /* Print */
+  @media print{
+    body{background:#fff;color:#0b1a2e}
+    header.app,.actions,.note{}
+    .panel{box-shadow:none;break-inside:avoid}
+    .wrap{grid-template-columns:1fr;gap:18px}
+    button,.tabs{display:none}
+  }
+</style>
+</head>
+<body>
+<header class="app">
+  <div class="brand">
+    <div class="mark">
+      <div class="glyph">C</div>
+      <h1>Motor de Crédito — CET &amp; Spread</h1>
+    </div>
+    <span class="sub">Custo Efetivo Total · Spread sobre a curva</span>
+  </div>
+  <div style="display:flex;align-items:center;gap:16px">
+    <span class="phase-tag">Fase 1 · Interno</span>
+    <div class="actions">
+      <button class="ghost" onclick="window.print()">Exportar PDF</button>
+    </div>
+  </div>
+</header>
+
+<div class="tabs">
+  <button class="tab on" id="tabOp" onclick="setTab('op')">Operação</button>
+  <button class="tab" id="tabCurva" onclick="setTab('curva')">Curva de referência</button>
+</div>
+
+<div id="mpaCliBanner"></div>
+
+<div class="wrap" id="opView">
+  <!-- ============ INPUTS ============ -->
+  <div class="panel">
+    <div class="ph"><span class="dot"></span><h2>Parâmetros da operação</h2></div>
+
+    <div class="group">
+      <div class="group-title">Operação</div>
+      <div class="field">
+        <label>Principal contratado</label>
+        <div class="suffix"><input class="inp num" id="principal" inputmode="numeric" value="5.000.000,00"><span>R$</span></div>
+      </div>
+      <div class="field">
+        <div class="row">
+          <div style="flex:1">
+            <label>Prazo total</label>
+            <div class="suffix"><input class="inp num" id="prazo" value="36"><span>meses</span></div>
+          </div>
+          <div style="flex:1">
+            <label>Carência de amort.</label>
+            <div class="suffix"><input class="inp num" id="carencia" value="0"><span>meses</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="field">
+        <label>Taxa nominal contratada (a.a.)</label>
+        <div class="suffix"><input class="inp num" id="taxa" value="14,50"><span>%</span></div>
+      </div>
+      <div class="field">
+        <label>Sistema de amortização</label>
+        <select class="inp" id="sistema">
+          <option value="price">Price (parcela fixa)</option>
+          <option value="sac">SAC (amortização constante)</option>
+          <option value="bullet">Bullet (juros periódicos + principal no fim)</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="group">
+      <div class="group-title">Custos / encargos</div>
+      <div class="field">
+        <label>Estruturação / comissão de abertura</label>
+        <div class="row">
+          <div class="seg" style="width:120px" id="estrMode">
+            <button class="on" data-m="pct" onclick="setMode('estr','pct')">%</button>
+            <button data-m="abs" onclick="setMode('estr','abs')">R$</button>
+          </div>
+          <div class="suffix" style="flex:1"><input class="inp num" id="estr" value="1,50"><span id="estrSfx">%</span></div>
+        </div>
+      </div>
+      <div class="field">
+        <label>Tarifas / registro / cartório</label>
+        <div class="suffix"><input class="inp num" id="tarifas" value="3500"><span>R$</span></div>
+      </div>
+      <div class="field">
+        <label>IOF</label>
+        <div class="seg" style="margin-bottom:8px" id="iofMode">
+          <button class="on" data-m="calc" onclick="setMode('iof','calc')">Calcular</button>
+          <button data-m="manual" onclick="setMode('iof','manual')">Inserir valor</button>
+        </div>
+        <div id="iofCalc">
+          <div class="row">
+            <div style="flex:1">
+              <label style="font-size:11px">Alíquota diária</label>
+              <div class="suffix"><input class="inp num" id="iofDia" value="0,0082"><span>%a.d.</span></div>
+            </div>
+            <div style="flex:1">
+              <label style="font-size:11px">Adicional</label>
+              <div class="suffix"><input class="inp num" id="iofAdd" value="0,38"><span>%</span></div>
+            </div>
+          </div>
+          <p class="note"><b>Verificar vigência.</b> As alíquotas de IOF/crédito mudaram em 2025 — confirme as atuais antes de usar com cliente. Cálculo simplificado sobre o principal, base máx. 365 dias.</p>
+        </div>
+        <div id="iofManual" style="display:none">
+          <div class="suffix"><input class="inp num" id="iofVal" value="0"><span>R$</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="group">
+      <div class="group-title">Benchmark de mercado</div>
+      <div class="field">
+        <label>Fonte da referência</label>
+        <div class="seg" id="srcMode">
+          <button class="on" data-m="manual" onclick="setSrc('manual')">Manual</button>
+          <button data-m="curva" onclick="setSrc('curva')">Curva</button>
+        </div>
+        <p class="note" id="srcStatus">Modo manual. Carregue a curva DI/pré na aba <b>Curva de referência</b> para interpolar pelo prazo.</p>
+      </div>
+      <div class="field">
+        <label>Taxa de referência da curva p/ o prazo (a.a.)</label>
+        <div class="suffix"><input class="inp num" id="ref" value="11,90"><span>%</span></div>
+        <p class="note">DI/pré para o mesmo vértice. <b>Fase 2</b> puxa automático (BCB/B3 → ANBIMA).</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ RESULTS ============ -->
+  <div class="panel">
+    <div class="kpis">
+      <div class="kpi"><div class="lbl">CET (a.a.)</div><div class="val gold" id="kCetAA">—</div><div class="sub2" id="kCetAM">—</div></div>
+      <div class="kpi"><div class="lbl">Custo total da dívida</div><div class="val" id="kCusto">—</div><div class="sub2" id="kCustoPct">—</div></div>
+      <div class="kpi"><div class="lbl">Líquido liberado</div><div class="val" id="kLiq">—</div><div class="sub2" id="kLiqPct">—</div></div>
+    </div>
+
+    <div class="spread-card">
+      <div class="spread-main">
+        <div class="lbl">Spread do banco sobre a curva</div>
+        <div class="big num" id="sSpread">—</div>
+        <div class="verdict" id="sVerdict">—</div>
+      </div>
+      <div class="gauge">
+        <div class="gauge-bar"><div class="gauge-mark" id="gMark" style="left:0%"></div></div>
+        <div class="gauge-scale"><span>0</span><span>250</span><span>500</span><span>750+</span></div>
+        <div style="font-size:10.5px;color:var(--ink-faint);margin-top:6px">spread em bps sobre a taxa de referência</div>
+      </div>
+    </div>
+
+    <div class="decomp">
+      <h3>Decomposição do custo</h3>
+      <div class="bar-row"><span class="nm">Taxa nominal contratada</span><div class="bar-track"><div class="bar-fill" id="bNom" style="background:var(--navy-600)"></div></div><span class="vv" id="vNom">—</span></div>
+      <div class="bar-row"><span class="nm">+ encargos &rarr; CET</span><div class="bar-track"><div class="bar-fill" id="bCet" style="background:var(--gold)"></div></div><span class="vv" id="vCet">—</span></div>
+      <div class="bar-row"><span class="nm">Curva de mercado (ref.)</span><div class="bar-track"><div class="bar-fill" id="bRef" style="background:var(--green)"></div></div><span class="vv" id="vRef">—</span></div>
+    </div>
+
+    <div class="chartbox">
+      <h3>Saldo devedor ao longo do tempo</h3>
+      <svg id="saldoChart" viewBox="0 0 700 180" preserveAspectRatio="none"></svg>
+    </div>
+
+    <div class="schedule">
+      <h3>Cronograma de pagamentos</h3>
+      <div class="tbl-scroll">
+        <table>
+          <thead><tr><th>#</th><th>Parcela</th><th>Juros</th><th>Amortização</th><th>Saldo devedor</th></tr></thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="curveView" class="hide">
+  <p class="curve-help">Carregue a curva <b>DI/pré</b> da B3 (Taxas Referenciais) ou ANBIMA — suba o arquivo ou cole pares <b>dias ; taxa</b>. O motor interpola por <b>flat-forward 252</b> no prazo da operação e abastece o benchmark do CET. <span style="color:var(--ink-faint)">Formato: duas colunas (vértice em dias, taxa a.a. em %), separadas por <code>;</code> tab vírgula ou espaço. Cabeçalho ignorado. Decimal com vírgula ou ponto.</span></p>
+  <div class="curve-wrap">
+    <div class="panel">
+      <div class="ph"><span class="dot"></span><h2>Curva DI / Pré (base 252)</h2></div>
+      <div class="group">
+        <div class="uprow">
+          <button class="ghost file-btn">Upload arquivo<input type="file" accept=".csv,.txt,.tsv" onchange="onFile(event)"></button>
+          <select class="inp" id="unitRef" style="width:auto" onchange="compute()">
+            <option value="du">vértice em dias úteis</option>
+            <option value="dc">vértice em dias corridos</option>
+          </select>
+        </div>
+        <textarea class="inp" id="pasteRef" placeholder="21 ; 11,90&#10;42 ; 11,95&#10;63 ; 12,01&#10;126 ; 12,30 ..."></textarea>
+        <div class="uprow" style="margin-top:8px">
+          <button class="ghost" onclick="loadPaste()">Carregar texto</button>
+          <button class="ghost" onclick="clearCurve()">Limpar</button>
+        </div>
+        <div class="statline" id="statRef">Nenhuma curva carregada.</div>
+        <svg id="chartRef" class="curve-chart" viewBox="0 0 600 160" preserveAspectRatio="none"></svg>
+        <div class="tbl-wrap"><table class="vtable"><thead><tr><th>Dias</th><th>Taxa&nbsp;%&nbsp;a.a.</th><th></th></tr></thead><tbody id="tbRef"></tbody></table></div>
+        <div class="uprow" style="margin-top:8px"><button class="ghost" onclick="addRow()">+ vértice</button></div>
+      </div>
+    </div>
+    <p class="curve-help" style="padding-left:0;padding-right:0">Benchmark tomado no <b>prazo final</b> da operação (≈ prazo × 21 du). Interpolação flat-forward 252 (metodologia B3) — uso indicativo. Refinamento futuro: usar a duration do fluxo em vez do vencimento.</p>
+  </div>
+</div>
+
+<footer class="app">
+  Ferramenta interna · cálculo de CET pelo método da TIR (taxa que iguala o líquido liberado ao fluxo de pagamentos). Custos de abertura deduzidos do desembolso. Valores indicativos — confira convenções e alíquotas vigentes antes de uso com cliente.
+</footer>
+
+<script>
+const $ = id => document.getElementById(id);
+const modes = {estr:'pct', iof:'calc'};
+
+function setMode(key,m){
+  modes[key]=m;
+  if(key==='estr'){
+    $('estrSfx').textContent = m==='pct' ? '%' : 'R$';
+    document.querySelectorAll('#estrMode button').forEach(b=>b.classList.toggle('on',b.dataset.m===m));
+  }
+  if(key==='iof'){
+    $('iofCalc').style.display = m==='calc'?'block':'none';
+    $('iofManual').style.display = m==='manual'?'block':'none';
+    document.querySelectorAll('#iofMode button').forEach(b=>b.classList.toggle('on',b.dataset.m===m));
+  }
+  compute();
+}
+
+const n2 = v => v.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+const money = v => 'R$ '+v.toLocaleString('pt-BR',{minimumFractionDigits:0,maximumFractionDigits:0});
+const pf = id => parseFloat(($(id).value+'').replace(/\./g,'').replace(',','.'))||0; // tolera ponto de milhar
+function rawNum(id){ // números "puros" digitados (taxas) — aceita vírgula decimal
+  return parseFloat(($(id).value+'').replace(',','.'))||0;
+}
+
+function buildSchedule(P, n, g, im, sys){
+  const rows=[]; let saldo=P;
+  if(sys==='bullet'){
+    for(let t=1;t<=n;t++){
+      const juros=saldo*im;
+      const amort=(t===n)?saldo:0;
+      rows.push({t,juros,amort,parcela:juros+amort,saldo:saldo-amort});
+      saldo-=amort;
+    }
+    return rows;
+  }
+  const amN = n-g; // nº de parcelas que amortizam
+  if(sys==='sac'){
+    const amort=P/amN;
+    for(let t=1;t<=n;t++){
+      const juros=saldo*im;
+      const a=(t<=g)?0:amort;
+      rows.push({t,juros,amort:a,parcela:juros+a,saldo:saldo-a});
+      saldo-=a;
+    }
+    return rows;
+  }
+  // price (parcela fixa na fase de amortização)
+  const pmt = saldo*im/(1-Math.pow(1+im,-amN));
+  for(let t=1;t<=n;t++){
+    const juros=saldo*im;
+    if(t<=g){ rows.push({t,juros,amort:0,parcela:juros,saldo}); }
+    else { const a=pmt-juros; rows.push({t,juros,amort:a,parcela:pmt,saldo:saldo-a}); saldo-=a; }
+  }
+  return rows;
+}
+
+// TIR mensal por bisseção: liquido = Σ parcela_t/(1+i)^t
+function irr(liquido, flows){
+  const f = i => flows.reduce((s,p,k)=> s + p/Math.pow(1+i,k+1), 0) - liquido;
+  let lo=1e-6, hi=2.0; // até 200% a.m.
+  if(f(lo)<0) return 0; // sem custo positivo
+  for(let k=0;k<200;k++){
+    const mid=(lo+hi)/2;
+    (f(mid)>0)?lo=mid:hi=mid;
+  }
+  return (lo+hi)/2;
+}
+
+function compute(){
+  const P=pf('principal'), n=Math.max(1,Math.round(rawNum('prazo'))), g=Math.min(n-1,Math.max(0,Math.round(rawNum('carencia'))));
+  const taxaAA=rawNum('taxa')/100, refAA=refRate();
+  const sys=$('sistema').value;
+  const im=Math.pow(1+taxaAA,1/12)-1;
+
+  // custos de abertura
+  const estr = modes.estr==='pct' ? P*(rawNum('estr')/100) : pf('estr');
+  const tarifas = pf('tarifas');
+  let iof;
+  if(modes.iof==='calc'){
+    const dias=Math.min(n*30,365);
+    iof = P*( (rawNum('iofAdd')/100) + (rawNum('iofDia')/100)*dias );
+  } else { iof = pf('iofVal'); }
+
+  const custosUpfront = estr+tarifas+iof;
+  const liquido = P - custosUpfront;
+
+  const sched = buildSchedule(P,n,g,im,sys);
+  const flows = sched.map(r=>r.parcela);
+  const totalPago = flows.reduce((a,b)=>a+b,0);
+  const custoTotal = totalPago - liquido;
+
+  const cetM = irr(liquido, flows);
+  const cetAA = Math.pow(1+cetM,12)-1;
+  const spreadBps = (cetAA-refAA)*10000;
+
+  // KPIs
+  $('kCetAA').textContent = n2(cetAA*100)+'%';
+  $('kCetAM').textContent = n2(cetM*100)+'% a.m.';
+  $('kCusto').textContent = money(custoTotal);
+  $('kCustoPct').textContent = n2(custoTotal/P*100)+'% do principal';
+  $('kLiq').textContent = money(liquido);
+  $('kLiqPct').textContent = n2(custosUpfront/P*100)+'% retido na largada';
+
+  // spread
+  $('sSpread').textContent = (spreadBps>=0?'+':'')+Math.round(spreadBps)+' bps';
+  let col=spreadBps<150?'var(--green)':spreadBps<350?'var(--amber)':'var(--red)';
+  $('sSpread').style.color=col;
+  let verdict;
+  if(spreadBps<0) verdict='Abaixo da curva — condição agressiva (confirmar a referência).';
+  else if(spreadBps<150) verdict='Spread enxuto para o mid-market. Pouca margem de negociação.';
+  else if(spreadBps<350) verdict='Spread na média. Há espaço para negociar fee e estrutura.';
+  else verdict='Spread alto. Forte argumento de renegociação ou tomada de concorrência.';
+  $('sVerdict').textContent=verdict;
+  $('gMark').style.left=Math.max(0,Math.min(100,spreadBps/750*100))+'%';
+
+  // decomposição (escala relativa ao maior)
+  const mx=Math.max(cetAA,taxaAA,refAA,0.0001);
+  $('bNom').style.width=(taxaAA/mx*100)+'%'; $('vNom').textContent=n2(taxaAA*100)+'%';
+  $('bCet').style.width=(cetAA/mx*100)+'%';  $('vCet').textContent=n2(cetAA*100)+'%';
+  $('bRef').style.width=(refAA/mx*100)+'%';  $('vRef').textContent=n2(refAA*100)+'%';
+
+  drawChart(sched,P);
+  renderTable(sched);
+}
+
+function drawChart(sched,P){
+  const svg=$('saldoChart'); const W=700,H=180,pad=6;
+  const pts=[{t:0,saldo:P},...sched.map(r=>({t:r.t,saldo:r.saldo}))];
+  const maxS=P, n=pts.length-1;
+  const x=t=>pad+(t/n)*(W-2*pad);
+  const y=s=>pad+(1-s/maxS)*(H-2*pad);
+  let d='M'+x(0)+','+y(P);
+  pts.forEach(p=>{d+=' L'+x(p.t)+','+y(p.saldo)});
+  const area=d+' L'+x(n)+','+(H-pad)+' L'+x(0)+','+(H-pad)+' Z';
+  svg.innerHTML=`
+    <defs><linearGradient id="g1" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="rgba(201,162,39,.28)"/>
+      <stop offset="100%" stop-color="rgba(201,162,39,0)"/>
+    </linearGradient></defs>
+    <path d="${area}" fill="url(#g1)"/>
+    <path d="${d}" fill="none" stroke="#c9a227" stroke-width="2"/>`;
+}
+
+function renderTable(sched){
+  $('tbody').innerHTML = sched.map(r=>
+    `<tr><td>${r.t}</td><td>${money(r.parcela)}</td><td>${money(r.juros)}</td><td>${money(r.amort)}</td><td>${money(Math.max(0,r.saldo))}</td></tr>`
+  ).join('');
+}
+
+function formatPrincipal(){
+  const el=$('principal');
+  const digits=(el.value+'').replace(/\D/g,'');
+  if(digits===''){ return; }
+  const cents=parseInt(digits,10);
+  el.value=(cents/100).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+}
+$('principal').addEventListener('input',formatPrincipal);
+
+// ===== Curva de referência (DI/pré) =====
+let tab='op', srcRef='manual';
+let curveRef=[];
+
+function setTab(t){
+  tab=t;
+  $('tabOp').classList.toggle('on',t==='op');
+  $('tabCurva').classList.toggle('on',t==='curva');
+  $('opView').classList.toggle('hide',t!=='op');
+  $('curveView').classList.toggle('hide',t!=='curva');
+  if(t==='op') compute();
+}
+function setSrc(m){
+  srcRef=m;
+  document.querySelectorAll('#srcMode button').forEach(b=>b.classList.toggle('on',b.dataset.m===m));
+  const ro=(m==='curva'); $('ref').readOnly=ro; $('ref').style.opacity=ro?0.65:1;
+  updateSrcStatus(); compute();
+}
+function updateSrcStatus(){
+  const el=$('srcStatus');
+  if(srcRef==='manual'){ el.innerHTML='Modo manual. Carregue a curva DI/pré na aba <b>Curva de referência</b> para interpolar pelo prazo.'; return; }
+  el.innerHTML = curveRef.length>=2
+    ? 'Referência <span style="color:var(--green)">interpolada da curva</span> no prazo da operação (flat-forward 252).'
+    : '<b>Curva incompleta.</b> Carregue ≥ 2 vértices na aba Curva de referência. Usando valor manual por ora.';
+}
+
+function normNum(t){ t=(t||'').trim().replace(/%/g,'').replace(/"/g,''); if(t==='')return NaN; if(t.includes(','))t=t.replace(/\./g,'').replace(',','.'); return parseFloat(t); }
+function splitLine(ln){ if(ln.includes(';'))return ln.split(';'); if(ln.includes('\t'))return ln.split('\t'); if(ln.includes(',')&&ln.includes('.'))return ln.split(','); return ln.trim().split(/\s+/); }
+function parseCurve(text){
+  const map=new Map();
+  (text+'').split(/\r?\n/).forEach(ln=>{
+    if(!ln.trim())return;
+    const nums=[];
+    for(const p of splitLine(ln)){ const v=normNum(p); if(!isNaN(v)){ nums.push(v); if(nums.length===2)break; } }
+    if(nums.length===2 && nums[0]>0) map.set(Math.round(nums[0]), nums[1]);
+  });
+  return [...map.entries()].map(([d,r])=>({d,r})).sort((a,b)=>a.d-b.d);
+}
+// Flat-forward 252 (metodologia B3) — dias úteis, taxa % a.a. exponencial
+function interpFFwd(arr,duT){
+  if(arr.length===0||duT<=0)return 0;
+  if(arr.length===1)return arr[0].r;
+  const a=[...arr].sort((p,q)=>p.d-q.d);
+  if(duT<=a[0].d)return a[0].r;
+  if(duT>=a[a.length-1].d)return a[a.length-1].r;
+  let lo,hi; for(let i=1;i<a.length;i++){ if(duT<=a[i].d){ lo=a[i-1]; hi=a[i]; break; } }
+  const f1=Math.pow(1+lo.r/100,lo.d/252), f2=Math.pow(1+hi.r/100,hi.d/252);
+  const ft=f1*Math.pow(f2/f1,(duT-lo.d)/(hi.d-lo.d));
+  return (Math.pow(ft,252/duT)-1)*100;
+}
+function refRate(){
+  const n=Math.max(1,Math.round(rawNum('prazo')));
+  if(!(srcRef==='curva' && curveRef.length>=2)) return rawNum('ref')/100;
+  const unit=$('unitRef').value;
+  const pts=curveRef.map(o=>({d: unit==='du'?o.d:Math.max(1,Math.round(o.d*252/365)), r:o.r}));
+  const r=interpFFwd(pts, n*21);
+  $('ref').value=r.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+  return r/100;
+}
+
+function afterCurveChange(){ renderVTable(); drawCurveRef(); updateStat(); updateSrcStatus(); compute(); }
+function setCurve(arr){ curveRef=arr; afterCurveChange(); }
+function clearCurve(){ curveRef=[]; $('pasteRef').value=''; afterCurveChange(); }
+function loadPaste(){ setCurve(parseCurve($('pasteRef').value)); }
+function onFile(e){ const f=e.target.files[0]; if(!f)return; const r=new FileReader(); r.onload=()=>setCurve(parseCurve(r.result)); r.readAsText(f,'ISO-8859-1'); }
+function addRow(){ curveRef.push({d:0,r:0}); afterCurveChange(); }
+function delRow(i){ curveRef.splice(i,1); afterCurveChange(); }
+function editCell(i,field,val){ const x=normNum(val); if(isNaN(x))return; curveRef[i][field]=field==='d'?Math.round(x):x; curveRef.sort((a,b)=>a.d-b.d); afterCurveChange(); }
+function renderVTable(){
+  $('tbRef').innerHTML=curveRef.map((o,i)=>`<tr>
+    <td><input value="${o.d}" onchange="editCell(${i},'d',this.value)"></td>
+    <td><input value="${(''+o.r).replace('.',',')}" onchange="editCell(${i},'r',this.value)"></td>
+    <td class="del" onclick="delRow(${i})">×</td></tr>`).join('');
+}
+function updateStat(){
+  const el=$('statRef');
+  if(curveRef.length===0){ el.textContent='Nenhuma curva carregada.'; return; }
+  const ds=curveRef.map(o=>o.d), rs=curveRef.map(o=>o.r);
+  el.textContent=`${curveRef.length} vértices · ${Math.min(...ds)}–${Math.max(...ds)} dias · ${Math.min(...rs).toFixed(2)}–${Math.max(...rs).toFixed(2)}% a.a.`;
+}
+function getC(v){return getComputedStyle(document.documentElement).getPropertyValue(v).trim()||'#fff';}
+function drawCurveRef(){
+  const svg=$('chartRef'); const arr=curveRef; const W=600,H=160,p=26;
+  if(arr.length<2){ svg.innerHTML=`<text x="${W/2}" y="${H/2}" fill="${getC('--ink-faint')}" font-family="IBM Plex Sans" font-size="12" text-anchor="middle">sem dados suficientes</text>`; return; }
+  const ds=arr.map(o=>o.d), rs=arr.map(o=>o.r);
+  const dmin=Math.min(...ds),dmax=Math.max(...ds);
+  let rmin=Math.min(...rs),rmax=Math.max(...rs); if(rmax-rmin<0.05){rmin-=0.3;rmax+=0.3;}
+  const x=d=>p+(d-dmin)/((dmax-dmin)||1)*(W-2*p);
+  const y=r=>p+(1-(r-rmin)/((rmax-rmin)||1))*(H-2*p);
+  let d='M'+x(arr[0].d).toFixed(1)+','+y(arr[0].r).toFixed(1);
+  arr.forEach(o=>{ d+=' L'+x(o.d).toFixed(1)+','+y(o.r).toFixed(1); });
+  const dots=arr.map(o=>`<circle cx="${x(o.d).toFixed(1)}" cy="${y(o.r).toFixed(1)}" r="2.4" fill="${getC('--gold')}"/>`).join('');
+  svg.innerHTML=`<path d="${d}" fill="none" stroke="${getC('--gold')}" stroke-width="2"/>${dots}
+    <text x="${p}" y="${H-5}" fill="${getC('--ink-faint')}" font-size="10" font-family="IBM Plex Mono">${dmin}d</text>
+    <text x="${W-p}" y="${H-5}" fill="${getC('--ink-faint')}" font-size="10" font-family="IBM Plex Mono" text-anchor="end">${dmax}d</text>
+    <text x="${p}" y="${p-9}" fill="${getC('--ink-faint')}" font-size="10" font-family="IBM Plex Mono">${rmax.toFixed(2)}%</text>
+    <text x="${p}" y="${H-p+12}" fill="${getC('--ink-faint')}" font-size="10" font-family="IBM Plex Mono">${rmin.toFixed(2)}%</text>`;
+}
+
+document.querySelectorAll('.inp').forEach(el=>el.addEventListener('input',compute));
+compute();
+
+/* ===== PONTE MPA — benchmark do cliente ativo (index.html) =====
+   Não preenche a proposta (CET é por operação), mas mostra o custo
+   médio de dívida atual do cliente como âncora de comparação. ===== */
+(function(){
+  let cli=null;
+  try{
+    const id=new URLSearchParams(location.search).get('cliente');
+    if(id){ const cs=JSON.parse(localStorage.getItem('mpa_clients_v1')||'{}'); cli=cs[id]||null; }
+  }catch(e){}
+  if(!cli||!cli.dados) return;
+  const d=cli.dados, g=k=>(d[k]&&d[k][0]!=null)?d[k][0]:0;
+  const dividaBruta=g('emprestCirc')+g('debenturesCirc')+g('arrendCirc')+g('emprestNaoCirc')+g('debenturesNaoCirc')+g('arrendNaoCirc');
+  const custoMedio=dividaBruta?g('despFin')/dividaBruta*100:null;
+  const a=cli.analise||{};
+  const alav=a.alavMPA?a.alavMPA[0]:null;
+  const pct=v=>(v==null||!isFinite(v))?'—':v.toFixed(2).replace('.',',')+'%';
+  const xx=v=>(v==null||!isFinite(v))?'—':v.toFixed(2).replace('.',',')+'x';
+  const host=document.getElementById('mpaCliBanner');
+  if(!host) return;
+  host.innerHTML=`<div style="max-width:1180px;margin:14px auto 0;padding:0 20px">
+    <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;border:1px solid var(--gold,#c9a24b);
+      border-radius:8px;background:rgba(201,162,75,.07);padding:11px 16px;font-size:13px;color:var(--ink-soft,#9aa8bc)">
+      <span style="width:8px;height:8px;border-radius:50%;background:#6fae7e;box-shadow:0 0 8px #6fae7e;flex:none"></span>
+      <span>Cliente ativo: <b style="color:var(--ink,#eceae3)">${cli.nome}</b> · custo médio de dívida atual
+        <b style="color:var(--ink,#eceae3)">${pct(custoMedio)} a.a.</b> · alavancagem <b style="color:var(--ink,#eceae3)">${xx(alav)}</b>.
+        Compare o CET desta proposta com o custo que o cliente já paga.</span>
+      <a href="index.html" style="margin-left:auto;color:var(--gold,#c9a24b);text-decoration:none;font-family:'IBM Plex Mono',monospace;font-size:12px">← painel</a>
+    </div></div>`;
+})();
+</script>
+</body>
+</html>
