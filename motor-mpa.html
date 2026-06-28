@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Diagnóstico MPA · Projeto Consultoria</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy-900:#08111f;--navy-850:#0a1424;--navy-800:#0f1d33;--navy-700:#13243f;
+    --line:#1e3252;--line-soft:#16273f;
+    --gold:#c9a24b;--gold-bright:#e0be6a;--gold-dim:rgba(201,162,75,.14);
+    --ink:#eceae3;--ink-soft:#9aa8bc;--ink-mute:#67768d;
+    --ok:#6fae7e;--ok-soft:rgba(111,174,126,.12);--warn:#d69a3c;--warn-soft:rgba(214,154,60,.12);--bad:#cf6a5e;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:"IBM Plex Sans",system-ui,sans-serif;color:var(--ink);line-height:1.55;-webkit-font-smoothing:antialiased;
+    background:radial-gradient(1200px 600px at 80% -10%, rgba(201,162,75,.06), transparent 60%),linear-gradient(180deg,var(--navy-850),var(--navy-900));min-height:100vh}
+  .wrap{max-width:980px;margin:0 auto;padding:0 26px}
+  .mono{font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums}
+
+  .topbar{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;padding:18px 0;border-bottom:1px solid var(--line-soft)}
+  .back{font-family:"IBM Plex Mono",monospace;font-size:.74rem;color:var(--ink-soft);text-decoration:none;display:inline-flex;align-items:center;gap:7px}
+  .back:hover{color:var(--gold-bright)}
+  .brand{font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.16em;color:var(--ink-mute);text-transform:uppercase}
+  .tools{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .clientsel{position:relative}
+  .clientsel select{appearance:none;background:var(--navy-800);border:1px solid var(--line);color:var(--ink);font-family:"Spectral",serif;font-size:.95rem;padding:8px 34px 8px 13px;border-radius:7px;cursor:pointer;outline:none;min-width:210px}
+  .clientsel select:focus{border-color:var(--gold)}
+  .clientsel::after{content:"▾";position:absolute;right:13px;top:50%;transform:translateY(-50%);color:var(--ink-mute);pointer-events:none;font-size:.75rem}
+  .btn{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.04em;border:1px solid var(--line);background:transparent;color:var(--ink-soft);padding:8px 13px;border-radius:7px;cursor:pointer}
+  .btn:hover{border-color:var(--gold);color:var(--gold-bright)}
+
+  .empty{padding:80px 0;text-align:center;color:var(--ink-mute)}
+  .empty .ic{font-family:"Spectral",serif;font-size:2rem;color:var(--gold);margin-bottom:14px}
+  .empty p{max-width:46ch;margin:0 auto 18px;font-size:.95rem}
+  .empty a{color:var(--gold);text-decoration:none;border-bottom:1px dotted var(--gold)}
+
+  /* hero */
+  .hero{padding:34px 0 24px;border-bottom:1px solid var(--line-soft);display:flex;justify-content:space-between;align-items:flex-end;gap:20px;flex-wrap:wrap}
+  .hero .who .eyebrow{font-family:"IBM Plex Mono",monospace;font-size:.68rem;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);margin-bottom:11px}
+  .hero .who h1{font-family:"Spectral",serif;font-weight:500;font-size:clamp(1.7rem,4vw,2.5rem);line-height:1.05;letter-spacing:-.01em}
+  .hero .who .sub{font-family:"IBM Plex Mono",monospace;font-size:.74rem;color:var(--ink-mute);margin-top:8px;letter-spacing:.03em}
+  .ratingbox{text-align:right;flex:none}
+  .ratingbox .rg{font-family:"Spectral",serif;font-weight:600;font-size:3rem;line-height:.85;color:var(--gold-bright)}
+  .ratingbox .rl{font-family:"IBM Plex Mono",monospace;font-size:.68rem;letter-spacing:.05em;color:var(--ink-mute);margin-top:9px}
+
+  .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin:24px 0}
+  .kpi{background:linear-gradient(180deg,var(--navy-800),var(--navy-850));border:1px solid var(--line);border-radius:10px;padding:14px 15px;position:relative;overflow:hidden}
+  .kpi::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--gold)}
+  .kpi.g::before{background:var(--ok)} .kpi.w::before{background:var(--warn)} .kpi.b::before{background:var(--bad)}
+  .kpi .k{font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-mute)}
+  .kpi .v{font-family:"IBM Plex Mono",monospace;font-size:1.4rem;font-weight:500;margin-top:6px}
+  .kpi .d{font-size:.7rem;color:var(--ink-mute);margin-top:3px}
+
+  section{padding:30px 0 4px;border-bottom:1px solid var(--line-soft)}
+  section:last-of-type{border-bottom:none}
+  h2.sec{font-family:"Spectral",serif;font-weight:500;font-size:1.45rem;margin-bottom:6px;display:flex;align-items:baseline;gap:11px}
+  h2.sec .n{font-family:"IBM Plex Mono",monospace;font-size:.7rem;color:var(--gold);letter-spacing:.08em}
+  .lead{color:var(--ink-soft);font-size:.92rem;margin-bottom:16px;max-width:74ch}
+
+  table{width:100%;border-collapse:collapse;font-size:.85rem;margin:4px 0}
+  th,td{padding:9px 12px;text-align:right;border-bottom:1px solid var(--line-soft)}
+  th:first-child,td:first-child{text-align:left}
+  thead th{font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-mute);background:var(--navy-800)}
+  td:not(:first-child){font-family:"IBM Plex Mono",monospace}
+  td:first-child{color:var(--ink-soft)}
+  tr.tot td{font-weight:600;color:var(--ink);border-top:1px solid var(--line)}
+  .tablecard{border:1px solid var(--line);border-radius:9px;overflow:hidden;background:var(--navy-850)}
+  .pos{color:var(--ok)} .neg{color:var(--bad)} .wrn{color:var(--warn)}
+
+  .zoneline{display:flex;gap:7px;flex-wrap:wrap;margin:4px 0 16px}
+  .zchip{font-family:"IBM Plex Mono",monospace;font-size:.66rem;padding:6px 10px;border-radius:7px;border:1px solid var(--line);color:var(--ink-mute);opacity:.45}
+  .zchip.on{opacity:1;border-color:var(--ok);color:var(--ok);background:var(--ok-soft)}
+
+  .ratingsplit{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:6px 0 16px}
+  .rcard{border:1px solid var(--line);border-radius:9px;padding:16px 18px;background:var(--navy-850)}
+  .rcard.s{border-left:3px solid var(--ok)} .rcard.f{border-left:3px solid var(--warn)}
+  .rcard .lab{font-family:"IBM Plex Mono",monospace;font-size:.64rem;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-mute);display:flex;align-items:center;gap:8px}
+  .rcard .big{font-family:"Spectral",serif;font-size:1.7rem;color:var(--gold-bright);margin:6px 0 2px}
+  .rcard p{font-size:.8rem;color:var(--ink-soft)}
+  .note{border-left:2px solid var(--gold);background:var(--gold-dim);padding:12px 16px;margin:14px 0;font-size:.82rem;color:var(--ink-soft);border-radius:0 5px 5px 0}
+  .note b{color:var(--ink)}
+
+  footer{padding:26px 0 50px;font-family:"IBM Plex Mono",monospace;font-size:.68rem;color:var(--ink-mute);line-height:1.7}
+  @media (max-width:620px){.ratingsplit{grid-template-columns:1fr}.hero{flex-direction:column;align-items:flex-start}.ratingbox{text-align:left}}
+  @media print{body{background:#fff;color:#111}.topbar,.tools,footer .noprint{display:none}}
+  :focus-visible{outline:2px solid var(--gold);outline-offset:3px;border-radius:4px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar">
+    <a class="back" href="index.html">← Central de Motores</a>
+    <div class="tools">
+      <div class="clientsel"><select id="clientSelect" aria-label="Selecionar cliente"></select></div>
+      <button class="btn" id="btnExport">↧ JSON</button>
+      <button class="btn" id="btnPrint">⎙ PDF</button>
+    </div>
+  </div>
+
+  <div id="report"></div>
+
+  <footer>
+    Projeto Consultoria · Diagnóstico MPA · metodologia proprietária adaptada de S&amp;P/Moody's · equivalência referencial.
+    Não constitui rating de agência registrada nem recomendação de investimento. Valores em R$ mil salvo indicação.
+  </footer>
+</div>
+
+<script>
+/* ===== storage shim ===== */
+const mem={};
+const store={get(k){try{return localStorage.getItem(k)}catch(e){return mem[k]??null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){mem[k]=v}}};
+const loadClients=()=>{try{return JSON.parse(store.get("mpa_clients_v1"))||{}}catch(e){return{}}};
+const getActive=()=>store.get("mpa_active_client_v1");
+const setActive=id=>store.set("mpa_active_client_v1",id||"");
+
+/* ===== formatadores ===== */
+const mi=v=>v==null?"—":(v/1000).toLocaleString("pt-BR",{maximumFractionDigits:1,minimumFractionDigits:1});
+const pct=v=>(v==null||!isFinite(v))?"—":(v*100).toLocaleString("pt-BR",{maximumFractionDigits:1,minimumFractionDigits:1})+"%";
+const xx=v=>(v==null||!isFinite(v))?"—":v.toLocaleString("pt-BR",{maximumFractionDigits:2,minimumFractionDigits:2})+"x";
+const dd=v=>(v==null||!isFinite(v))?"—":Math.round(v)+" d";
+
+/* ============ MOTOR DE ANÁLISE MPA (idêntico ao painel) ============ */
+const NOTCH={21:"AAA",20:"AA+",19:"AA",18:"AA-",17:"A+",16:"A",15:"A-",14:"BBB+",13:"BBB",12:"BBB-",11:"BB+",10:"BB",9:"BB-",8:"B+",7:"B",6:"B-",5:"CCC+",4:"CCC",3:"CCC-",2:"CC",1:"C"};
+const SOBERANO={notch:10,label:"BB"}; // Brasil — S&P/Fitch (abr/2026). Atualize aqui se mudar.
+const letra=n=>NOTCH[Math.max(1,Math.min(21,Math.round(n)))]||"—";
+function nacional(diff){ const m={2:"AAA(bra)",1:"AA(bra)",0:"A+(bra)","-1":"A(bra)","-2":"A-(bra)","-3":"BBB(bra)","-4":"BBB-(bra)","-5":"BB(bra)"}; return m[diff]|| (diff>2?"AAA(bra)":"BB-(bra) ou inferior"); }
+
+function analisar(d,q){
+  const A=(v)=>v?.[0]??null, B=(v)=>v?.[1]??null;
+  const g=k=>A(d[k]), p=k=>B(d[k]);
+  const r={};
+  r.ebitda=[ (g("ebit")||0)+(g("depreciacao")||0), (p("ebit")||0)+(p("depreciacao")||0) ];
+  r.margemEbitda=[ g("receita")?r.ebitda[0]/g("receita"):null, p("receita")?r.ebitda[1]/p("receita"):null ];
+  r.margemBruta=[ g("receita")&&g("lucroBruto")!=null?g("lucroBruto")/g("receita"):null, p("receita")&&p("lucroBruto")!=null?p("lucroBruto")/p("receita"):null ];
+  r.margemLiq=[ g("receita")&&g("lucroLiquido")!=null?g("lucroLiquido")/g("receita"):null, p("receita")&&p("lucroLiquido")!=null?p("lucroLiquido")/p("receita"):null ];
+  const dbCL=(i)=> (i===0?[g("emprestCirc"),g("debenturesCirc"),g("arrendCirc"),g("emprestNaoCirc"),g("debenturesNaoCirc"),g("arrendNaoCirc")]:[p("emprestCirc"),p("debenturesCirc"),p("arrendCirc"),p("emprestNaoCirc"),p("debenturesNaoCirc"),p("arrendNaoCirc")]).reduce((s,v)=>s+(v||0),0);
+  const dbSL=(i)=> (i===0?[g("emprestCirc"),g("debenturesCirc"),g("emprestNaoCirc"),g("debenturesNaoCirc")]:[p("emprestCirc"),p("debenturesCirc"),p("emprestNaoCirc"),p("debenturesNaoCirc")]).reduce((s,v)=>s+(v||0),0);
+  r.dividaBrutaCL=[dbCL(0),dbCL(1)];
+  r.dividaLiqMPA=[ dbCL(0)-(g("caixa")||0), dbCL(1)-(p("caixa")||0) ];
+  r.dividaLiqEmp=[ dbSL(0)-(g("caixa")||0)-(g("derivAtivo")||0)+(g("derivPassivo")||0), dbSL(1)-(p("caixa")||0)-(p("derivAtivo")||0)+(p("derivPassivo")||0) ];
+  r.alavMPA=[ r.ebitda[0]?r.dividaLiqMPA[0]/r.ebitda[0]:null, r.ebitda[1]?r.dividaLiqMPA[1]/r.ebitda[1]:null ];
+  r.alavEmp=[ r.ebitda[0]?r.dividaLiqEmp[0]/r.ebitda[0]:null, r.ebitda[1]?r.dividaLiqEmp[1]/r.ebitda[1]:null ];
+  r.cobertura=[ g("despFin")?r.ebitda[0]/Math.abs(g("despFin")):null, p("despFin")?r.ebitda[1]/Math.abs(p("despFin")):null ];
+  r.ffo=[ (g("lucroLiquido")||0)+(g("depreciacao")||0), (p("lucroLiquido")||0)+(p("depreciacao")||0) ];
+  r.ffoDivida=[ dbCL(0)?r.ffo[0]/dbCL(0):null, dbCL(1)?r.ffo[1]/dbCL(1):null ];
+  r.liqCorr=[ g("passivoCirc")?g("ativoCirc")/g("passivoCirc"):null, p("passivoCirc")?p("ativoCirc")/p("passivoCirc"):null ];
+  r.liqSeca=[ g("passivoCirc")?(g("ativoCirc")-(g("estoques")||0))/g("passivoCirc"):null, p("passivoCirc")?(p("ativoCirc")-(p("estoques")||0))/p("passivoCirc"):null ];
+  r.plAtivo=[ g("ativoTotal")?g("patrimonio")/g("ativoTotal"):null, p("ativoTotal")?p("patrimonio")/p("ativoTotal"):null ];
+  r.roe=[ g("patrimonio")?g("lucroLiquido")/g("patrimonio"):null, p("patrimonio")?p("lucroLiquido")/p("patrimonio"):null ];
+  r.roa=[ g("ativoTotal")?g("lucroLiquido")/g("ativoTotal"):null, p("ativoTotal")?p("lucroLiquido")/p("ativoTotal"):null ];
+  function fleur(i){ const G=i===0?g:p;
+    const ACF=(G("caixa")||0)+(G("derivAtivo")||0);
+    const ACO=(G("ativoCirc")||0)-ACF;
+    const PCF=(G("emprestCirc")||0)+(G("debenturesCirc")||0)+(G("arrendCirc")||0)+(G("dividendos")||0)+(G("derivPassivo")||0);
+    const PCO=(G("passivoCirc")||0)-PCF;
+    const NCG=ACO-PCO, T=ACF-PCF, CDG=NCG+T;
+    let tipo,nome;
+    if(CDG>0&&NCG<0&&T>0){tipo=1;nome="Excelente";}
+    else if(CDG>0&&NCG>0&&T>0){tipo=2;nome="Sólida";}
+    else if(CDG>0&&NCG>0&&T<0){tipo=3;nome="Insatisfatória";}
+    else if(CDG<0&&NCG>0&&T<0){tipo=4;nome="Péssima";}
+    else if(CDG<0&&NCG<0&&T<0){tipo=5;nome="Muito ruim";}
+    else {tipo=6;nome="Alto risco";}
+    return {ACF,ACO,PCF,PCO,NCG,T,CDG,tipo,nome};
+  }
+  r.fleur=[fleur(0),fleur(1)];
+  r.pme=[ g("cpv")?(g("estoques")||0)/g("cpv")*365:null, p("cpv")?(p("estoques")||0)/p("cpv")*365:null ];
+  r.pmr=[ g("receita")?(g("contasReceber")||0)/g("receita")*365:null, p("receita")?(p("contasReceber")||0)/p("receita")*365:null ];
+  r.pmp=[ g("cpv")?(g("fornecedores")||0)/g("cpv")*365:null, p("cpv")?(p("fornecedores")||0)/p("cpv")*365:null ];
+  r.ciclo=[ (r.pme[0]||0)+(r.pmr[0]||0)-(r.pmp[0]||0), (r.pme[1]||0)+(r.pmr[1]||0)-(r.pmp[1]||0) ];
+  const alav=r.alavMPA[0], cob=r.cobertura[0], roe=r.roe[0], me=r.margemEbitda[0], lc=r.liqCorr[0], pla=r.plAtivo[0], rec=g("receita")||0;
+  let f1; if(alav==null)f1=10; else if(alav<1)f1=14; else if(alav<1.5)f1=12; else if(alav<2)f1=11; else if(alav<3)f1=10; else if(alav<4)f1=8; else if(alav<5)f1=7; else f1=5;
+  if(cob!=null){ if(cob<3)f1--; else if(cob>6)f1++; }
+  if(r.alavMPA[1]!=null&&alav!=null&&(alav-r.alavMPA[1])>0.7)f1--;
+  let f2; if(roe==null)f2=11; else if(roe>0.25)f2=16; else if(roe>0.18)f2=15; else if(roe>0.12)f2=13; else if(roe>0.08)f2=11; else f2=9;
+  if(me!=null&&me<0.08)f2--; if(r.margemEbitda[1]!=null&&me!=null&&me<r.margemEbitda[1])f2--;
+  let f3; if(lc==null)f3=11; else if(lc>2.5)f3=14; else if(lc>2)f3=13; else if(lc>1.5)f3=12; else if(lc>1.2)f3=11; else f3=9;
+  if(pla!=null){ if(pla<0.4)f3--; else if(pla>0.6)f3++; } if(r.fleur[0].T<0)f3--;
+  let f4; if(rec>10000000)f4=15; else if(rec>3000000)f4=11; else if(rec>1000000)f4=11; else if(rec>500000)f4=10; else if(rec>300000)f4=9; else f4=8;
+  if(q.lider)f4++;
+  let f5=11; if(q.commodity)f5--; if(q.familiar)f5--; if(q.big4)f5++; if(q.agencia)f5++; if(q.defic)f5--;
+  f1=Math.max(1,Math.min(21,f1)); f2=Math.max(1,Math.min(21,f2)); f3=Math.max(1,Math.min(21,f3)); f4=Math.max(1,Math.min(21,f4)); f5=Math.max(1,Math.min(21,f5));
+  const sacp=f1*0.30+f2*0.20+f3*0.20+f4*0.15+f5*0.15;
+  const finalNotch=Math.min(Math.round(sacp), SOBERANO.notch+1);
+  r.rating={
+    fatores:[
+      {nome:"Alavancagem & cobertura",peso:30,notch:f1},
+      {nome:"Rentabilidade & margens",peso:20,notch:f2},
+      {nome:"Liquidez & estrutura",peso:20,notch:f3},
+      {nome:"Escala & mercado",peso:15,notch:f4},
+      {nome:"Perfil & governança",peso:15,notch:f5}
+    ],
+    sacpNum:sacp, sacp:letra(sacp),
+    soberano:SOBERANO.label, final:letra(finalNotch), finalNotch,
+    nacional:nacional(finalNotch-SOBERANO.notch),
+    capeado: Math.round(sacp)>finalNotch
+  };
+  return r;
+}
+
+/* ============ render ============ */
+const el=id=>document.getElementById(id);
+function clienteAtivo(){
+  const cs=loadClients();
+  const urlId=new URLSearchParams(location.search).get("cliente");
+  const id = (urlId&&cs[urlId])?urlId:getActive();
+  return (id&&cs[id])?cs[id]:null;
+}
+function popularSelect(){
+  const cs=loadClients(), ids=Object.keys(cs), act=clienteAtivo();
+  const sel=el("clientSelect"); sel.innerHTML="";
+  const o0=document.createElement("option"); o0.value=""; o0.textContent= ids.length?"— escolher cliente —":"— nenhum cliente —"; sel.appendChild(o0);
+  ids.sort((a,b)=>(cs[b].atualizadoEm||0)-(cs[a].atualizadoEm||0)).forEach(id=>{ const o=document.createElement("option"); o.value=id; o.textContent=cs[id].nome; if(act&&id===act.id)o.selected=true; sel.appendChild(o); });
+  sel.onchange=()=>{ setActive(sel.value); render(); };
+}
+
+function render(){
+  popularSelect();
+  const cli=clienteAtivo();
+  const rep=el("report");
+  if(!cli){
+    rep.innerHTML=`<div class="empty"><div class="ic">⌗</div>
+      <p>Nenhum cliente carregado. Volte ao painel para <b>analisar um balanço</b> ou selecione um cliente já salvo no menu acima.</p>
+      <a href="index.html">← Ir para a Central de Motores</a></div>`;
+    return;
+  }
+  // recomputa a partir dos dados (garante consistência)
+  const a = (cli.dados&&cli.qual)?analisar(cli.dados,cli.qual):cli.analise;
+  const d=cli.dados||{}, R=a.rating, f=a.fleur[0];
+  const ya=d.anoAtual||"atual", yb=d.anoAnterior||"ant.";
+  const row=(l,v1,v2,cls="")=>`<tr><td>${l}</td><td class="${cls}">${v1}</td><td style="color:var(--ink-mute)">${v2}</td></tr>`;
+  const alavCls=a.alavMPA[0]==null?"":a.alavMPA[0]<1.5?"g":a.alavMPA[0]<2.5?"w":"b";
+  const zones=[1,2,3,4,5,6].map(t=>`<span class="zchip ${t===f.tipo?'on':''}">Tipo ${t}</span>`).join("");
+  const fat=R.fatores.map(x=>`<tr><td>${x.nome}</td><td>${x.peso}%</td><td>${letra(x.notch)}</td><td>${x.notch}</td><td>${(x.notch*x.peso/100).toFixed(2)}</td></tr>`).join("");
+
+  rep.innerHTML=`
+  <div class="hero">
+    <div class="who">
+      <div class="eyebrow">Diagnóstico MPA</div>
+      <h1>${cli.nome}</h1>
+      <div class="sub">${cli.setor||"setor não informado"} · base ${ya} vs ${yb} · R$ mil, consolidado</div>
+    </div>
+    <div class="ratingbox">
+      <div class="rg">${R.final}</div>
+      <div class="rl">RATING FINAL · standalone ${R.sacp} · ≈ ${R.nacional}</div>
+    </div>
+  </div>
+
+  <div class="kpis">
+    <div class="kpi ${alavCls}"><div class="k">Dív. líq./EBITDA</div><div class="v">${xx(a.alavMPA[0])}</div><div class="d">empresa ${xx(a.alavEmp[0])}</div></div>
+    <div class="kpi g"><div class="k">Margem EBITDA</div><div class="v">${pct(a.margemEbitda[0])}</div><div class="d">EBITDA ${mi(a.ebitda[0])}</div></div>
+    <div class="kpi g"><div class="k">ROE</div><div class="v">${pct(a.roe[0])}</div><div class="d">ROA ${pct(a.roa[0])}</div></div>
+    <div class="kpi"><div class="k">Cobertura juros</div><div class="v">${xx(a.cobertura[0])}</div><div class="d">EBITDA/desp. fin.</div></div>
+    <div class="kpi ${f.tipo<=2?'g':f.tipo<=3?'w':'b'}"><div class="k">Fleuriet</div><div class="v">Tipo ${f.tipo}</div><div class="d">${f.nome} · T ${f.T>=0?'+':''}${mi(f.T)}</div></div>
+    <div class="kpi"><div class="k">Liquidez corr.</div><div class="v">${xx(a.liqCorr[0])}</div><div class="d">seca ${xx(a.liqSeca[0])}</div></div>
+  </div>
+
+  <section>
+    <h2 class="sec"><span class="n">01</span>Indicadores de crédito</h2>
+    <div class="tablecard"><table>
+      <thead><tr><th>Indicador</th><th>${ya}</th><th>${yb}</th></tr></thead><tbody>
+        ${row("EBITDA (R$ mi)",mi(a.ebitda[0]),mi(a.ebitda[1]))}
+        ${row("Margem EBITDA",pct(a.margemEbitda[0]),pct(a.margemEbitda[1]))}
+        ${row("Dív. líq./EBITDA — MPA",xx(a.alavMPA[0]),xx(a.alavMPA[1]),"wrn")}
+        ${row("Dív. líq./EBITDA — empresa",xx(a.alavEmp[0]),xx(a.alavEmp[1]))}
+        ${row("Cobertura de juros",xx(a.cobertura[0]),xx(a.cobertura[1]))}
+        ${row("FFO / dívida bruta",pct(a.ffoDivida[0]),pct(a.ffoDivida[1]))}
+        ${row("Liquidez corrente",xx(a.liqCorr[0]),xx(a.liqCorr[1]))}
+        ${row("Liquidez seca",xx(a.liqSeca[0]),xx(a.liqSeca[1]))}
+        ${row("PL / Ativo total",pct(a.plAtivo[0]),pct(a.plAtivo[1]))}
+        ${row("ROE",pct(a.roe[0]),pct(a.roe[1]),"pos")}
+        ${row("ROA",pct(a.roa[0]),pct(a.roa[1]))}
+        ${row("Margem bruta",pct(a.margemBruta[0]),pct(a.margemBruta[1]))}
+        ${row("Margem líquida",pct(a.margemLiq[0]),pct(a.margemLiq[1]))}
+      </tbody>
+    </table></div>
+  </section>
+
+  <section>
+    <h2 class="sec"><span class="n">02</span>Modelo Fleuriet · Tipo ${f.tipo} (${f.nome})</h2>
+    <div class="zoneline">${zones}</div>
+    <div class="tablecard"><table>
+      <thead><tr><th>Componente</th><th>${ya}</th><th>${yb}</th></tr></thead><tbody>
+        ${row("Capital de giro (CDG)",mi(a.fleur[0].CDG),mi(a.fleur[1].CDG))}
+        ${row("Necessidade de giro (NCG)",mi(a.fleur[0].NCG),mi(a.fleur[1].NCG))}
+        ${row("Tesouraria (T)",mi(a.fleur[0].T),mi(a.fleur[1].T),a.fleur[0].T>=0?"pos":"neg")}
+      </tbody></table></div>
+    <div class="tablecard" style="margin-top:12px"><table>
+      <thead><tr><th>Ciclo financeiro</th><th>${ya}</th><th>${yb}</th></tr></thead><tbody>
+        ${row("Prazo médio de estoques",dd(a.pme[0]),dd(a.pme[1]))}
+        ${row("Prazo médio de recebimento",dd(a.pmr[0]),dd(a.pmr[1]))}
+        ${row("Prazo médio de pagamento",dd(a.pmp[0]),dd(a.pmp[1]))}
+        <tr class="tot"><td>Ciclo de caixa</td><td>${dd(a.ciclo[0])}</td><td style="color:var(--ink-mute)">${dd(a.ciclo[1])}</td></tr>
+      </tbody></table></div>
+  </section>
+
+  <section>
+    <h2 class="sec"><span class="n">03</span>Rating MPA · scorecard</h2>
+    <div class="ratingsplit">
+      <div class="rcard s"><div class="lab">① Perfil standalone (SACP)</div><div class="big">${R.sacp}</div>
+        <p>Qualidade de crédito intrínseca pela média ponderada dos 5 fatores (notch ${R.sacpNum.toFixed(2)}).</p></div>
+      <div class="rcard f"><div class="lab">② Rating final · overlay soberano</div><div class="big">${R.final}</div>
+        <p>Teto soberano Brasil ${R.soberano}${R.capeado?" · <span class='wrn'>capeado</span>":""}. Equivale a <b style="color:var(--ink)">${R.nacional}</b> na escala nacional.</p></div>
+    </div>
+    <div class="tablecard"><table>
+      <thead><tr><th>Fator</th><th>Peso</th><th>Sub-rating</th><th>Notch</th><th>Contrib.</th></tr></thead><tbody>
+        ${fat}
+        <tr class="tot"><td>Notch ponderado → SACP</td><td>100%</td><td>${R.sacp}</td><td>${R.sacpNum.toFixed(2)}</td><td>${R.sacpNum.toFixed(2)}</td></tr>
+      </tbody></table></div>
+    <div class="note"><b>Leitura.</b> SACP = média ponderada dos cinco fatores. Rating final = min(SACP, soberano +1 notch). A escala nacional é ancorada em Brasil ${R.soberano}. Pesos 30/20/20/15/15 — a mesma metodologia da análise J. Macêdo.</div>
+  </section>`;
+
+  // botões
+  el("btnExport").onclick=()=>{ const blob=new Blob([JSON.stringify(cli,null,2)],{type:"application/json"}); const u=URL.createObjectURL(blob); const x=document.createElement("a"); x.href=u; x.download=`diagnostico-${cli.nome.replace(/\s+/g,"-").toLowerCase()}.json`; x.click(); URL.revokeObjectURL(u); };
+}
+el("btnPrint").onclick=()=>window.print();
+render();
+</script>
+</body>
+</html>
