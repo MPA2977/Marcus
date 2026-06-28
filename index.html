@@ -290,6 +290,7 @@
       </div>
     </div>
     <div class="modal-foot">
+      <button class="btn" id="btnLimpar" style="margin-right:auto">+ Novo cliente (limpar)</button>
       <button class="btn" data-close>Cancelar</button>
       <button class="btn primary" id="btnSalvar">Rodar análise &amp; salvar cliente →</button>
     </div>
@@ -348,6 +349,7 @@ const uid=()=>"c"+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
 function parseBR(s){ if(s==null)return null; s=(""+s).trim(); if(s===""||s==="—"||s==="-")return null;
   let neg=/^\(.*\)$/.test(s); s=s.replace(/[()]/g,"").replace(/\./g,"").replace(/,/g,".").replace(/[^\d.\-]/g,"");
   let n=parseFloat(s); if(isNaN(n))return null; return neg?-Math.abs(n):n; }
+const fmtBR=v=>(v==null||v===""||!isFinite(v))?"":Number(v).toLocaleString("pt-BR",{maximumFractionDigits:2});
 const mi=v=> v==null?"—":(v/1000).toLocaleString("pt-BR",{maximumFractionDigits:1,minimumFractionDigits:1});
 const pct=v=> v==null||!isFinite(v)?"—":(v*100).toLocaleString("pt-BR",{maximumFractionDigits:1,minimumFractionDigits:1})+"%";
 const xx=v=> v==null||!isFinite(v)?"—":v.toLocaleString("pt-BR",{maximumFractionDigits:2,minimumFractionDigits:2})+"x";
@@ -611,8 +613,9 @@ function buildForm(){
     CAMPOS_DRE.map(([k,l])=>`<div class="frow"><label class="fl" for="f_${k}">${l}</label><input id="f_${k}" inputmode="numeric"><input id="f_${k}_b" inputmode="numeric"></div>`).join("")+`</div></div>`;
 }
 function abrirAnalise(cli){
+  if(!cli) cli = activeClient();          // ← sem argumento, abre o cliente ativo pré-preenchido
   editingId = cli?cli.id:null;
-  $("#anTitle").textContent = cli?("Editar · "+cli.nome):"Analisar balanço · padrão MPA";
+  $("#anTitle").textContent = cli?("Editar · "+cli.nome):"Analisar balanço · novo cliente";
   buildForm();
   // reset
   $("#cliNome").value=cli?cli.nome:""; $("#cliSetor").value=cli?(cli.setor||""):"";
@@ -620,11 +623,21 @@ function abrirAnalise(cli){
   ["qLider","qBig4","qAgencia","qDefic"].forEach(id=>$("#"+id).checked=false);
   ["qCommodity","qFamiliar"].forEach(id=>$("#"+id).checked=true);
   $("#parseNote").classList.remove("show");
-  if(cli){ // preencher campos
-    const d=cli.dados; [...CAMPOS_ATIVO,...CAMPOS_PASSIVO,...CAMPOS_DRE].forEach(([k])=>{ if(d[k]){ const a=$("#f_"+k),b=$("#f_"+k+"_b"); if(a)a.value=d[k][0]??""; if(b)b.value=d[k][1]??""; }});
+  if(cli){ // preencher campos (formatados em pt-BR)
+    const d=cli.dados; [...CAMPOS_ATIVO,...CAMPOS_PASSIVO,...CAMPOS_DRE].forEach(([k])=>{ if(d[k]){ const a=$("#f_"+k),b=$("#f_"+k+"_b"); if(a)a.value=fmtBR(d[k][0]); if(b)b.value=fmtBR(d[k][1]); }});
     const q=cli.qual||{}; for(const k in q){ const el=$("#q"+k.charAt(0).toUpperCase()+k.slice(1)); if(el)el.checked=q[k]; }
   }
   $("#ovAnalise").classList.add("show");
+}
+function limparAnalise(){
+  editingId=null;
+  $("#anTitle").textContent="Analisar balanço · novo cliente";
+  buildForm();
+  $("#cliNome").value=""; $("#cliSetor").value=""; $("#anoAtual").value=""; $("#anoAnt").value="";
+  ["qLider","qBig4","qAgencia","qDefic"].forEach(id=>$("#"+id).checked=false);
+  ["qCommodity","qFamiliar"].forEach(id=>$("#"+id).checked=true);
+  $("#parseNote").classList.remove("show");
+  toast("Formulário limpo — pronto para um novo cliente.");
 }
 function coletarDados(){
   const d={anoAtual:$("#anoAtual").value||"", anoAnterior:$("#anoAnt").value||""};
@@ -803,6 +816,7 @@ $("#btnImport").onclick=()=>$("#importFile").click();
 $("#importFile").onchange=async()=>{ const f=$("#importFile").files[0]; if(!f)return; try{ importarCliente(JSON.parse(await f.text())); }catch(e){ toast("JSON inválido."); } };
 $("#btnDel").onclick=()=>{ const c=activeClient(); if(!c){toast("Nenhum cliente ativo.");return;} if(!confirm(`Remover o cliente "${c.nome}"?`))return; const cs=loadClients(); delete cs[c.id]; saveClients(cs); setActive(""); renderAll(); toast("Cliente removido."); };
 $("#btnDemo").onclick=()=>carregarDemo();
+$("#btnLimpar").onclick=()=>limparAnalise();
 $$("[data-close]").forEach(b=>b.onclick=()=>{$("#ovAnalise").classList.remove("show");$("#ovRep").classList.remove("show");});
 [$("#ovAnalise"),$("#ovRep")].forEach(o=>o.addEventListener("click",e=>{if(e.target===o)o.classList.remove("show");}));
 document.addEventListener("keydown",e=>{if(e.key==="Escape"){$("#ovAnalise").classList.remove("show");$("#ovRep").classList.remove("show");}});
