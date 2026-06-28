@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Diagnóstico MPA · J. Macêdo S.A. · Exercício 2025</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Serif:wght@400;500;600;700&family=IBM+Plex+Sans:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  :root{
+    --ink:#0E2438;        /* navy profundo */
+    --ink-2:#1C3A56;
+    --paper:#F6F7F9;
+    --paper-2:#FFFFFF;
+    --line:#D9DEE6;
+    --line-2:#E7EBF1;
+    --muted:#5B6B7C;
+    --grain:#8A98A8;
+    --invest:#1E7A5A;     /* grau de investimento / positivo */
+    --invest-soft:#E4F1EB;
+    --watch:#B5781A;      /* alerta alavancagem */
+    --watch-soft:#F7EEDD;
+    --risk:#9E3B33;
+    --risk-soft:#F4E3E1;
+    --accent:#0E2438;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:'IBM Plex Sans',system-ui,sans-serif;
+    background:var(--paper);
+    color:var(--ink);
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+  }
+  .mono{font-family:'IBM Plex Mono',monospace;font-variant-numeric:tabular-nums}
+  .serif{font-family:'IBM Plex Serif',serif}
+  .wrap{max-width:980px;margin:0 auto;padding:0 28px}
+
+  /* ---------- HEADER ---------- */
+  header.top{
+    background:var(--ink);
+    color:#fff;
+    padding:34px 0 30px;
+    border-bottom:3px solid var(--invest);
+  }
+  .brandrow{display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap}
+  .brandmark{display:flex;align-items:baseline;gap:12px}
+  .brandmark .logo{
+    font-family:'IBM Plex Mono',monospace;font-weight:600;letter-spacing:.18em;
+    font-size:13px;border:1.5px solid rgba(255,255,255,.55);
+    padding:5px 9px;border-radius:3px;color:#fff;
+  }
+  .brandmark .sub{font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:#9FB2C4}
+  .docmeta{text-align:right;font-size:11.5px;color:#9FB2C4;letter-spacing:.04em;line-height:1.7}
+  .docmeta b{color:#fff;font-weight:500}
+  h1.title{
+    font-family:'IBM Plex Serif',serif;font-weight:600;
+    font-size:clamp(30px,5vw,46px);line-height:1.04;margin-top:26px;letter-spacing:-.01em;
+  }
+  .title small{display:block;font-family:'IBM Plex Sans';font-weight:300;font-size:15px;color:#A9BACB;letter-spacing:.02em;margin-top:10px}
+
+  /* ---------- VERDICT HERO ---------- */
+  .hero{
+    background:var(--ink-2);color:#fff;padding:0;border-bottom:1px solid rgba(255,255,255,.08);
+  }
+  .hero .wrap{display:grid;grid-template-columns:1.15fr 1fr;gap:0}
+  .hero .left{padding:30px 36px 34px 0}
+  .hero .right{padding:30px 0 34px 36px;border-left:1px solid rgba(255,255,255,.12)}
+  .eyebrow{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--invest);font-weight:600;font-family:'IBM Plex Mono'}
+  .ratingbig{display:flex;align-items:flex-end;gap:14px;margin-top:14px}
+  .ratingbig .grade{font-family:'IBM Plex Serif';font-weight:700;font-size:72px;line-height:.85;color:#fff}
+  .ratingbig .tag{
+    font-family:'IBM Plex Mono';font-size:11px;letter-spacing:.08em;background:var(--invest);
+    color:#fff;padding:4px 9px;border-radius:3px;margin-bottom:10px;font-weight:500;
+  }
+  .ratingbig .arrow{font-size:13px;color:#A9BACB;margin-bottom:12px}
+  .verdict-line{font-size:14.5px;color:#D5DEE7;margin-top:16px;max-width:42ch}
+  .fleur-badge{display:inline-flex;align-items:center;gap:9px;margin-top:18px;background:rgba(30,122,90,.16);border:1px solid rgba(30,122,90,.5);padding:7px 13px;border-radius:4px}
+  .fleur-badge .dot{width:8px;height:8px;border-radius:50%;background:var(--invest)}
+  .fleur-badge span{font-size:12.5px;color:#fff;letter-spacing:.02em}
+  .fleur-badge b{font-family:'IBM Plex Mono';font-weight:500}
+
+  .snap{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.12);border-radius:6px;overflow:hidden}
+  .snap .cell{background:var(--ink-2);padding:14px 16px}
+  .snap .k{font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:#90A4B7}
+  .snap .v{font-family:'IBM Plex Mono';font-size:23px;font-weight:500;color:#fff;margin-top:5px}
+  .snap .d{font-size:11px;margin-top:3px;color:#A9BACB}
+  .snap .d.up{color:#74C49E}
+  .snap .d.down{color:#E0A36B}
+
+  /* ---------- SECTIONS ---------- */
+  main{padding:8px 0 60px}
+  section{padding:42px 0 8px;border-bottom:1px solid var(--line)}
+  section:last-child{border-bottom:none}
+  .sec-head{display:flex;align-items:baseline;gap:14px;margin-bottom:22px}
+  .sec-num{font-family:'IBM Plex Mono';font-size:12px;color:var(--grain);font-weight:600;letter-spacing:.06em;padding-top:4px;white-space:nowrap}
+  .sec-head h2{font-family:'IBM Plex Serif';font-weight:600;font-size:26px;letter-spacing:-.01em;color:var(--ink)}
+  .sec-head p{font-size:13.5px;color:var(--muted);margin-top:4px;max-width:62ch}
+  .lead{font-size:15px;color:var(--ink-2);max-width:70ch;margin-bottom:24px}
+  .lead b{font-weight:600}
+
+  /* ---------- TABLES ---------- */
+  table{width:100%;border-collapse:collapse;font-size:13.5px;margin:6px 0 8px}
+  table.fin th,table.fin td{padding:10px 12px;text-align:right;border-bottom:1px solid var(--line-2)}
+  table.fin th:first-child,table.fin td:first-child{text-align:left}
+  table.fin thead th{
+    font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);
+    font-weight:600;border-bottom:1.5px solid var(--line);background:var(--paper-2)
+  }
+  table.fin td.mono,table.fin td:not(:first-child){font-family:'IBM Plex Mono';font-variant-numeric:tabular-nums}
+  table.fin tbody tr:hover{background:var(--paper-2)}
+  table.fin tr.total td{font-weight:600;border-top:1.5px solid var(--line);border-bottom:none;background:#fbfcfd}
+  .pos{color:var(--invest);font-weight:500}
+  .neg{color:var(--risk);font-weight:500}
+  .warn{color:var(--watch);font-weight:500}
+  .tablecard{background:var(--paper-2);border:1px solid var(--line);border-radius:8px;padding:6px 18px 10px;margin-bottom:8px}
+
+  /* ---------- STAT CARDS ---------- */
+  .cards{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:8px 0 4px}
+  .card{background:var(--paper-2);border:1px solid var(--line);border-radius:8px;padding:16px 16px 15px;position:relative;overflow:hidden}
+  .card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--invest)}
+  .card.w::before{background:var(--watch)}
+  .card.n::before{background:var(--ink-2)}
+  .card .k{font-size:10.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+  .card .v{font-family:'IBM Plex Mono';font-size:27px;font-weight:500;margin-top:7px;letter-spacing:-.01em}
+  .card .d{font-size:11.5px;color:var(--muted);margin-top:5px;line-height:1.45}
+
+  /* ---------- CHART ---------- */
+  .chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:22px;margin:4px 0}
+  .chartbox{background:var(--paper-2);border:1px solid var(--line);border-radius:8px;padding:18px 18px 14px}
+  .chartbox h4{font-size:12.5px;font-weight:600;letter-spacing:.02em;color:var(--ink);margin-bottom:3px}
+  .chartbox .cap{font-size:11.5px;color:var(--muted);margin-bottom:12px}
+  .chartwrap{position:relative;height:230px}
+
+  /* ---------- RATING LADDER (signature) ---------- */
+  .ladder-sec{display:grid;grid-template-columns:300px 1fr;gap:34px;align-items:start}
+  .ladder{background:var(--paper-2);border:1px solid var(--line);border-radius:8px;padding:18px 16px}
+  .ladder .lh{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:12px;font-weight:600}
+  .rung{display:flex;align-items:center;gap:10px;padding:5px 8px;border-radius:5px;position:relative;font-family:'IBM Plex Mono';font-size:12.5px}
+  .rung .lab{width:46px;font-weight:600;color:var(--ink-2)}
+  .rung .bar{flex:1;height:6px;border-radius:3px;background:var(--line-2)}
+  .rung.ig .bar{background:linear-gradient(90deg,#cfe7dd,#9fd2bd)}
+  .rung.sg .bar{background:linear-gradient(90deg,#f0e2c8,#e6c98f)}
+  .rung.dist .bar{background:linear-gradient(90deg,#f0d6d2,#e0a59d)}
+  .rung .zone{font-size:10px;color:var(--grain);width:60px;text-align:right}
+  .rung.here{background:var(--ink);}
+  .rung.here .lab{color:#fff}
+  .rung.here .zone{color:#A9BACB}
+  .rung.here .bar{height:8px;background:var(--invest)}
+  .rung.target{outline:1.5px dashed var(--watch);outline-offset:-1px}
+  .here-pin{position:absolute;right:-7px;top:50%;transform:translateY(-50%);width:0;height:0}
+  .ladder-note{font-size:11.5px;color:var(--muted);margin-top:14px;line-height:1.5;border-top:1px solid var(--line-2);padding-top:12px}
+
+  .factors{display:flex;flex-direction:column;gap:13px}
+  .factor{background:var(--paper-2);border:1px solid var(--line);border-radius:8px;padding:14px 16px}
+  .factor .frow{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+  .factor .fname{font-size:14px;font-weight:600;color:var(--ink)}
+  .factor .fweight{font-family:'IBM Plex Mono';font-size:11px;color:var(--grain)}
+  .factor .fgrade{font-family:'IBM Plex Mono';font-size:13px;font-weight:600;padding:2px 8px;border-radius:4px}
+  .fg-a{background:var(--invest-soft);color:var(--invest)}
+  .fg-b{background:var(--watch-soft);color:var(--watch)}
+  .factor .fdesc{font-size:12.5px;color:var(--muted);margin-top:7px;line-height:1.5}
+  .meter{height:5px;border-radius:3px;background:var(--line-2);margin-top:11px;overflow:hidden}
+  .meter > i{display:block;height:100%;border-radius:3px}
+
+  /* ---------- FLEURIET ZONES ---------- */
+  .zones{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin:6px 0 18px}
+  .zone-card{border:1px solid var(--line);border-radius:7px;padding:12px 11px;background:var(--paper-2);text-align:center;opacity:.5}
+  .zone-card.active{opacity:1;border-color:var(--invest);background:var(--invest-soft);box-shadow:0 1px 0 var(--invest)}
+  .zone-card .zn{font-family:'IBM Plex Mono';font-size:11px;font-weight:600;color:var(--muted)}
+  .zone-card .zt{font-size:11.5px;font-weight:600;margin-top:5px;color:var(--ink)}
+  .zone-card.active .zt{color:var(--invest)}
+  .zone-card .zd{font-size:10px;color:var(--grain);margin-top:3px;font-family:'IBM Plex Mono'}
+
+  /* ---------- CALLOUT ---------- */
+  .callout{display:flex;gap:14px;background:var(--watch-soft);border:1px solid #E8D3A8;border-left:4px solid var(--watch);border-radius:8px;padding:16px 18px;margin:18px 0}
+  .callout.ok{background:var(--invest-soft);border-color:#BCDFCE;border-left-color:var(--invest)}
+  .callout .ico{font-family:'IBM Plex Mono';font-weight:700;font-size:18px;color:var(--watch);line-height:1.2}
+  .callout.ok .ico{color:var(--invest)}
+  .callout .ct{font-size:13.5px;color:var(--ink-2)}
+  .callout .ct b{font-weight:600;color:var(--ink)}
+
+  /* ---------- BANKING ACTION ---------- */
+  .actions{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .act{background:var(--paper-2);border:1px solid var(--line);border-radius:8px;padding:16px 18px}
+  .act h5{font-size:13.5px;font-weight:600;display:flex;align-items:center;gap:9px;margin-bottom:8px}
+  .act h5 .n{font-family:'IBM Plex Mono';font-size:11px;color:#fff;background:var(--ink-2);width:22px;height:22px;display:grid;place-items:center;border-radius:5px}
+  .act p{font-size:12.5px;color:var(--muted);line-height:1.55}
+
+  /* ---------- STRESS ---------- */
+  .stress-row{display:grid;grid-template-columns:1.6fr 1fr 1fr 1fr;gap:0;font-size:13px;align-items:center;border-bottom:1px solid var(--line-2);padding:11px 0}
+  .stress-row.head{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:600;border-bottom:1.5px solid var(--line)}
+  .stress-row .scn{font-weight:500}
+  .stress-row .val{font-family:'IBM Plex Mono';text-align:right}
+  .pill{display:inline-block;font-family:'IBM Plex Mono';font-size:11px;font-weight:600;padding:2px 8px;border-radius:4px;float:right}
+  .pill.ig{background:var(--invest-soft);color:var(--invest)}
+  .pill.sg{background:var(--watch-soft);color:var(--watch)}
+  .pill.rk{background:var(--risk-soft);color:var(--risk)}
+
+  /* ---------- FOOTER ---------- */
+  footer{background:var(--ink);color:#9FB2C4;padding:30px 0;font-size:11.5px;line-height:1.7}
+  footer .wrap{display:flex;justify-content:space-between;gap:24px;flex-wrap:wrap}
+  footer b{color:#fff;font-weight:500}
+  footer .disc{max-width:60ch}
+
+  ul.clean{list-style:none;display:flex;flex-direction:column;gap:9px;margin:6px 0}
+  ul.clean li{font-size:13.5px;color:var(--ink-2);padding-left:20px;position:relative;line-height:1.5}
+  ul.clean li::before{content:"—";position:absolute;left:0;color:var(--invest);font-family:'IBM Plex Mono'}
+
+  @media (max-width:780px){
+    .hero .wrap{grid-template-columns:1fr}
+    .hero .left{padding-right:0}
+    .hero .right{border-left:none;border-top:1px solid rgba(255,255,255,.12);padding-left:0;padding-top:26px;margin-top:8px}
+    .cards{grid-template-columns:1fr 1fr}
+    .chart-grid{grid-template-columns:1fr}
+    .ladder-sec{grid-template-columns:1fr}
+    .zones{grid-template-columns:1fr 1fr 1fr}
+    .actions{grid-template-columns:1fr}
+    .snap{grid-template-columns:1fr 1fr}
+  }
+  .pdfbtn{position:fixed;top:18px;right:18px;z-index:60;font-family:'IBM Plex Mono',monospace;font-size:12.5px;letter-spacing:.04em;
+    background:var(--ink);color:#fff;border:1px solid var(--watch);border-radius:8px;padding:9px 15px;cursor:pointer;
+    box-shadow:0 8px 22px -10px rgba(14,36,56,.5);transition:background .15s,transform .12s}
+  .pdfbtn:hover{background:var(--ink-2);transform:translateY(-1px)}
+  .pdfbtn:active{transform:none}
+  @media print{
+    body{background:#fff}
+    .chartwrap{height:200px}
+    section{break-inside:avoid}
+    .pdfbtn{display:none}
+  }
+</style>
+</head>
+<body>
+
+<button class="pdfbtn" onclick="window.print()" aria-label="Salvar relatório em PDF">⎙ Salvar PDF</button>
+
+<header class="top">
+  <div class="wrap">
+    <div class="brandrow">
+      <div class="brandmark">
+        <span class="logo">MPA</span>
+        <span class="sub">Diagnóstico de Crédito &amp; Tesouraria</span>
+      </div>
+      <div class="docmeta">
+        Relatório <b>MPA-2025-JM · rev. 2</b><br>
+        Base: demonstrações consolidadas auditadas <b>31/12/2025</b><br>
+        Revalidado vs. DFs completas + Relatório da Administração
+      </div>
+    </div>
+    <h1 class="title">J. Macêdo S.A.
+      <small>Moagem de trigo e alimentos · capital fechado · controle familiar · operação Brasil + controlada no exterior</small>
+    </h1>
+  </div>
+</header>
+
+<!-- VERDICT -->
+<div class="hero">
+  <div class="wrap">
+    <div class="left">
+      <div class="eyebrow">Rating MPA · rodada completa</div>
+      <div class="ratingbig">
+        <span class="grade">BB+</span>
+        <span class="tag">ESTÁVEL · ≙ AA(bra)</span>
+        <span class="arrow">standalone BBB− · teto soberano BB</span>
+      </div>
+      <p class="verdict-line">Rating final BB+ na régua global, limitado pelo teto soberano do Brasil (BB). O perfil standalone calculado é <b>BBB−</b> — grau de investimento — e equivale a AA(bra) na escala nacional, consistente com a Fitch.</p>
+      <div class="fleur-badge"><span class="dot"></span><span>Modelo Fleuriet · <b>Tipo 2 — Estrutura Sólida</b> · Tesouraria +R$212,5M</span></div>
+    </div>
+    <div class="right">
+      <div class="snap">
+        <div class="cell"><div class="k">Dív. líq./EBITDA</div><div class="v">1,49x</div><div class="d down">1,39x na ótica da Companhia · ver nota</div></div>
+        <div class="cell"><div class="k">EBITDA / Desp. fin.</div><div class="v">5,16x</div><div class="d">cobertura confortável (5,89x)</div></div>
+        <div class="cell"><div class="k">Margem EBITDA</div><div class="v">15,6%</div><div class="d down">−1,1 p.p. vs 2024</div></div>
+        <div class="cell"><div class="k">ROE</div><div class="v">25,8%</div><div class="d up">retorno consistente</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<main>
+<div class="wrap">
+
+<!-- LEITURA EXECUTIVA -->
+<section>
+  <div class="sec-head">
+    <span class="sec-num">SÍNTESE</span>
+    <div>
+      <h2>Leitura executiva</h2>
+      <p>O que o balanço de 2025 conta, em uma frase: a J. Macêdo trocou colchão patrimonial por ativo produtivo.</p>
+    </div>
+  </div>
+  <p class="lead">A empresa entregou <b>R$3,24 bi de receita</b> (+4,4%) e manteve o lucro líquido praticamente estável em <b>R$347,7M</b>, apesar de CPV e despesas administrativas subindo acima da receita. A dívida bruta saltou de ~R$685M para <b>~R$1,16 bi</b>, mas a contrapartida está no ativo: <b>R$402,8M de imobilizado adicionado no ano</b>, financiado por R$320M de novos empréstimos e R$240M de debêntures. É alavancagem de expansão. O preço foi o colchão patrimonial — o PL/ativo recuou de 55,3% para 45,3%.</p>
+
+  <div class="cards">
+    <div class="card n"><div class="k">Receita líquida</div><div class="v">3.241,9</div><div class="d">R$ mi · +4,4% a/a</div></div>
+    <div class="card"><div class="k">EBITDA</div><div class="v">507,4</div><div class="d">R$ mi · −2,2% a/a</div></div>
+    <div class="card"><div class="k">Lucro líquido</div><div class="v">347,7</div><div class="d">R$ mi · margem 10,7%</div></div>
+    <div class="card w"><div class="k">Capex do exercício</div><div class="v">379,9</div><div class="d">R$ mi · imobilizado +R$402,8M</div></div>
+  </div>
+
+  <div class="callout">
+    <div class="ico">!</div>
+    <div class="ct"><b>A alavancagem é tanto capex quanto dividendo.</b> O caixa operacional (R$333M) não cobriu sozinho o capex de R$380M <i>mais</i> a distribuição de <b>R$335M em dividendos/JCP</b>. A dívida nova financia os dois. Em outras palavras: parte do degrau de alavancagem é escolha de retorno ao acionista (controle familiar), não só investimento. É uma decisão de estrutura de capital legítima — usar dívida subsidiada barata e preservar a distribuição — mas vale nomear, porque um corte de payout reverteria boa parte do aumento de dívida.</div>
+  </div>
+
+  <div class="callout ok">
+    <div class="ico">→</div>
+    <div class="ct"><b>O EBITDA do capex ainda não chegou.</b> Os três projetos — modernização de Salvador (entregue mar/2025), novo moinho em Londrina (PR) e nova fábrica de massas em Horizonte (CE) — só entram em <b>plena operação entre mar e abr/2026</b>. Ou seja, a dívida já está no balanço, mas a geração de caixa incremental do ativo novo entra a partir de 2026. É exatamente o motor do cenário de desalavancagem do stress-test.</div>
+  </div>
+</section>
+
+<!-- PASSO 3 -->
+<section>
+  <div class="sec-head">
+    <span class="sec-num">PASSO 3</span>
+    <div>
+      <h2>Métricas de risco sobre EBITDA</h2>
+      <p>Geração de caixa operacional, alavancagem e capacidade de serviço da dívida.</p>
+    </div>
+  </div>
+
+  <div class="tablecard">
+  <table class="fin">
+    <thead>
+      <tr><th>Indicador</th><th>2025</th><th>2024</th><th>Variação</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>EBITDA (R$ mi)</td><td>507,4</td><td>518,7</td><td class="warn">−2,2%</td></tr>
+      <tr><td>Margem EBITDA</td><td>15,6%</td><td>16,7%</td><td class="warn">−1,1 p.p.</td></tr>
+      <tr><td>Dívida bruta c/ leasing (R$ mi)</td><td>1.155,7</td><td>685,2</td><td class="warn">+68,7%</td></tr>
+      <tr><td>Caixa e equivalentes (R$ mi)</td><td>401,4</td><td>363,0</td><td class="pos">+10,6%</td></tr>
+      <tr><td>Dívida líquida — ótica MPA, c/ leasing (R$ mi)</td><td>754,3</td><td>322,2</td><td class="warn">+134,1%</td></tr>
+      <tr class="total"><td>Dív. líq./EBITDA — ótica MPA</td><td>1,49x</td><td>0,62x</td><td class="warn">+0,87x</td></tr>
+      <tr><td>Dív. líq./EBITDA — ótica Companhia*</td><td>1,39x</td><td>0,53x</td><td class="warn">+0,86x</td></tr>
+      <tr><td>Dívida bruta / EBITDA (c/ leasing)</td><td>2,28x</td><td>1,32x</td><td class="warn">+0,96x</td></tr>
+      <tr><td>EBITDA / Despesa financeira</td><td>5,16x</td><td>5,89x</td><td class="warn">−0,73x</td></tr>
+      <tr><td>FFO / Dívida bruta (aprox.)</td><td>~39%</td><td>—</td><td>—</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="callout ok">
+    <div class="ico">✓</div>
+    <div class="ct"><b>Onde a alavancagem nasce.</b> O salto não vem de prejuízo nem de queima de caixa: vem de R$402,8M de imobilizado, financiado por <b>linhas subsidiadas do BNDES (FINAME/FINEM, SELIC + TLP, 1,4%–4,3% a.a.)</b> e debêntures. Funding longo e barato, casado com ativo produtivo. A 1,4–1,5x e com cobertura de 5x, a empresa segue em zona confortável — o que mudou foi a folga, não a solvência.</div>
+  </div>
+
+  <div class="callout">
+    <div class="ico">*</div>
+    <div class="ct"><b>Duas réguas para a mesma dívida.</b> A Companhia reporta <b>1,39x</b>: dívida ex-arrendamentos, líquida de caixa <i>e</i> dos derivativos. A leitura MPA usa <b>1,49x</b>: inclui os arrendamentos IFRS 16 na dívida e não abate o derivativo — convenção mais conservadora, alinhada à metodologia de agência (S&amp;P adiciona leases à dívida ajustada). Diferença de R$48,8M (R$34,4M de leasing + R$14,4M de derivativo). Nenhuma das duas está errada; uso a régua conservadora por padrão e reporto a da Companhia ao lado.</div>
+  </div>
+
+  <div class="chart-grid">
+    <div class="chartbox">
+      <h4>Trajetória da alavancagem</h4>
+      <div class="cap">Dívida líquida / EBITDA — o degrau do ciclo de capex</div>
+      <div class="chartwrap"><canvas id="alavChart"></canvas></div>
+    </div>
+    <div class="chartbox">
+      <h4>Margens · 2025 vs 2024</h4>
+      <div class="cap">Compressão leve e disciplinada ao longo da cascata</div>
+      <div class="chartwrap"><canvas id="margChart"></canvas></div>
+    </div>
+  </div>
+</section>
+
+<!-- RENTABILIDADE -->
+<section>
+  <div class="sec-head">
+    <span class="sec-num">RENTAB.</span>
+    <div>
+      <h2>Rentabilidade e retorno</h2>
+      <p>O lado forte do crédito: retorno consistente sobre patrimônio e ativo.</p>
+    </div>
+  </div>
+  <div class="cards">
+    <div class="card"><div class="k">Margem bruta</div><div class="v">32,9%</div><div class="d">vs 32,7% · estável</div></div>
+    <div class="card"><div class="k">Margem líquida</div><div class="v">10,7%</div><div class="d">vs 11,3%</div></div>
+    <div class="card"><div class="k">ROA</div><div class="v">11,7%</div><div class="d">retorno sobre ativo total</div></div>
+    <div class="card"><div class="k">ROIC (aprox.)</div><div class="v">~15%</div><div class="d">acima do custo de capital</div></div>
+  </div>
+  <p class="lead" style="margin-top:22px">O lucro praticamente se manteve (R$347,7M vs R$352,2M) mesmo com o CPV avançando 4,2% e as despesas gerais e administrativas subindo 19,4% — sinal de que o resultado é puxado por volume e marca, não por compressão de custo. O retorno sobre o patrimônio de <b>25,8%</b> é o argumento central a favor do rating: o capital investido no ano deve, no tempo, converter o capex em EBITDA incremental e reverter parte do degrau de alavancagem.</p>
+</section>
+
+<!-- FLEURIET -->
+<section>
+  <div class="sec-head">
+    <span class="sec-num">FLEURIET</span>
+    <div>
+      <h2>Modelo dinâmico de capital de giro</h2>
+      <p>Classificação por tipo de estrutura financeira · reconciliada pelos dois métodos (ACF−PCF = CDG−NCG).</p>
+    </div>
+  </div>
+
+  <div class="zones">
+    <div class="zone-card"><div class="zn">Tipo 1</div><div class="zt">Excelente</div><div class="zd">CDG&gt;0 · T&gt;0</div></div>
+    <div class="zone-card active"><div class="zn">Tipo 2</div><div class="zt">Sólida</div><div class="zd">CDG&gt;NCG&gt;0</div></div>
+    <div class="zone-card"><div class="zn">Tipo 3</div><div class="zt">Insatisfat.</div><div class="zd">T&lt;0</div></div>
+    <div class="zone-card"><div class="zn">Tipo 4</div><div class="zt">Péssima</div><div class="zd">CDG&lt;0</div></div>
+    <div class="zone-card"><div class="zn">Tipo 5</div><div class="zt">Muito ruim</div><div class="zd">NCG&lt;0·T&lt;0</div></div>
+    <div class="zone-card"><div class="zn">Tipo 6</div><div class="zt">Alto risco</div><div class="zd">CDG&lt;NCG&lt;0</div></div>
+  </div>
+
+  <div class="chart-grid">
+    <div class="chartbox">
+      <h4>CDG · NCG · Tesouraria</h4>
+      <div class="cap">Evolução 2024 → 2025 (R$ mi)</div>
+      <div class="chartwrap"><canvas id="fleurChart"></canvas></div>
+    </div>
+    <div class="tablecard" style="display:flex;flex-direction:column;justify-content:center">
+      <table class="fin">
+        <thead><tr><th>Componente</th><th>2025</th><th>2024</th><th>Δ</th></tr></thead>
+        <tbody>
+          <tr><td>Capital de giro (CDG)</td><td>839,1</td><td>753,6</td><td class="pos">+11,3%</td></tr>
+          <tr><td>Necessidade de giro (NCG)</td><td>626,7</td><td>536,3</td><td class="warn">+16,9%</td></tr>
+          <tr class="total"><td>Tesouraria (T)</td><td>212,5</td><td>217,4</td><td class="warn">−R$4,9M</td></tr>
+        </tbody>
+      </table>
+      <p style="font-size:11.5px;color:var(--muted);padding:4px 12px 8px">Estrutura <b>Tipo 2 (Sólida)</b>: CDG &gt; NCG &gt; 0 e T positivo. A empresa autofinancia a necessidade de giro e ainda mantém reserva de tesouraria de R$212M.</p>
+    </div>
+  </div>
+
+  <div class="callout">
+    <div class="ico">!</div>
+    <div class="ct"><b>Efeito tesoura incipiente — agora explicado.</b> A NCG cresceu mais rápido que o CDG (+16,9% vs +11,3%), comendo levemente a tesouraria. A causa é o ciclo financeiro: o estoque subiu R$111M, levando o <b>PME de 47 para 64 dias</b> e o ciclo de caixa de ~66 para <b>~72 dias</b>. O grosso está em matérias-primas (+R$74,6M, de R$117M para R$192M). O Relatório da Administração esclarece: em 2025 o trigo atingiu os <b>menores preços em mais de uma década</b> — a empresa comprou na baixa. Logo, é <b>compra tática de trigo a preço deprimido</b>, não acúmulo estrutural. Leitura favorável: capital de giro empregado de forma oportunista, com tendência a normalizar quando o estoque girar.</div>
+  </div>
+
+  <div class="tablecard">
+  <table class="fin">
+    <thead><tr><th>Ciclo financeiro</th><th>2025</th><th>2024</th><th>Δ (dias)</th></tr></thead>
+    <tbody>
+      <tr><td>Prazo médio de estoques (PME)</td><td>64 dias</td><td>47 dias</td><td class="warn">+17</td></tr>
+      <tr><td>Prazo médio de recebimento (PMR)</td><td>44 dias</td><td>47 dias</td><td class="pos">−3</td></tr>
+      <tr><td>Prazo médio de pagamento (PMP)</td><td>36 dias</td><td>29 dias</td><td class="pos">+7</td></tr>
+      <tr class="total"><td>Ciclo de caixa</td><td>72 dias</td><td>66 dias</td><td class="warn">+6</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<!-- LIQUIDEZ / ESTRUTURA -->
+<section>
+  <div class="sec-head">
+    <span class="sec-num">ESTRUT.</span>
+    <div>
+      <h2>Liquidez e estrutura de capital</h2>
+      <p>Folga de curto prazo preservada; alavancagem patrimonial em elevação.</p>
+    </div>
+  </div>
+  <div class="cards">
+    <div class="card"><div class="k">Liquidez corrente</div><div class="v">2,48</div><div class="d">de 2,58 · forte</div></div>
+    <div class="card"><div class="k">Liquidez seca</div><div class="v">1,81</div><div class="d">de 2,02 · confortável</div></div>
+    <div class="card w"><div class="k">PL / Ativo total</div><div class="v">45,3%</div><div class="d">de 55,3% · −10 p.p.</div></div>
+    <div class="card w"><div class="k">Dívida bruta / PL</div><div class="v">0,86x</div><div class="d">de 0,52x</div></div>
+  </div>
+  <p class="lead" style="margin-top:22px">Mesmo com o avanço da dívida, a liquidez de curto prazo segue robusta — a empresa cobre 2,48x o passivo circulante e 1,81x sem contar estoques. A leitura de atenção é estrutural: o financiamento do ciclo de capex via dívida reduziu a participação do capital próprio no funding total. Não é fragilidade, é menor margem de manobra. O caminho natural é deixar o EBITDA incremental do novo ativo recompor o índice ao longo de 2026–2027.</p>
+</section>
+
+<!-- RATING MPA -->
+<section>
+  <div class="sec-head">
+    <span class="sec-num">RATING MPA</span>
+    <div>
+      <h2>Rating MPA · rodada completa</h2>
+      <p>Cinco fatores ponderados → notch médio → perfil standalone (SACP) → overlay soberano → rating final. Metodologia adaptada de S&amp;P / Moody's.</p>
+    </div>
+  </div>
+
+  <div class="ladder-sec">
+    <div class="ladder">
+      <div class="lh">Escala MPA global · equiv. S&amp;P</div>
+      <div class="rung ig"><span class="lab">AAA</span><span class="bar"></span><span class="zone">Prime</span></div>
+      <div class="rung ig"><span class="lab">AA</span><span class="bar"></span><span class="zone">Alto grau</span></div>
+      <div class="rung ig"><span class="lab">A</span><span class="bar"></span><span class="zone">Médio-alto</span></div>
+      <div class="rung ig target"><span class="lab">BBB−</span><span class="bar"></span><span class="zone">◀ SACP 12,05</span></div>
+      <div class="rung sg here"><span class="lab">BB+</span><span class="bar"></span><span class="zone">◀ Final</span></div>
+      <div class="rung sg"><span class="lab">BB</span><span class="bar"></span><span class="zone">◀ Soberano BR</span></div>
+      <div class="rung sg"><span class="lab">B</span><span class="bar"></span><span class="zone">Especulat.</span></div>
+      <div class="rung dist"><span class="lab">CCC</span><span class="bar"></span><span class="zone">Risco subst.</span></div>
+      <div class="rung dist"><span class="lab">CC/C</span><span class="bar"></span><span class="zone">Default próx.</span></div>
+      <div class="ladder-note"><b>Standalone (SACP) = BBB−</b> pela média ponderada (notch 12,05). O <b>teto soberano</b> (Brasil BB, S&amp;P/Fitch, abr/2026) puxa o rating final para <b>BB+</b> — um notch acima do soberano, justificado pelo perfil standalone forte e geração parcial em moeda forte (Cipolin/trigo). Equivale a <b>AA(bra)</b> nacional — consistente com a Fitch.</div>
+    </div>
+
+    <div class="factors">
+      <div class="factor">
+        <div class="frow"><span class="fname">Alavancagem &amp; cobertura</span><span class="fweight">peso 30% · notch 11</span><span class="fgrade fg-b">BB+</span></div>
+        <div class="fdesc">Dív. líq./EBITDA 1,39–1,49x e cobertura 5,16x são fortes em nível absoluto; FFO/dívida ~39% e o degrau do ano (de 0,5–0,6x) seguram em BB+. Funding BNDES subsidiado e longo é atenuante qualitativo.</div>
+        <div class="meter"><i style="width:65%;background:var(--watch)"></i></div>
+      </div>
+      <div class="factor">
+        <div class="frow"><span class="fname">Rentabilidade &amp; margens</span><span class="fweight">peso 20% · notch 15</span><span class="fgrade fg-a">A−</span></div>
+        <div class="fdesc">ROE 25,8%, ROIC ~15%, margem EBITDA 15,6% e margem bruta estável em 32,9%. Geração de caixa consistente — o fator mais forte do conjunto.</div>
+        <div class="meter"><i style="width:85%;background:var(--invest)"></i></div>
+      </div>
+      <div class="factor">
+        <div class="frow"><span class="fname">Liquidez &amp; estrutura de capital</span><span class="fweight">peso 20% · notch 13</span><span class="fgrade fg-a">BBB</span></div>
+        <div class="fdesc">Liquidez corrente 2,48 e seca 1,81; tesouraria Fleuriet positiva em R$212M (Tipo 2). PL/ativo recuando para 45,3% é o contrapeso.</div>
+        <div class="meter"><i style="width:78%;background:var(--invest)"></i></div>
+      </div>
+      <div class="factor">
+        <div class="frow"><span class="fname">Escala &amp; posição de mercado</span><span class="fweight">peso 15% · notch 11</span><span class="fgrade fg-b">BB+</span></div>
+        <div class="fdesc">Líder em farinha de trigo e mistura para bolo, marcas fortes (Dona Benta, Sol, Petybon, Brandini), cadeia 100% verticalizada. Limitado por escala (~R$3,2 bi) e operação single-country.</div>
+        <div class="meter"><i style="width:65%;background:var(--watch)"></i></div>
+      </div>
+      <div class="factor">
+        <div class="frow"><span class="fname">Perfil de negócio &amp; governança</span><span class="fweight">peso 15% · notch 10</span><span class="fgrade fg-b">BB</span></div>
+        <div class="fdesc">Exposição a trigo/câmbio (hedge via Cipolin + derivativos), controle familiar e capital fechado (CVM cat. B). Auditoria limpa (Deloitte), porém com deficiências de controle interno apontadas em TI e reconhecimento de receita.</div>
+        <div class="meter"><i style="width:58%;background:var(--watch)"></i></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tablecard" style="margin-top:18px">
+  <table class="fin">
+    <thead><tr><th>Fator</th><th>Peso</th><th>Sub-rating</th><th>Notch</th><th>Contribuição</th></tr></thead>
+    <tbody>
+      <tr><td>Alavancagem &amp; cobertura</td><td>30%</td><td>BB+</td><td>11</td><td>3,30</td></tr>
+      <tr><td>Rentabilidade &amp; margens</td><td>20%</td><td>A−</td><td>15</td><td>3,00</td></tr>
+      <tr><td>Liquidez &amp; estrutura</td><td>20%</td><td>BBB</td><td>13</td><td>2,60</td></tr>
+      <tr><td>Escala &amp; mercado</td><td>15%</td><td>BB+</td><td>11</td><td>1,65</td></tr>
+      <tr><td>Perfil &amp; governança</td><td>15%</td><td>BB</td><td>10</td><td>1,50</td></tr>
+      <tr class="total"><td>Notch ponderado → SACP</td><td>100%</td><td class="pos">BBB−</td><td>12,05</td><td>12,05</td></tr>
+    </tbody>
+  </table>
+  <p style="font-size:11.5px;color:var(--muted);padding:4px 12px 8px">Escala de notch: BBB−=12, BB+=11, BB=10. O standalone cai em <b>BBB− (12,05)</b> — limite inferior do grau de investimento.</p>
+  </div>
+
+  <div class="actions" style="margin-top:6px">
+    <div class="act" style="border-left:3px solid var(--invest)">
+      <h5><span class="n" style="background:var(--invest)">1</span>Perfil standalone (SACP)</h5>
+      <p><b style="font-size:18px;font-family:'IBM Plex Mono'">BBB−</b><br>Qualidade de crédito intrínseca, sem considerar o ambiente soberano. É o "viés para BBB−" que sinalizei nas rodadas anteriores — agora computado.</p>
+    </div>
+    <div class="act" style="border-left:3px solid var(--watch)">
+      <h5><span class="n" style="background:var(--watch)">2</span>Rating final · overlay soberano</h5>
+      <p><b style="font-size:18px;font-family:'IBM Plex Mono'">BB+</b> · perspectiva estável<br>Brasil em BB (S&amp;P/Fitch) limita a régua global. Aplicado +1 notch acima do soberano pelo standalone forte. Equivale a <b>AA(bra)</b> nacional.</p>
+    </div>
+  </div>
+
+  <div class="callout ok">
+    <div class="ico">✓</div>
+    <div class="ct"><b>Validação externa: Fitch AA(bra), perspectiva Estável.</b> A Companhia carrega Rating Nacional de Longo Prazo <b>AA(bra)</b> confirmado pela Fitch — nota alta na escala doméstica brasileira. Atenção à diferença de régua: a escala <b>nacional</b> mede risco <i>relativo</i> entre emissores brasileiros, enquanto o <b>BB+ indicativo MPA</b> é leitura tipo escala <b>global</b>, ancorada no teto soberano do Brasil (faixa BB na escala internacional). Um emissor doméstico AA(bra) tipicamente mapeia para a vizinhança de BB/BB+ global — ou seja, <b>as duas leituras são consistentes</b>. O BB+ MPA não contradiz a Fitch; traduz a mesma qualidade de crédito para a régua global, onde o soberano limita o teto.</div>
+  </div>
+
+  <div class="callout">
+    <div class="ico">i</div>
+    <div class="ct"><b>Resultado: Rating MPA BB+ (global) · standalone BBB− · estável.</b> A rodada usa os cinco fatores e pesos padrão da metodologia MPA, com notch médio ponderado e overlay soberano. Os pesos (30/20/20/15/15) e os limiares de cada fator são os que apliquei aqui — se a sua calibração na ferramenta divergir, me passa os pesos/thresholds que eu re-rodo. O viés é positivo: a desalavancagem de 2026 (capex maturo) é o gatilho para revisar o standalone e, se o soberano acompanhar, o rating final.</div>
+  </div>
+</section>
+
+<!-- PASSO 5 STRESS -->
+<section>
+  <div class="sec-head">
+    <span class="sec-num">PASSO 5</span>
+    <div>
+      <h2>Stress-test de alavancagem</h2>
+      <p>Sensibilidade de Dív. líq./EBITDA a choques de margem e ciclo · base 2025.</p>
+    </div>
+  </div>
+  <div class="tablecard">
+    <div class="stress-row head">
+      <span class="scn">Cenário</span><span class="val">EBITDA (R$ mi)</span><span class="val">Dív. líq./EBITDA</span><span class="val">Leitura</span>
+    </div>
+    <div class="stress-row">
+      <span class="scn">Base · 2025 realizado</span><span class="val">507,4</span><span class="val">1,49x</span><span class="val"><span class="pill ig">SÓLIDO</span></span>
+    </div>
+    <div class="stress-row">
+      <span class="scn">Margem −2 p.p. (custo de trigo)</span><span class="val">442,5</span><span class="val">1,70x</span><span class="val"><span class="pill ig">SÓLIDO</span></span>
+    </div>
+    <div class="stress-row">
+      <span class="scn">Margem −4 p.p. + giro pressionado</span><span class="val">377,7</span><span class="val">2,00x</span><span class="val"><span class="pill sg">ATENÇÃO</span></span>
+    </div>
+    <div class="stress-row">
+      <span class="scn">Choque severo (−6 p.p., capex mantido)</span><span class="val">313,0</span><span class="val">2,41x</span><span class="val"><span class="pill sg">ATENÇÃO</span></span>
+    </div>
+    <div class="stress-row">
+      <span class="scn">Recuperação · EBITDA do capex maduro</span><span class="val">575,0</span><span class="val">1,15x</span><span class="val"><span class="pill ig">→ BBB−</span></span>
+    </div>
+  </div>
+  <p class="lead" style="margin-top:18px">A empresa absorve uma compressão de até ~4 p.p. de margem sem sair da zona administrável (≤2,0x). O gatilho de melhora de rating é o cenário inverso: <b>se o ativo recém-instalado maturar e adicionar EBITDA</b>, a alavancagem volta para a faixa de 1,1–1,2x e abre a conversa de BBB−.</p>
+</section>
+
+<!-- PASSO 4 -->
+<section>
+  <div class="sec-head">
+    <span class="sec-num">PASSO 4</span>
+    <div>
+      <h2>Mapa de ação bancária</h2>
+      <p>Da zona de risco à recomendação comercial — onde o "CFO sob demanda" agrega.</p>
+    </div>
+  </div>
+
+  <div class="callout ok" style="margin-top:0">
+    <div class="ico">✓</div>
+    <div class="ct"><b>Perfil de tomador de qualidade.</b> O argumento comercial aqui não é risco de crédito — é <b>eficiência de estrutura de capital e hedge cambial do trigo</b>. Empresa com espaço para alongar dívida, diversificar funding (já acessa debêntures) e profissionalizar a política de derivativos.</div>
+  </div>
+
+  <div class="actions">
+    <div class="act">
+      <h5><span class="n">1</span>Alongamento de perfil</h5>
+      <p>R$192M de dívida vencendo no circulante (empréstimos + debêntures). Com cobertura de 5x, há espaço para alongar prazo e suavizar o cronograma de amortização pós-capex, reduzindo a pressão sobre a tesouraria de R$212M.</p>
+    </div>
+    <div class="act">
+      <h5><span class="n">2</span>Diversificação de funding</h5>
+      <p>Já emite debêntures (R$240M captados em 2025). Próximo passo: instrumentos atrelados a recebíveis e linhas de comércio exterior para o trigo importado, diluindo a concentração bancária do funding.</p>
+    </div>
+    <div class="act">
+      <h5><span class="n">3</span>Hedge cambial estruturado</h5>
+      <p>Exposição clássica de moinho a trigo/dólar. A carteira de derivativos existe (R$14,4M em ativos), mas merece política formal de hedge ratio e tenor — território direto do mandato de tesouraria.</p>
+    </div>
+    <div class="act">
+      <h5><span class="n">4</span>Gestão do ciclo financeiro</h5>
+      <p>O ciclo de caixa subiu 6 dias por estoque. Mapear quanto é tático (posição em trigo) vs. estrutural libera caixa: cada 5 dias de PME equivalem a ~R$30M de NCG no porte atual.</p>
+    </div>
+  </div>
+</section>
+
+<!-- PRÓXIMOS PASSOS -->
+<section>
+  <div class="sec-head">
+    <span class="sec-num">AGENDA</span>
+    <div>
+      <h2>Próximos passos</h2>
+      <p>Para fechar o diagnóstico e levar a conta adiante.</p>
+    </div>
+  </div>
+  <ul class="clean">
+    <li>Rodar a nota oficial pelo componente <b>Rating MPA</b> calibrado (cinco fatores ponderados) — a nota acima é indicativa, com viés sustentado para BBB−.</li>
+    <li>Monitorar a desalavancagem em 2026: as três unidades entram em plena operação no 1º semestre — acompanhar se o EBITDA incremental traz a dívida líquida de volta à faixa de 1,1–1,2x.</li>
+    <li>Levantar o cronograma de amortização das linhas BNDES (FINAME/FINEM) e debêntures para dimensionar a janela de alongamento dos R$192M no circulante.</li>
+    <li>Revisar a política de derivativos cambiais (hedge ratio, tenor, contrapartes) frente à exposição de trigo via Cipolin (Uruguai, moeda funcional dólar).</li>
+    <li>Acompanhar a política de payout: a distribuição de R$335M co-financiada por dívida é a alavanca mais direta sobre o nível de endividamento.</li>
+  </ul>
+</section>
+
+</div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div>
+      <b>MPA · Diagnóstico de Crédito &amp; Tesouraria</b><br>
+      Relatório MPA-2025-JM · J. Macêdo S.A. · base 31/12/2025
+    </div>
+    <div class="disc">
+      Documento de uso interno e consultivo. Análise elaborada a partir das demonstrações contábeis consolidadas divulgadas pela companhia. Rating MPA é nota indicativa de metodologia proprietária, equivalência S&amp;P referencial — não constitui recomendação de investimento nem rating de agência registrada. Valores em R$ mil salvo indicação contrária.
+    </div>
+  </div>
+</footer>
+
+<script>
+const ink='#0E2438', ink2='#1C3A56', invest='#1E7A5A', watch='#B5781A', grid='#E7EBF1', muted='#5B6B7C';
+Chart.defaults.font.family="'IBM Plex Sans', sans-serif";
+Chart.defaults.color=muted;
+Chart.defaults.font.size=11.5;
+
+// Alavancagem
+new Chart(document.getElementById('alavChart'),{
+  type:'line',
+  data:{labels:['2024','2025'],datasets:[{
+    label:'Dív. líq./EBITDA',data:[0.62,1.49],
+    borderColor:watch,backgroundColor:'rgba(181,120,26,.10)',
+    borderWidth:2.5,tension:.2,fill:true,
+    pointBackgroundColor:watch,pointRadius:5,pointHoverRadius:7
+  }]},
+  options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.parsed.y.toFixed(2)+'x'}}},
+    scales:{y:{beginAtZero:true,max:2.5,grid:{color:grid},ticks:{callback:v=>v+'x'}},x:{grid:{display:false}}}
+  }
+});
+
+// Margens
+new Chart(document.getElementById('margChart'),{
+  type:'bar',
+  data:{labels:['Bruta','EBITDA','Líquida'],datasets:[
+    {label:'2025',data:[32.9,15.6,10.7],backgroundColor:ink2,borderRadius:3,barPercentage:.7},
+    {label:'2024',data:[32.7,16.7,11.3],backgroundColor:'#B7C2CE',borderRadius:3,barPercentage:.7}
+  ]},
+  options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{position:'bottom',labels:{boxWidth:10,boxHeight:10,padding:14}},
+      tooltip:{callbacks:{label:c=>c.dataset.label+': '+c.parsed.y+'%'}}},
+    scales:{y:{beginAtZero:true,max:40,grid:{color:grid},ticks:{callback:v=>v+'%'}},x:{grid:{display:false}}}
+  }
+});
+
+// Fleuriet
+new Chart(document.getElementById('fleurChart'),{
+  type:'bar',
+  data:{labels:['CDG','NCG','Tesouraria'],datasets:[
+    {label:'2024',data:[753.6,536.3,217.4],backgroundColor:'#B7C2CE',borderRadius:3,barPercentage:.72},
+    {label:'2025',data:[839.1,626.7,212.5],backgroundColor:invest,borderRadius:3,barPercentage:.72}
+  ]},
+  options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{position:'bottom',labels:{boxWidth:10,boxHeight:10,padding:14}},
+      tooltip:{callbacks:{label:c=>c.dataset.label+': R$ '+c.parsed.y.toLocaleString('pt-BR')+' mi'}}},
+    scales:{y:{beginAtZero:true,grid:{color:grid},ticks:{callback:v=>'R$'+v}},x:{grid:{display:false}}}
+  }
+});
+</script>
+</body>
+</html>
