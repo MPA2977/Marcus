@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prompts de Diagnóstico · Projeto Consultoria</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy-900:#08111f;--navy-850:#0a1424;--navy-800:#0f1d33;
+    --line:#1e3252;--line-soft:#16273f;
+    --gold:#c9a24b;--gold-bright:#e0be6a;--gold-dim:rgba(201,162,75,.14);
+    --ink:#eceae3;--ink-soft:#9aa8bc;--ink-mute:#67768d;--ok:#6fae7e;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    font-family:"IBM Plex Sans",system-ui,sans-serif;
+    background:
+      radial-gradient(1200px 600px at 80% -10%, rgba(201,162,75,.06), transparent 60%),
+      linear-gradient(180deg,var(--navy-850),var(--navy-900));
+    color:var(--ink);min-height:100vh;line-height:1.5;-webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:760px;margin:0 auto;padding:0 24px}
+  .topbar{display:flex;align-items:center;justify-content:space-between;padding:20px 0 18px;border-bottom:1px solid var(--line-soft)}
+  .back{
+    font-family:"IBM Plex Mono",monospace;font-size:.74rem;letter-spacing:.04em;
+    color:var(--ink-soft);text-decoration:none;display:inline-flex;align-items:center;gap:7px;transition:color .15s;
+  }
+  .back:hover{color:var(--gold-bright)}
+  .brand{font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.16em;color:var(--ink-mute);text-transform:uppercase}
+
+  .hero{padding:40px 0 26px}
+  .hero .eyebrow{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);margin-bottom:13px}
+  .hero h1{font-family:"Spectral",serif;font-weight:500;font-size:clamp(1.8rem,4.5vw,2.6rem);line-height:1.08;letter-spacing:-.01em;margin-bottom:13px}
+  .hero p{color:var(--ink-soft);font-size:.98rem;max-width:60ch}
+  .hero .how{
+    margin-top:18px;background:var(--navy-800);border:1px solid var(--line);border-radius:9px;
+    padding:14px 18px;font-size:.85rem;color:var(--ink-soft);
+  }
+  .hero .how b{color:var(--gold-bright);font-weight:500}
+
+  .list{display:flex;flex-direction:column;gap:11px;padding:18px 0 40px}
+  .item{background:var(--navy-800);border:1px solid var(--line);border-radius:10px;overflow:hidden;transition:border-color .18s}
+  .item.open{border-color:rgba(201,162,75,.45)}
+  .item-head{
+    width:100%;background:none;border:none;cursor:pointer;text-align:left;
+    padding:16px 20px;display:flex;align-items:center;gap:16px;color:inherit;
+  }
+  .etapa{font-family:"IBM Plex Mono",monospace;font-size:.68rem;letter-spacing:.1em;color:var(--gold);min-width:22px}
+  .item-head .meta{flex:1}
+  .item-head .titulo{font-family:"Spectral",serif;font-size:1.18rem;font-weight:500;margin-bottom:3px}
+  .item-head .descricao{font-family:"IBM Plex Mono",monospace;font-size:.72rem;color:var(--ink-mute)}
+  .chevron{color:var(--gold);font-size:.9rem;transition:transform .2s}
+  .item.open .chevron{transform:rotate(180deg)}
+
+  .body{display:none;padding:0 20px 20px}
+  .item.open .body{display:block}
+  .prompt-box{
+    background:var(--navy-900);border:1px solid var(--line-soft);border-radius:7px;
+    padding:15px;margin-bottom:11px;
+  }
+  .prompt-box pre{
+    margin:0;font-family:"IBM Plex Mono",monospace;font-size:.78rem;color:var(--ink-soft);
+    white-space:pre-wrap;line-height:1.7;
+  }
+  .copy{
+    background:var(--gold);color:var(--navy-900);border:none;border-radius:6px;
+    padding:9px 18px;font-family:"IBM Plex Mono",monospace;font-size:.74rem;letter-spacing:.05em;
+    font-weight:500;cursor:pointer;transition:all .15s;
+  }
+  .copy:hover{background:var(--gold-bright)}
+  .copy.done{background:rgba(111,174,126,.18);color:var(--ok)}
+
+  footer{border-top:1px solid var(--line-soft);padding:22px 0 40px;font-family:"IBM Plex Mono",monospace;font-size:.7rem;color:var(--ink-mute);letter-spacing:.04em;display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
+  footer .gold{color:var(--gold)}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+  :focus-visible{outline:2px solid var(--gold);outline-offset:3px;border-radius:4px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="topbar">
+    <a class="back" href="index.html">← Central de Motores</a>
+    <span class="brand">Projeto Consultoria</span>
+  </div>
+
+  <header class="hero">
+    <div class="eyebrow">Diagnóstico Financeiro · Fase 1</div>
+    <h1>Prompts de Diagnóstico</h1>
+    <p>Cinco prompts prontos para acelerar a análise de empresas industriais mid-market. Cole os dados do cliente e use a resposta no entregável.</p>
+    <div class="how">
+      <b>Como usar:</b> abra um prompt → toque em <b>Copiar prompt</b> → cole no Claude → substitua o trecho <b>[COLE … AQUI]</b> pelos dados do cliente → envie.
+    </div>
+  </header>
+
+  <div class="list" id="list"></div>
+
+  <footer>
+    <span>Diagnóstico Financeiro · <span class="gold">MPA</span></span>
+    <span>5 prompts</span>
+  </footer>
+
+</div>
+
+<script>
+const PROMPTS = [
+  {
+    etapa:"01",
+    titulo:"Análise de DRE",
+    descricao:"Anomalias de margem, concentração de receita e tendências.",
+    prompt:`Você é um consultor financeiro sênior especializado em empresas industriais brasileiras com faturamento entre R$30M e R$300M.
+
+Analise a DRE abaixo e entregue:
+
+1. Tendência de receita líquida nos últimos 3 anos (crescimento % a.a.)
+2. Evolução de margem bruta, EBITDA e margem líquida
+3. Anomalias ou pontos de atenção (queda súbita de margem, concentração de receita, sazonalidade atípica)
+4. Comparação com benchmarks típicos do setor industrial brasileiro
+5. Principais perguntas a fazer ao cliente com base nos dados
+
+Seja direto e objetivo. Use bullet points. Destaque em negrito os pontos críticos.
+
+[COLE A DRE AQUI]`
+  },
+  {
+    etapa:"02",
+    titulo:"Análise de Crédito e Endividamento",
+    descricao:"Índices-chave e capacidade de pagamento.",
+    prompt:`Você é um especialista em crédito corporativo com foco em empresas industriais mid-market no Brasil.
+
+Com base no balanço patrimonial abaixo, calcule e interprete:
+
+1. Liquidez corrente, seca e imediata
+2. Índice de endividamento geral e endividamento financeiro líquido / EBITDA
+3. Cobertura de juros (EBIT / Despesa Financeira)
+4. Prazo médio de recebimento, pagamento e estocagem (ciclo financeiro)
+5. Perfil da dívida: % curto prazo vs longo prazo, custo médio estimado
+6. Avaliação de covenant risk e capacidade de nova captação
+
+Conclua com um rating interno simplificado (Baixo / Médio / Alto risco de crédito) e justificativa em 3 linhas.
+
+[COLE O BALANÇO AQUI]`
+  },
+  {
+    etapa:"03",
+    titulo:"Mapeamento de Exposição Cambial",
+    descricao:"Exposição líquida em USD e estruturas de hedge.",
+    prompt:`Você é um especialista em derivativos e hedge corporativo para empresas industriais brasileiras.
+
+Com base nas informações abaixo, faça:
+
+1. Mapeamento de receitas e custos em moeda estrangeira (USD, EUR, etc.)
+2. Cálculo da exposição líquida mensal e acumulada em 12 meses
+3. Análise do risco cambial: impacto de uma desvalorização de 10%, 20% e 30% do BRL no resultado
+4. Recomendação de estrutura de hedge:
+   - NDF (Non-Deliverable Forward): prazo, strike sugerido, % da exposição a travar
+   - Swap cambial: quando faz sentido vs NDF
+   - Opções: se o perfil de risco justificar
+5. Custo estimado do hedge vs custo do risco não coberto
+
+Apresente as recomendações em ordem de prioridade e complexidade operacional.
+
+[COLE AS INFORMAÇÕES DE FLUXO CAMBIAL / CONTRATOS AQUI]`
+  },
+  {
+    etapa:"04",
+    titulo:"Diagnóstico de Fluxo de Caixa",
+    descricao:"Saúde do caixa operacional e gargalos de liquidez.",
+    prompt:`Você é um consultor financeiro especializado em gestão de caixa para industriais mid-market brasileiros.
+
+Analise o fluxo de caixa abaixo e entregue:
+
+1. Geração de caixa operacional (FCO) vs lucro líquido — qualidade do lucro
+2. Ciclo de conversão de caixa: onde está o maior consumo de capital de giro?
+3. Capacidade de autofinanciamento do crescimento
+4. Pontos de estrangulamento de liquidez nos próximos 90 dias
+5. Necessidade de Capital de Giro (NCG) atual vs financiamento disponível
+6. Recomendações de curto prazo: antecipação de recebíveis, alongamento de passivo, ajuste de estoque
+
+Indique se a empresa está em zona de conforto, alerta ou risco iminente de liquidez.
+
+[COLE O FLUXO DE CAIXA AQUI]`
+  },
+  {
+    etapa:"05",
+    titulo:"Síntese Executiva do Diagnóstico",
+    descricao:"Consolida tudo num resumo para o cliente.",
+    prompt:`Você é um consultor financeiro sênior preparando a apresentação final de diagnóstico para um CEO ou CFO de empresa industrial brasileira.
+
+Com base nas análises abaixo (crédito, câmbio, caixa e resultado), elabore uma síntese executiva com:
+
+1. Headline: 1 frase que resume a situação financeira da empresa
+2. 3 pontos fortes identificados
+3. 3 riscos prioritários (ordenados por urgência)
+4. Recomendações imediatas (próximos 30 dias)
+5. Recomendações estruturais (próximos 6–12 meses)
+6. Próximos passos sugeridos para a consultoria (fase de reestruturação)
+
+Tom: direto, profissional, sem jargão desnecessário. O cliente é sofisticado mas não é especialista em finanças.
+
+[COLE AS ANÁLISES ANTERIORES AQUI]`
+  }
+];
+
+/* ============================================================
+   PONTE MPA — preenche os prompts com o cliente ativo (index.html)
+   Lê ?cliente=<id> + localStorage e substitui [COLE … AQUI] pelos
+   dados reais do balanço/DRE e indicadores já calculados.
+   Sem cliente, os prompts ficam como estão (placeholders).
+   ============================================================ */
+(function(){
+ try{
+  let cli=null;
+  try{
+    const cs=JSON.parse(localStorage.getItem('mpa_clients_v1')||'{}');
+    const urlId=new URLSearchParams(location.search).get('cliente');
+    const actId=localStorage.getItem('mpa_active_client_v1');
+    const id=(urlId&&cs[urlId])?urlId:(actId&&cs[actId]?actId:null);
+    cli=(id&&cs[id])?cs[id]:null;
+  }catch(e){}
+  if(!cli||!cli.dados) return;
+  const d=cli.dados, a=cli.analise||{};
+  const A=k=>(d[k]&&d[k][0]!=null)?d[k][0]:null, B=k=>(d[k]&&d[k][1]!=null)?d[k][1]:null;
+  const f0=(o,k)=>(a[o]&&a[o][0]!=null)?a[o][0]:null, f1=(o,k)=>(a[o]&&a[o][1]!=null)?a[o][1]:null;
+  const M=v=>v==null?'—':Math.round(v).toLocaleString('pt-BR');
+  const Mp=v=>v==null?'—':'('+Math.round(Math.abs(v)).toLocaleString('pt-BR')+')';
+  const Pc=v=>(v==null||!isFinite(v))?'—':(v*100).toFixed(1).replace('.',',')+'%';
+  const Xx=v=>(v==null||!isFinite(v))?'—':v.toFixed(2).replace('.',',')+'x';
+  const Dd=v=>(v==null||!isFinite(v))?'—':Math.round(v)+'d';
+  const pR=(s,n)=>{s=''+s;return s.length>=n?s:s+' '.repeat(n-s.length);};
+  const pL=(s,n)=>{s=''+s;return s.length>=n?s:' '.repeat(n-s.length)+s;};
+  const ya=d.anoAtual||'atual', yb=d.anoAnterior||'ant.';
+  const hd=l=>pR(l,30)+pL(ya,15)+pL(yb,15);
+  const r=(l,v1,v2)=>pR(l,30)+pL(v1,15)+pL(v2,15);
+  const fl=a.fleur&&a.fleur[0]||{}, fcdg=fl.CDG, fncg=fl.NCG, ft=fl.T;
+  const head=`Empresa: ${cli.nome}  |  Setor: ${cli.setor||'—'}  |  R$ mil, consolidado`;
+
+  const bDRE=`${head}
+
+${hd('DRE')}
+${r('Receita líquida',M(A('receita')),M(B('receita')))}
+${r('CPV',Mp(A('cpv')),Mp(B('cpv')))}
+${r('Lucro bruto',M(A('lucroBruto')),M(B('lucroBruto')))}
+${r('Despesas operac. (LB-EBIT)',Mp(A('lucroBruto')-A('ebit')),Mp(B('lucroBruto')-B('ebit')))}
+${r('EBIT',M(A('ebit')),M(B('ebit')))}
+${r('(+) Deprec. & amortizacao',M(A('depreciacao')),M(B('depreciacao')))}
+${r('EBITDA',M(f0('ebitda')),M(f1('ebitda')))}
+${r('Resultado financeiro',M((A('recFin')||0)-(A('despFin')||0)),M((B('recFin')||0)-(B('despFin')||0)))}
+${r('Lucro liquido',M(A('lucroLiquido')),M(B('lucroLiquido')))}
+
+Margens (ano base): bruta ${Pc(f0('margemBruta'))} | EBITDA ${Pc(f0('margemEbitda'))} | liquida ${Pc(f0('margemLiq'))}`;
+
+  const bBal=`${head}
+
+${hd('BALANCO - ATIVO')}
+${r('Caixa e equivalentes',M(A('caixa')),M(B('caixa')))}
+${r('Contas a receber',M(A('contasReceber')),M(B('contasReceber')))}
+${r('Estoques',M(A('estoques')),M(B('estoques')))}
+${r('Tributos a recuperar (circ)',M(A('tribRecCirc')),M(B('tribRecCirc')))}
+${r('Ativo circulante',M(A('ativoCirc')),M(B('ativoCirc')))}
+${r('Ativo nao circulante',M(A('ativoNaoCirc')),M(B('ativoNaoCirc')))}
+${r('ATIVO TOTAL',M(A('ativoTotal')),M(B('ativoTotal')))}
+
+${hd('BALANCO - PASSIVO + PL')}
+${r('Fornecedores',M(A('fornecedores')),M(B('fornecedores')))}
+${r('Emprestimos/financ. (CP)',M(A('emprestCirc')),M(B('emprestCirc')))}
+${r('Debentures (CP)',M(A('debenturesCirc')),M(B('debenturesCirc')))}
+${r('Arrendamentos (CP)',M(A('arrendCirc')),M(B('arrendCirc')))}
+${r('Passivo circulante',M(A('passivoCirc')),M(B('passivoCirc')))}
+${r('Emprestimos/financ. (LP)',M(A('emprestNaoCirc')),M(B('emprestNaoCirc')))}
+${r('Debentures (LP)',M(A('debenturesNaoCirc')),M(B('debenturesNaoCirc')))}
+${r('Arrendamentos (LP)',M(A('arrendNaoCirc')),M(B('arrendNaoCirc')))}
+${r('Patrimonio liquido',M(A('patrimonio')),M(B('patrimonio')))}
+
+INDICADORES (calculados pelo painel MPA):
+- Liquidez corrente ${Xx(f0('liqCorr'))} | seca ${Xx(f0('liqSeca'))}
+- Divida liq./EBITDA: ${Xx(f0('alavMPA'))} (otica MPA, c/ leasing) | ${Xx(f0('alavEmp'))} (otica empresa)
+- Cobertura de juros (EBITDA/desp.fin): ${Xx(f0('cobertura'))}
+- PL/Ativo ${Pc(f0('plAtivo'))} | ROE ${Pc(f0('roe'))} | ROA ${Pc(f0('roa'))}
+- Ciclo de caixa ${Dd(f0('ciclo'))} (PME ${Dd(f0('pme'))} / PMR ${Dd(f0('pmr'))} / PMP ${Dd(f0('pmp'))})
+- Fleuriet: CDG ${M(fcdg)} / NCG ${M(fncg)} / Tesouraria ${M(ft)} - Tipo ${fl.tipo} (${fl.nome})
+- Rating MPA: ${a.rating&&a.rating.final} final | ${a.rating&&a.rating.sacp} standalone | ~ ${a.rating&&a.rating.nacional} | teto soberano ${a.rating&&a.rating.soberano}`;
+
+  const bCambio=`${head}
+
+Disponivel no balanco (R$ mil):
+- Instrumentos derivativos (ativo): ${M(A('derivAtivo'))} | (passivo): ${M(A('derivPassivo'))}
+- Divida bruta total: ${M((A('emprestCirc')||0)+(A('debenturesCirc')||0)+(A('emprestNaoCirc')||0)+(A('debenturesNaoCirc')||0))} (parte pode ser indexada a moeda/CDI)
+
+NOTA: o balanco nao detalha fluxos de receita/custo em moeda estrangeira nem contratos a termo.
+[COMPLETE COM: receitas e custos em USD/EUR, volume importado/exportado, contratos vigentes e prazos]`;
+
+  const bCaixa=`${head}
+
+O painel nao armazena a DFC completa. Indicadores de caixa/giro derivados do balanco (R$ mil):
+- EBITDA (proxy de geracao operacional): ${M(f0('ebitda'))} (ano anterior ${M(f1('ebitda'))})
+- CDG ${M(fcdg)} | NCG ${M(fncg)} | Tesouraria ${M(ft)} - Fleuriet Tipo ${fl.tipo} (${fl.nome})
+- Ciclo de caixa: ${Dd(f0('ciclo'))} (vs ${Dd(f1('ciclo'))} no ano anterior) - PME ${Dd(f0('pme'))} / PMR ${Dd(f0('pmr'))} / PMP ${Dd(f0('pmp'))}
+- Variacao no giro (ano vs ano): estoques ${M((A('estoques')||0)-(B('estoques')||0))}, recebiveis ${M((A('contasReceber')||0)-(B('contasReceber')||0))}, fornecedores ${M((A('fornecedores')||0)-(B('fornecedores')||0))}
+
+[COMPLETE COM: Demonstracao dos Fluxos de Caixa (FCO, FCI, FCF), se disponivel]`;
+
+  const bSintese=`${head}
+
+RESUMO DO DIAGNOSTICO MPA (calculado pelo painel):
+- Rating MPA: ${a.rating&&a.rating.final} (final, global) | standalone ${a.rating&&a.rating.sacp} | ~ ${a.rating&&a.rating.nacional}
+- Receita ${M(A('receita'))} | EBITDA ${M(f0('ebitda'))} (margem ${Pc(f0('margemEbitda'))}) | Lucro liquido ${M(A('lucroLiquido'))}
+- Divida liq./EBITDA ${Xx(f0('alavMPA'))} (MPA) / ${Xx(f0('alavEmp'))} (empresa) | Cobertura ${Xx(f0('cobertura'))}
+- Liquidez corrente ${Xx(f0('liqCorr'))} / seca ${Xx(f0('liqSeca'))} | PL/Ativo ${Pc(f0('plAtivo'))} | ROE ${Pc(f0('roe'))}
+- Fleuriet Tipo ${fl.tipo} (${fl.nome}) | Ciclo de caixa ${Dd(f0('ciclo'))}
+
+(Cole abaixo as analises de credito, cambio e caixa ja rodadas nos prompts anteriores.)`;
+
+  const blocos={'01':bDRE,'02':bBal,'03':bCambio,'04':bCaixa,'05':bSintese};
+  PROMPTS.forEach(p=>{ if(blocos[p.etapa]) p.prompt=p.prompt.replace(/\[COLE[^\]]*AQUI\]/,blocos[p.etapa]); });
+
+  // banner
+  const how=document.querySelector('.hero .how');
+  if(how){
+    const b=document.createElement('div');
+    b.style.cssText='margin-top:14px;border:1px solid var(--gold);border-radius:9px;background:var(--gold-dim);padding:13px 18px;font-size:.86rem;color:var(--ink-soft)';
+    b.innerHTML=`<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--ok);box-shadow:0 0 8px var(--ok);margin-right:8px"></span>Prompts preenchidos com os dados de <b style="color:var(--ink)">${cli.nome}</b>. Os trechos <b>[COLE … AQUI]</b> de DRE, balanço e síntese já foram substituídos. Câmbio e fluxo de caixa trazem o que o balanço fornece, com lacunas marcadas para você completar.`;
+    how.after(b);
+  }
+ }catch(err){ if(window.console) console.warn('Ponte MPA (prompts):',err); }
+})();
+
+const list = document.getElementById("list");
+
+PROMPTS.forEach((p,i)=>{
+  const item=document.createElement("div");
+  item.className="item";
+  item.innerHTML=`
+    <button class="item-head" aria-expanded="false">
+      <span class="etapa">${p.etapa}</span>
+      <span class="meta">
+        <span class="titulo">${p.titulo}</span>
+        <span class="descricao">${p.descricao}</span>
+      </span>
+      <span class="chevron">▾</span>
+    </button>
+    <div class="body">
+      <div class="prompt-box"><pre></pre></div>
+      <button class="copy">Copiar prompt</button>
+    </div>`;
+  item.querySelector("pre").textContent = p.prompt;
+
+  const head=item.querySelector(".item-head");
+  head.addEventListener("click",()=>{
+    const open=item.classList.toggle("open");
+    head.setAttribute("aria-expanded", open);
+  });
+
+  const copyBtn=item.querySelector(".copy");
+  copyBtn.addEventListener("click",async()=>{
+    try{
+      await navigator.clipboard.writeText(p.prompt);
+    }catch(e){
+      const r=document.createRange();r.selectNode(item.querySelector("pre"));
+      const sel=window.getSelection();sel.removeAllRanges();sel.addRange(r);
+      try{document.execCommand("copy");}catch(_){}
+      sel.removeAllRanges();
+    }
+    copyBtn.textContent="✓ Copiado";copyBtn.classList.add("done");
+    setTimeout(()=>{copyBtn.textContent="Copiar prompt";copyBtn.classList.remove("done");},2000);
+  });
+
+  list.appendChild(item);
+});
+</script>
+</body>
+</html>

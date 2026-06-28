@@ -268,10 +268,11 @@ const SPOT = 5.42;
    ============================================================ */
 const MPA_CLI = (function(){
   try{
-    const id=new URLSearchParams(location.search).get('cliente');
-    if(!id) return null;
     const cs=JSON.parse(localStorage.getItem('mpa_clients_v1')||'{}');
-    return cs[id]||null;
+    const urlId=new URLSearchParams(location.search).get('cliente');
+    const actId=localStorage.getItem('mpa_active_client_v1');
+    const id=(urlId&&cs[urlId])?urlId:(actId&&cs[actId]?actId:null);
+    return (id&&cs[id])?cs[id]:null;
   }catch(e){ return null; }
 })();
 if(MPA_CLI && MPA_CLI.dados){

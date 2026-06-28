@@ -201,6 +201,8 @@
   <button class="tab" id="tabCurva" onclick="setTab('curva')">Curva de referência</button>
 </div>
 
+<div id="mpaCliBanner"></div>
+
 <div class="wrap" id="opView">
   <!-- ============ INPUTS ============ -->
   <div class="panel">
@@ -226,7 +228,7 @@
       </div>
       <div class="field">
         <label>Taxa nominal contratada (a.a.)</label>
-        <div class="suffix"><input class="inp num" id="taxa" value="14.50"><span>%</span></div>
+        <div class="suffix"><input class="inp num" id="taxa" value="14,50"><span>%</span></div>
       </div>
       <div class="field">
         <label>Sistema de amortização</label>
@@ -247,7 +249,7 @@
             <button class="on" data-m="pct" onclick="setMode('estr','pct')">%</button>
             <button data-m="abs" onclick="setMode('estr','abs')">R$</button>
           </div>
-          <div class="suffix" style="flex:1"><input class="inp num" id="estr" value="1.50"><span id="estrSfx">%</span></div>
+          <div class="suffix" style="flex:1"><input class="inp num" id="estr" value="1,50"><span id="estrSfx">%</span></div>
         </div>
       </div>
       <div class="field">
@@ -264,11 +266,11 @@
           <div class="row">
             <div style="flex:1">
               <label style="font-size:11px">Alíquota diária</label>
-              <div class="suffix"><input class="inp num" id="iofDia" value="0.0082"><span>%a.d.</span></div>
+              <div class="suffix"><input class="inp num" id="iofDia" value="0,0082"><span>%a.d.</span></div>
             </div>
             <div style="flex:1">
               <label style="font-size:11px">Adicional</label>
-              <div class="suffix"><input class="inp num" id="iofAdd" value="0.38"><span>%</span></div>
+              <div class="suffix"><input class="inp num" id="iofAdd" value="0,38"><span>%</span></div>
             </div>
           </div>
           <p class="note"><b>Verificar vigência.</b> As alíquotas de IOF/crédito mudaram em 2025 — confirme as atuais antes de usar com cliente. Cálculo simplificado sobre o principal, base máx. 365 dias.</p>
@@ -634,6 +636,39 @@ function drawCurveRef(){
 
 document.querySelectorAll('.inp').forEach(el=>el.addEventListener('input',compute));
 compute();
+
+/* ===== PONTE MPA — benchmark do cliente ativo (index.html) =====
+   Não preenche a proposta (CET é por operação), mas mostra o custo
+   médio de dívida atual do cliente como âncora de comparação. ===== */
+(function(){
+  let cli=null;
+  try{
+    const cs=JSON.parse(localStorage.getItem('mpa_clients_v1')||'{}');
+    const urlId=new URLSearchParams(location.search).get('cliente');
+    const actId=localStorage.getItem('mpa_active_client_v1');
+    const id=(urlId&&cs[urlId])?urlId:(actId&&cs[actId]?actId:null);
+    cli=(id&&cs[id])?cs[id]:null;
+  }catch(e){}
+  if(!cli||!cli.dados) return;
+  const d=cli.dados, g=k=>(d[k]&&d[k][0]!=null)?d[k][0]:0;
+  const dividaBruta=g('emprestCirc')+g('debenturesCirc')+g('arrendCirc')+g('emprestNaoCirc')+g('debenturesNaoCirc')+g('arrendNaoCirc');
+  const custoMedio=dividaBruta?g('despFin')/dividaBruta*100:null;
+  const a=cli.analise||{};
+  const alav=a.alavMPA?a.alavMPA[0]:null;
+  const pct=v=>(v==null||!isFinite(v))?'—':v.toFixed(2).replace('.',',')+'%';
+  const xx=v=>(v==null||!isFinite(v))?'—':v.toFixed(2).replace('.',',')+'x';
+  const host=document.getElementById('mpaCliBanner');
+  if(!host) return;
+  host.innerHTML=`<div style="max-width:1180px;margin:14px auto 0;padding:0 20px">
+    <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;border:1px solid var(--gold,#c9a24b);
+      border-radius:8px;background:rgba(201,162,75,.07);padding:11px 16px;font-size:13px;color:var(--ink-soft,#9aa8bc)">
+      <span style="width:8px;height:8px;border-radius:50%;background:#6fae7e;box-shadow:0 0 8px #6fae7e;flex:none"></span>
+      <span>Cliente ativo: <b style="color:var(--ink,#eceae3)">${cli.nome}</b> · custo médio de dívida atual
+        <b style="color:var(--ink,#eceae3)">${pct(custoMedio)} a.a.</b> · alavancagem <b style="color:var(--ink,#eceae3)">${xx(alav)}</b>.
+        Compare o CET desta proposta com o custo que o cliente já paga.</span>
+      <a href="index.html" style="margin-left:auto;color:var(--gold,#c9a24b);text-decoration:none;font-family:'IBM Plex Mono',monospace;font-size:12px">← painel</a>
+    </div></div>`;
+})();
 </script>
 </body>
 </html>
