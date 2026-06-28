@@ -133,6 +133,13 @@ footer{margin-top:36px;padding-top:18px;border-top:1px solid var(--line);
   table{font-size:.72rem} th,td{padding:8px 8px}
   .bargroup{grid-template-columns:84px 1fr 88px}
 }
+.mpa-banner{display:flex;align-items:flex-start;gap:10px;margin:20px 0 0;padding:12px 16px;
+  border:1px solid var(--gold);border-radius:6px;background:rgba(200,162,75,.07);
+  font-size:.84rem;color:var(--ink-dim)}
+.mpa-banner b{color:var(--ink)}
+.mpa-banner .dot{width:8px;height:8px;border-radius:50%;background:var(--cax);
+  box-shadow:0 0 8px var(--cax);margin-top:5px;flex:none}
+.mpa-banner a{color:var(--gold-soft);text-decoration:none;border-bottom:1px dotted var(--gold-soft)}
 </style>
 </head>
 <body>
@@ -203,6 +210,11 @@ footer{margin-top:36px;padding-top:18px;border-top:1px solid var(--line);
 const F = n => (Math.round(n)).toLocaleString('pt-BR');
 const P = x => (x*100).toFixed(1).replace('.',',')+'%';
 const Fx = (n,d=2) => n.toLocaleString('pt-BR',{minimumFractionDigits:d,maximumFractionDigits:d});
+// formatação/parse em pt-BR para os campos editáveis (ponto de milhar, vírgula decimal)
+const fmtBR = n => (n==null||!isFinite(n)) ? '' : Number(n).toLocaleString('pt-BR',{maximumFractionDigits:2});
+const parseBR = s => { if(s==null) return 0;
+  s=(''+s).trim().replace(/\./g,'').replace(',','.').replace(/[^\d.\-]/g,'');
+  const n=parseFloat(s); return isFinite(n)?n:0; };
 
 let HORIZON=5, METRIC='equity';
 
@@ -233,9 +245,12 @@ function buildBase(){
     flds.forEach(([k,lab,def])=>{
       vals[k]=def;
       const d=document.createElement('div'); d.className='fld';
-      d.innerHTML=`<label>${lab}</label><input type="number" id="i_${k}" value="${def}" step="any">`;
+      d.innerHTML=`<label>${lab}</label><input type="text" inputmode="decimal" id="i_${k}" value="${fmtBR(def)}">`;
       host.appendChild(d);
-      d.querySelector('input').addEventListener('input',e=>{vals[k]=parseFloat(e.target.value)||0;render();});
+      const inp=d.querySelector('input');
+      inp.addEventListener('input',e=>{vals[k]=parseBR(e.target.value);render();});      // live: parseia sem reformatar (cursor estável)
+      inp.addEventListener('blur',e=>{e.target.value=fmtBR(vals[k]);});                    // ao sair: reformata em pt-BR
+      inp.addEventListener('focus',e=>{e.target.select();});
     });
   });
 }
@@ -496,7 +511,77 @@ function render(){
   });
 }
 
-buildBase(); buildHorizon(); buildCards(); render();
+/* ============================================================
+   PONTE MPA — pré-preenche o balanço-base com o cliente ativo
+   da Central de Motores (index.html). Lê ?cliente=<id> + localStorage.
+   Todos os campos continuam editáveis (apenas troca os defaults).
+   Sem cliente na URL, o motor abre normalmente em branco.
+   ============================================================ */
+function mpaGetCliente(){
+  try{
+    const id=new URLSearchParams(location.search).get('cliente');
+    if(!id) return null;
+    const cs=JSON.parse(localStorage.getItem('mpa_clients_v1')||'{}');
+    return cs[id]||null;
+  }catch(e){ return null; }
+}
+function mpaCarregarCliente(){
+  const cli=mpaGetCliente();
+  if(!cli||!cli.dados) return;
+  const d=cli.dados;
+  const g=k=>(d[k]&&d[k][0]!=null)?d[k][0]:0;
+  const receita=g('receita')||1, cpv=g('cpv')||1;
+  const lucroBruto=g('lucroBruto'), ebit=g('ebit');
+  const dividaCP=g('emprestCirc')+g('debenturesCirc')+g('arrendCirc');
+  const dividaLP=g('emprestNaoCirc')+g('debenturesNaoCirc')+g('arrendNaoCirc');
+  const dividaBruta=(dividaCP+dividaLP)||1;
+  const recFin=g('recFin'), despFin=g('despFin');
+  const lair=ebit+recFin-despFin;
+  const imposto=lair-g('lucroLiquido');
+  const r1=x=>Math.round(x), p1=x=>+(x).toFixed(1), p2=x=>+(x).toFixed(2);
+  const ov={
+    // DRE / operacional
+    receita:r1(receita),
+    mb:p2(lucroBruto/receita*100),
+    despOp:r1(lucroBruto-ebit),            // despesas operacionais totais (= LB − EBIT)
+    da:r1(g('depreciacao')),
+    custo:g('caixa')!=null?p2(despFin/dividaBruta*100):16,   // custo médio da dívida
+    yield:g('caixa')?p2(recFin/g('caixa')*100):10,            // rendimento do caixa
+    aliq:lair?p2(imposto/lair*100):34,                        // alíquota efetiva
+    // payout, infl, mult: mantém o default (sem dado no balanço — editar)
+    // Capital de giro (convenção /360 do motor → reproduz os saldos reais)
+    pmr:p1(g('contasReceber')/receita*360),
+    pme:p1(g('estoques')/cpv*360),
+    pmp:p1(g('fornecedores')/cpv*360),
+    // Balanço
+    caixa:r1(g('caixa')),
+    outrosAC:r1(g('ativoCirc')-g('caixa')-g('contasReceber')-g('estoques')),
+    ativoFixo:r1(g('ativoNaoCirc')),
+    outrosPC:r1(g('passivoCirc')-g('fornecedores')-dividaCP),
+    dividaCP:r1(dividaCP),
+    forfait:0,
+    dividaLP:r1(dividaLP),
+    pl:r1(g('patrimonio'))
+  };
+  Object.entries(ov).forEach(([k,v])=>{
+    if(v==null||!isFinite(v)) return;
+    vals[k]=v;
+    const el=document.getElementById('i_'+k);
+    if(el) el.value=fmtBR(v);
+  });
+  // banner
+  const wrap=document.querySelector('.wrap');
+  const det=document.querySelector('details.base');
+  if(wrap&&det&&!document.querySelector('.mpa-banner')){
+    const b=document.createElement('div'); b.className='mpa-banner';
+    b.innerHTML=`<span class="dot"></span> <span>Cenário-base de <b>${cli.nome}</b> carregado do balanço analisado (base ${d.anoAtual||'—'}). Todos os campos abaixo são <b>editáveis</b> — ajuste premissas sem perder o ponto de partida real. <a href="index.html">← voltar ao painel</a></span>`;
+    wrap.insertBefore(b, det);
+  }
+}
+
+buildBase(); buildHorizon(); buildCards();
+mpaCarregarCliente();        // ← pré-preenche do cliente ativo, se houver
+render();
 </script>
 </body>
 </html>
