@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Copiloto do Dono · MPA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#0B1F3A; --navy-2:#14375E; --navy-3:#1B2E4A;
+    --line:rgba(255,255,255,.09); --line-2:rgba(255,255,255,.16);
+    --gold:#C9A227; --gold-soft:#E3C766;
+    --paper:#F5F2EA; --ink:#11202F; --mut:#8A99AC;
+    --green:#46B07C; --amber:#E0A12E; --red:#D26257;
+    --r:14px;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--navy);
+    color:#EAF0F7;
+    font-family:'IBM Plex Sans',sans-serif;
+    font-size:15px; line-height:1.55;
+    min-height:100dvh;
+    background-image:radial-gradient(1200px 500px at 80% -10%, rgba(201,162,39,.10), transparent 60%);
+  }
+  .app{max-width:760px;margin:0 auto;min-height:100dvh;display:flex;flex-direction:column}
+
+  /* Header */
+  header{
+    position:sticky;top:0;z-index:30;
+    background:linear-gradient(180deg, rgba(11,31,58,.97), rgba(11,31,58,.86));
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line);
+    padding:14px 18px;display:flex;align-items:center;gap:12px;
+  }
+  .mark{
+    width:38px;height:38px;border-radius:9px;flex:none;
+    background:linear-gradient(150deg,var(--navy-2),var(--navy-3));
+    border:1px solid var(--line-2);
+    display:grid;place-items:center;
+    font-family:'Spectral',serif;font-weight:700;font-size:18px;color:var(--gold);
+    letter-spacing:.5px;
+  }
+  .htxt{flex:1;min-width:0}
+  .htxt h1{font-family:'Spectral',serif;font-weight:600;font-size:18px;margin:0;letter-spacing:.2px}
+  .htxt p{margin:0;font-size:11.5px;color:var(--mut);font-family:'IBM Plex Mono',monospace;letter-spacing:.3px}
+  .gear{
+    width:40px;height:40px;border-radius:10px;flex:none;cursor:pointer;
+    background:transparent;border:1px solid var(--line);color:#CDD8E6;
+    display:grid;place-items:center;transition:.15s;
+  }
+  .gear:hover{border-color:var(--gold);color:var(--gold-soft)}
+  .gear svg{width:19px;height:19px}
+
+  /* mode pill in header */
+  .modepill{
+    font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.5px;
+    text-transform:uppercase;color:var(--navy);background:var(--gold);
+    padding:3px 8px;border-radius:999px;font-weight:600;
+  }
+
+  /* Conversation */
+  .conv{flex:1;padding:20px 16px 8px;display:flex;flex-direction:column;gap:18px}
+  .row{display:flex;flex-direction:column;gap:6px;animation:rise .35s ease both}
+  .row.user{align-items:flex-end}
+  @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+  .bubble-user{
+    background:var(--navy-2);border:1px solid var(--line-2);
+    padding:11px 14px;border-radius:14px 14px 4px 14px;max-width:86%;
+    font-size:14.5px;
+  }
+
+  /* routing trace */
+  .trace{
+    font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--mut);
+    display:flex;flex-direction:column;gap:3px;padding:2px 2px 2px 4px;
+  }
+  .trace b{color:var(--gold-soft);font-weight:500}
+  .trace .step{opacity:0;animation:rise .3s ease forwards}
+
+  /* answer card */
+  .card{
+    background:linear-gradient(180deg,#fbf9f3,#f3efe4);
+    color:var(--ink);border-radius:var(--r);overflow:hidden;
+    border:1px solid rgba(0,0,0,.06);
+    box-shadow:0 18px 40px -22px rgba(0,0,0,.55);
+    max-width:100%;
+  }
+  .card .top{padding:15px 16px 4px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+  .eyebrow{
+    font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.6px;
+    text-transform:uppercase;color:#9A6B12;font-weight:600;
+    display:flex;align-items:center;gap:7px;
+  }
+  .eyebrow .dot{width:6px;height:6px;border-radius:50%;background:var(--gold)}
+  .src{font-family:'IBM Plex Mono',monospace;font-size:10px;color:#A99A78;letter-spacing:.3px}
+
+  .answer-num{
+    font-family:'Spectral',serif;font-weight:600;
+    font-size:clamp(30px,9vw,42px);line-height:1.04;letter-spacing:-.5px;
+    padding:6px 16px 2px;color:#10202F;
+  }
+  .answer-num small{font-size:.42em;color:#7A6A45;font-weight:500;font-family:'IBM Plex Mono',monospace;letter-spacing:.3px}
+  .reading{padding:2px 16px 14px;font-size:14.5px;color:#33414F;max-width:60ch}
+  .reading b{color:#10202F;font-weight:600}
+
+  .chartwrap{padding:0 12px 14px}
+  .chartbox{background:#fff;border:1px solid rgba(0,0,0,.05);border-radius:10px;padding:10px 12px}
+  .chart-title{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.5px;color:#8A7C5C;text-transform:uppercase;margin-bottom:6px}
+
+  /* layered blocks: consultivo + vigilante */
+  .layer{margin:0 12px 12px;border-radius:10px;padding:11px 13px;font-size:13.5px;display:flex;gap:10px;align-items:flex-start}
+  .layer .ic{flex:none;width:22px;height:22px;border-radius:6px;display:grid;place-items:center;margin-top:1px}
+  .layer .ic svg{width:13px;height:13px}
+  .layer .ltitle{font-weight:600;font-size:11px;letter-spacing:.5px;text-transform:uppercase;font-family:'IBM Plex Mono',monospace;margin-bottom:2px}
+  .rec{background:#EEF4FF;border:1px solid #D5E2F7}
+  .rec .ic{background:#2C5BA8;color:#fff}
+  .rec .ltitle{color:#2C5BA8}
+  .rec .body{color:#2A3F5C}
+  .alert{background:#FFF4E4;border:1px solid #F4DEB4}
+  .alert .ic{background:var(--amber);color:#fff}
+  .alert .ltitle{color:#8A5A07}
+  .alert .body{color:#6E4D12}
+
+  .kvs{display:flex;flex-wrap:wrap;gap:6px;padding:0 16px 16px}
+  .kv{font-family:'IBM Plex Mono',monospace;font-size:11px;background:#fff;border:1px solid rgba(0,0,0,.07);border-radius:7px;padding:5px 9px;color:#4A586A}
+  .kv b{color:#10202F}
+
+  /* input dock */
+  .dock{
+    position:sticky;bottom:0;z-index:20;
+    background:linear-gradient(0deg, var(--navy) 70%, transparent);
+    padding:8px 14px 16px;
+  }
+  .chips{display:flex;gap:8px;overflow-x:auto;padding:6px 2px 10px;scrollbar-width:none}
+  .chips::-webkit-scrollbar{display:none}
+  .chip{
+    flex:none;white-space:nowrap;cursor:pointer;
+    background:var(--navy-2);border:1px solid var(--line);color:#D6E0EC;
+    padding:8px 13px;border-radius:999px;font-size:12.5px;transition:.15s;
+  }
+  .chip:hover{border-color:var(--gold);color:#fff}
+  .inputbar{
+    display:flex;gap:9px;align-items:flex-end;
+    background:var(--navy-2);border:1px solid var(--line-2);
+    border-radius:16px;padding:8px 8px 8px 14px;
+  }
+  .inputbar:focus-within{border-color:var(--gold)}
+  textarea{
+    flex:1;background:transparent;border:0;outline:0;resize:none;color:#fff;
+    font-family:inherit;font-size:15px;line-height:1.4;max-height:120px;padding:6px 0;
+  }
+  textarea::placeholder{color:#69788B}
+  .send{
+    width:40px;height:40px;flex:none;border:0;border-radius:11px;cursor:pointer;
+    background:var(--gold);color:var(--navy);display:grid;place-items:center;transition:.15s;
+  }
+  .send:hover{background:var(--gold-soft)}
+  .send:disabled{opacity:.4;cursor:default}
+  .send svg{width:19px;height:19px}
+
+  .hint{font-family:'IBM Plex Mono',monospace;font-size:10px;color:#5C6B7E;text-align:center;margin-top:8px;letter-spacing:.2px}
+
+  /* settings drawer */
+  .scrim{position:fixed;inset:0;background:rgba(4,12,24,.6);backdrop-filter:blur(3px);z-index:40;opacity:0;pointer-events:none;transition:.2s}
+  .scrim.on{opacity:1;pointer-events:auto}
+  .drawer{
+    position:fixed;left:0;right:0;bottom:0;z-index:50;
+    max-width:760px;margin:0 auto;
+    background:var(--navy);border-top:1px solid var(--line-2);
+    border-radius:20px 20px 0 0;padding:8px 18px 26px;
+    transform:translateY(100%);transition:.28s cubic-bezier(.2,.8,.2,1);
+  }
+  .drawer.on{transform:none}
+  .grab{width:38px;height:4px;border-radius:99px;background:var(--line-2);margin:8px auto 14px}
+  .drawer h2{font-family:'Spectral',serif;font-weight:600;font-size:18px;margin:0 0 3px}
+  .drawer .sub{font-size:12.5px;color:var(--mut);margin:0 0 16px}
+  .opt{
+    display:flex;gap:12px;align-items:flex-start;cursor:pointer;
+    border:1px solid var(--line);border-radius:12px;padding:13px 14px;margin-bottom:9px;transition:.15s;
+  }
+  .opt:hover{border-color:var(--line-2)}
+  .opt.sel{border-color:var(--gold);background:rgba(201,162,39,.07)}
+  .radio{width:18px;height:18px;border-radius:50%;border:2px solid var(--line-2);flex:none;margin-top:2px;display:grid;place-items:center;transition:.15s}
+  .opt.sel .radio{border-color:var(--gold)}
+  .opt.sel .radio::after{content:"";width:9px;height:9px;border-radius:50%;background:var(--gold)}
+  .opt .name{font-weight:600;font-size:14.5px}
+  .opt .desc{font-size:12.5px;color:var(--mut);margin-top:2px}
+  .opt .tag{font-family:'IBM Plex Mono',monospace;font-size:9.5px;letter-spacing:.5px;text-transform:uppercase;color:var(--gold-soft);margin-top:4px}
+
+  .foot{font-family:'IBM Plex Mono',monospace;font-size:9.5px;color:#4E5D70;text-align:center;padding:14px 16px 4px;line-height:1.6}
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="mark">M</div>
+    <div class="htxt">
+      <h1>Copiloto do Dono</h1>
+      <p id="hsub">MPA · pergunte em português</p>
+    </div>
+    <span class="modepill" id="modePill">Consultivo</span>
+    <button class="gear" id="gearBtn" aria-label="Configurações">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+    </button>
+  </header>
+
+  <div class="conv" id="conv"></div>
+
+  <div class="dock">
+    <div class="chips" id="chips"></div>
+    <div class="inputbar">
+      <textarea id="q" rows="1" placeholder="Ex: e se o dólar for a 6,50?"></textarea>
+      <button class="send" id="send" aria-label="Perguntar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </button>
+    </div>
+    <div class="hint" id="hint">A IA interpreta a pergunta e puxa o número do motor real · nada é chutado</div>
+  </div>
+
+  <div class="foot">
+    Protótipo · Motor de Câmbio (flat-forward 252) e Motor de Crédito (CET por TIR) com cálculo real ·
+    Curva e perfil da empresa são exemplos ilustrativos até a conexão com o dado do cliente.
+  </div>
+</div>
+
+<div class="scrim" id="scrim"></div>
+<div class="drawer" id="drawer">
+  <div class="grab"></div>
+  <h2>Perfil de resposta</h2>
+  <p class="sub">Quanto o copiloto entrega em cada pergunta. Cada nível inclui o anterior.</p>
+  <div id="opts"></div>
+</div>
+
+<script>
+/* ============================================================
+   PERFIL DA EMPRESA (exemplo ilustrativo até conectar o ERP)
+   ============================================================ */
+const EMPRESA = {
+  nome:"Indústria exemplo",
+  caixa: 1_850_000,
+  exposicaoUSD: 800_000,      // importação a pagar
+  exposicaoDias: 75,
+  contrato: { principal: 2_000_000, n: 24, taxaMes: 0.021, tac: 18_000, iof: 24_500 },
+  fleuriet: { CDG: 2_400_000, NCG: 3_100_000 } // Tesouraria = CDG - NCG
+};
+
+/* ============================================================
+   CURVA DE REFERÊNCIA (exemplo) — flat-forward 252 / cupom 360
+   ============================================================ */
+const CURVA_PRE = [   // DI pré, a.a. base 252
+  {du:21,t:0.1480},{du:42,t:0.1472},{du:63,t:0.1465},{du:126,t:0.1450},{du:252,t:0.1425}
+];
+const CURVA_CUPOM = [ // cupom cambial limpo, a.a. base 360
+  {dc:30,t:0.0470},{dc:60,t:0.0462},{dc:90,t:0.0455},{dc:180,t:0.0440},{dc:360,t:0.0420}
+];
+const SPOT = 5.42;
+
+/* ============================================================
+   PONTE MPA — conecta o copiloto ao cliente ativo (index.html).
+   Lê ?cliente=<id> + localStorage e sobrescreve EMPRESA com os
+   números reais do balanço (convertendo R$ mil → R$ cheios).
+   Sem cliente, mantém os dados de exemplo.
+   ============================================================ */
+const MPA_CLI = (function(){
+  try{
+    const id=new URLSearchParams(location.search).get('cliente');
+    if(!id) return null;
+    const cs=JSON.parse(localStorage.getItem('mpa_clients_v1')||'{}');
+    return cs[id]||null;
+  }catch(e){ return null; }
+})();
+if(MPA_CLI && MPA_CLI.dados){
+  const d=MPA_CLI.dados, a=MPA_CLI.analise||{}, K=1000;
+  const g=k=>(d[k]&&d[k][0]!=null)?d[k][0]:0;
+  const fl=(a.fleur&&a.fleur[0])||null;
+  EMPRESA.nome  = MPA_CLI.nome;
+  EMPRESA.caixa = g('caixa')*K;
+  if(fl) EMPRESA.fleuriet = {CDG:fl.CDG*K, NCG:fl.NCG*K};
+  EMPRESA.conectado = true;
+  EMPRESA.fonte = MPA_CLI.nome;
+  EMPRESA.extra = {
+    ebitda:(a.ebitda?a.ebitda[0]:0)*K,
+    alavMPA:a.alavMPA?a.alavMPA[0]:null,
+    cobertura:a.cobertura?a.cobertura[0]:null,
+    liqCorr:a.liqCorr?a.liqCorr[0]:null,
+    ciclo:a.ciclo?a.ciclo[0]:null,
+    pme:a.pme?a.pme[0]:null, pmr:a.pmr?a.pmr[0]:null, pmp:a.pmp?a.pmp[0]:null,
+    roe:a.roe?a.roe[0]:null, margemEbitda:a.margemEbitda?a.margemEbitda[0]:null,
+    custoDivida:(function(){const db=(g('emprestCirc')+g('debenturesCirc')+g('arrendCirc')+g('emprestNaoCirc')+g('debenturesNaoCirc')+g('arrendNaoCirc'));return db?g('despFin')/db:null;})(),
+    rating:a.rating||null, fleurTipo:fl?fl.tipo:null, fleurNome:fl?fl.nome:null
+  };
+  const hsub=document.getElementById('hsub');
+  if(hsub) hsub.innerHTML='MPA · conectado a <b style="color:var(--gold-soft)">'+MPA_CLI.nome+'</b> · números reais do balanço';
+}
+
+/* ---------- helpers ---------- */
+const BRL = v => v.toLocaleString('pt-BR',{style:'currency',currency:'BRL',maximumFractionDigits:0});
+const BRL2 = v => v.toLocaleString('pt-BR',{style:'currency',currency:'BRL',minimumFractionDigits:2,maximumFractionDigits:2});
+const PCT = v => (v*100).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})+'%';
+const NUM = (v,d=4)=> v.toLocaleString('pt-BR',{minimumFractionDigits:d,maximumFractionDigits:d});
+
+function interp(curve,key,x){
+  if(x<=curve[0][key]) return curve[0].t;
+  if(x>=curve[curve.length-1][key]) return curve[curve.length-1].t;
+  for(let i=0;i<curve.length-1;i++){
+    const a=curve[i],b=curve[i+1];
+    if(x>=a[key]&&x<=b[key]){
+      const w=(x-a[key])/(b[key]-a[key]);
+      return a.t+w*(b.t-a.t);
+    }
+  }
+  return curve[curve.length-1].t;
+}
+function diasUteis(dc){ return Math.max(1, Math.round(dc*252/365)); }
+
+/* ============================================================
+   MOTOR DE CÂMBIO — F = Spot·(1+PRE)^(du/252)/(1+cupom·dc/360)
+   ============================================================ */
+function motorCambio(dias){
+  const dc = dias, du = diasUteis(dc);
+  const pre = interp(CURVA_PRE,'du',du);
+  const cup = interp(CURVA_CUPOM,'dc',dc);
+  const fator = Math.pow(1+pre, du/252) / (1 + cup*dc/360);
+  const fwd = SPOT*fator;
+  return {dc,du,pre,cup,fwd};
+}
+
+/* ============================================================
+   MOTOR DE CRÉDITO — CET por TIR (Price)
+   ============================================================ */
+function pmtPrice(pv,i,n){ return pv*i/(1-Math.pow(1+i,-n)); }
+function irr(cf){ // TIR mensal por bisseção (robusta)
+  const npv=r=>cf.reduce((s,c,k)=>s+c/Math.pow(1+r,k),0);
+  let lo=1e-7,hi=1.0,flo=npv(lo),fhi=npv(hi);
+  if(flo*fhi>0) return null;
+  for(let k=0;k<200;k++){
+    const m=(lo+hi)/2, fm=npv(m);
+    if(Math.abs(fm)<1e-4) return m;
+    if(flo*fm<0){ hi=m; fhi=fm; } else { lo=m; flo=fm; }
+  }
+  return (lo+hi)/2;
+}
+function motorCredito(c){
+  const parcela = pmtPrice(c.principal, c.taxaMes, c.n);
+  const liquido = c.principal - c.tac - c.iof; // recebido líquido
+  const cf=[liquido]; for(let k=0;k<c.n;k++) cf.push(-parcela);
+  const im = irr(cf);
+  const cetAA = Math.pow(1+im,12)-1;
+  const nominalAA = Math.pow(1+c.taxaMes,12)-1;
+  return {parcela, liquido, im, cetAA, nominalAA, total:parcela*c.n};
+}
+
+/* ============================================================
+   SKILL CAIXA / FLEURIET (exemplo)
+   ============================================================ */
+function skillCaixa(){
+  const T = EMPRESA.fleuriet.CDG - EMPRESA.fleuriet.NCG;
+  return {caixa:EMPRESA.caixa, CDG:EMPRESA.fleuriet.CDG, NCG:EMPRESA.fleuriet.NCG, T};
+}
+
+/* ============================================================
+   MINI-GRÁFICOS SVG (sem dependência — sempre funciona)
+   ============================================================ */
+function barChart(items){ // [{label,val,color}]
+  const max=Math.max(...items.map(i=>Math.abs(i.val)))||1;
+  const W=300,bh=26,gap=12,H=items.length*(bh+gap);
+  let svg=`<svg viewBox="0 0 ${W} ${H}" width="100%" preserveAspectRatio="xMidYMid meet">`;
+  items.forEach((it,k)=>{
+    const y=k*(bh+gap), w=Math.max(2,Math.abs(it.val)/max*(W-130));
+    svg+=`<text x="0" y="${y+17}" font-family="IBM Plex Mono" font-size="10" fill="#6A5C3C">${it.label}</text>`;
+    svg+=`<rect x="92" y="${y+3}" width="${w}" height="${bh-8}" rx="4" fill="${it.color||'#C9A227'}"/>`;
+    svg+=`<text x="${92+w+6}" y="${y+17}" font-family="IBM Plex Mono" font-size="10.5" font-weight="600" fill="#10202F">${it.fmt}</text>`;
+  });
+  return svg+`</svg>`;
+}
+function lineChart(pts,labels){ // pts: numbers
+  const W=300,H=120,pad=8;
+  const max=Math.max(...pts),min=Math.min(...pts),rng=(max-min)||1;
+  const x=k=>pad+k*(W-2*pad)/(pts.length-1);
+  const y=v=>H-pad-(v-min)/rng*(H-2*pad-14);
+  let d=pts.map((v,k)=>`${k?'L':'M'}${x(k).toFixed(1)} ${y(v).toFixed(1)}`).join(' ');
+  let svg=`<svg viewBox="0 0 ${W} ${H}" width="100%">`;
+  svg+=`<path d="${d}" fill="none" stroke="#C9A227" stroke-width="2.4" stroke-linejoin="round"/>`;
+  pts.forEach((v,k)=>{ svg+=`<circle cx="${x(k)}" cy="${y(v)}" r="2.6" fill="#14375E"/>`;});
+  if(labels) labels.forEach((l,k)=>{ if(l) svg+=`<text x="${x(k)}" y="${H-1}" font-family="IBM Plex Mono" font-size="8.5" fill="#9A8C6C" text-anchor="middle">${l}</text>`;});
+  return svg+`</svg>`;
+}
+
+/* ============================================================
+   RESPOSTAS POR INTENÇÃO (constroem o card)
+   ============================================================ */
+function respCambioCenario(alvo){ // "e se o dólar for a X"
+  const exp=EMPRESA.exposicaoUSD, dias=EMPRESA.exposicaoDias;
+  const m=motorCambio(dias);
+  const custoFwd = exp*m.fwd;
+  const custoAlvo = exp*alvo;
+  const delta = custoAlvo - custoFwd;
+  return {
+    motor:"Motor de Câmbio", src:`curva de referência · ${dias}d (du ${m.du})`,
+    num: BRL(Math.abs(delta)), unit: delta>=0?"a mais no seu bolso":"a menos",
+    reading:`Você tem <b>US$ ${(exp/1000).toLocaleString('pt-BR')} mil</b> a pagar em ${dias} dias. Travando hoje, o forward sai a <b>${NUM(m.fwd)}</b>. Se o dólar for a <b>${NUM(alvo,2)}</b> sem trava, esse pagamento custa <b>${BRL(custoAlvo)}</b> — ${delta>=0?'um aperto de':'uma economia de'} ${BRL(Math.abs(delta))} frente ao travado.`,
+    chart:{title:"Custo da importação em reais", svg: barChart([
+      {label:"Spot hoje",val:exp*SPOT,fmt:BRL(exp*SPOT),color:"#9AA7B5"},
+      {label:"Forward",val:custoFwd,fmt:BRL(custoFwd),color:"#46B07C"},
+      {label:`Dólar a ${NUM(alvo,2)}`,val:custoAlvo,fmt:BRL(custoAlvo),color:"#D26257"},
+    ])},
+    kvs:[`Forward <b>${NUM(m.fwd)}</b>`,`PRE <b>${PCT(m.pre)}</b>`,`Cupom <b>${PCT(m.cup)}</b>`,`du <b>${m.du}</b>`],
+    rec:`Trave os US$ ${(exp/1000).toLocaleString('pt-BR')} mil agora via NDF a ${NUM(m.fwd)}. Você congela o custo em ${BRL(custoFwd)} e tira o câmbio da equação de margem deste pedido.`,
+    alertCond: delta>40000,
+    alert:`Exposição cambial <b>aberta</b>: US$ ${(exp/1000).toLocaleString('pt-BR')} mil sem trava. A ${NUM(alvo,2)} isso pesa ${BRL(Math.abs(delta))} contra você. Acima do limite de risco que costumo recomendar para um único pedido.`
+  };
+}
+function respTrava(usd,dias){
+  const m=motorCambio(dias);
+  const travado=usd*m.fwd, spotHoje=usd*SPOT;
+  return {
+    motor:"Motor de Câmbio", src:`curva de referência · ${dias}d (du ${m.du})`,
+    num: NUM(m.fwd), unit:"R$/US$ travado",
+    reading:`Travando <b>US$ ${(usd/1000).toLocaleString('pt-BR')} mil</b> em ${dias} dias, o forward limpo sai a <b>${NUM(m.fwd)}</b>. Isso fixa <b>${BRL(travado)}</b> hoje, independente do que o dólar fizer até o vencimento.`,
+    chart:{title:"Valor travado vs. spot de hoje", svg: barChart([
+      {label:"Spot hoje",val:spotHoje,fmt:BRL(spotHoje),color:"#9AA7B5"},
+      {label:"Travado",val:travado,fmt:BRL(travado),color:"#46B07C"},
+    ])},
+    kvs:[`Spot <b>${NUM(SPOT)}</b>`,`PRE <b>${PCT(m.pre)}</b>`,`Cupom <b>${PCT(m.cup)}</b>`,`dc <b>${m.dc}</b> · du <b>${m.du}</b>`],
+    rec:`O carrego embute ${PCT(m.fwd/SPOT-1)} sobre o spot — é o juro da moeda, não custo do banco. Compare a cotação fechada do banco contra esses ${NUM(m.fwd)}: a diferença é o spread que ele te cobrou.`,
+    alertCond:false
+  };
+}
+function respCET(){
+  const c=EMPRESA.contrato, r=motorCredito(c);
+  return {
+    motor:"Motor de Crédito", src:`CET por TIR · ${c.n}x`,
+    num: PCT(r.cetAA), unit:"CET ao ano (custo real)",
+    reading:`A taxa de fachada é ${PCT(c.taxaMes)} a.m. (${PCT(r.nominalAA)} a.a.). Mas com TAC de ${BRL(c.tac)} e IOF de ${BRL(c.iof)} consumindo o que você recebe, o <b>custo efetivo é ${PCT(r.cetAA)} a.a.</b> — ${PCT(r.cetAA-r.nominalAA)} acima do que te venderam.`,
+    chart:{title:"Taxa de fachada vs. CET real (a.a.)", svg: barChart([
+      {label:"Fachada",val:r.nominalAA,fmt:PCT(r.nominalAA),color:"#9AA7B5"},
+      {label:"CET real",val:r.cetAA,fmt:PCT(r.cetAA),color:"#D26257"},
+    ])},
+    kvs:[`Parcela <b>${BRL(r.parcela)}</b>`,`Recebido líq. <b>${BRL(r.liquido)}</b>`,`Total pago <b>${BRL(r.total)}</b>`,`TIR <b>${PCT(r.im)}</b>/mês`],
+    rec:`Use ${PCT(r.cetAA)} como piso de comparação com qualquer proposta nova. Antes de trocar de banco, exija o CET — não a taxa nominal. Em geral dá pra renegociar a TAC, que é pura margem do banco.`+((EMPRESA.extra&&EMPRESA.extra.custoDivida!=null)?` Referência do balanço: ${EMPRESA.fonte} carrega hoje custo médio de dívida de <b>${PCT(EMPRESA.extra.custoDivida)} a.a.</b>${EMPRESA.extra.alavMPA!=null?` e alavancagem de <b>${EMPRESA.extra.alavMPA.toFixed(2).replace('.',',')}x</b>`:''}.`:''),
+    alertCond: r.cetAA>0.32,
+    alert:`CET de <b>${PCT(r.cetAA)} a.a.</b> está acima do que considero saudável para capital de giro garantido. Vale cotar troca de dívida.`
+  };
+}
+function respCaixa(){
+  const s=skillCaixa();
+  const zona = s.T<0 ? "aperto (Tesouraria negativa)" : "folga";
+  const e=EMPRESA.extra;
+  const xx=v=>(v==null||!isFinite(v))?"—":v.toFixed(2).replace('.',',')+"x";
+  const extraReading = e ? ` Pelo diagnóstico MPA, o ciclo de caixa é de <b>${Math.round(e.ciclo)} dias</b> (PME ${Math.round(e.pme)} / PMR ${Math.round(e.pmr)} / PMP ${Math.round(e.pmp)}) e a alavancagem (dívida líq./EBITDA) está em <b>${xx(e.alavMPA)}</b>.` : '';
+  const extraKvs = e ? [`Ciclo <b>${Math.round(e.ciclo)}d</b>`,`Dív.líq/EBITDA <b>${xx(e.alavMPA)}</b>`] : [];
+  return {
+    motor:"Skill Caixa · Fleuriet", src: EMPRESA.conectado ? EMPRESA.fonte : "dados de exemplo",
+    num: BRL(s.caixa), unit:"caixa disponível hoje",
+    reading:`Caixa em <b>${BRL(s.caixa)}</b>. No modelo dinâmico, sua necessidade de giro (NCG ${BRL(s.NCG)}) ${s.NCG>s.CDG?'supera':'é coberta pelo'} capital de giro (CDG ${BRL(s.CDG)}), deixando a Tesouraria em <b>${BRL(s.T)}</b> — zona de ${zona}.`+extraReading,
+    chart:{title:"Estrutura de giro (Fleuriet)", svg: barChart([
+      {label:"CDG",val:s.CDG,fmt:BRL(s.CDG),color:"#46B07C"},
+      {label:"NCG",val:s.NCG,fmt:BRL(s.NCG),color:"#E0A12E"},
+      {label:"Tesour.",val:Math.abs(s.T),fmt:BRL(s.T),color:s.T<0?"#D26257":"#46B07C"},
+    ])},
+    kvs:[`CDG <b>${BRL(s.CDG)}</b>`,`NCG <b>${BRL(s.NCG)}</b>`,`T <b>${BRL(s.T)}</b>`].concat(extraKvs),
+    rec: s.T<0
+      ? `Tesouraria negativa significa que o giro está bancado por dívida de curto prazo. Prioridade: encurtar prazo de recebíveis ou alongar fornecedores antes de buscar mais limite.`
+      : `Tesouraria positiva: o giro está autofinanciado. Há folga para sustentar crescimento sem pressionar o caixa de curto prazo.`,
+    alertCond: s.T<0,
+    alert:`Tesouraria <b>negativa</b> em ${BRL(s.T)}: o crescimento está consumindo caixa. Sinal clássico de efeito tesoura — monitorar semanalmente.`
+  };
+}
+function respDesconhecido(txt){
+  return {
+    motor:"Copiloto", src:"sem motor para isso ainda",
+    num:"—", unit:"",
+    reading:`Ainda não tenho um motor conectado para <b>"${txt}"</b>. As skills ativas neste protótipo são câmbio, crédito/CET e caixa. Cada nova skill (estoque, tributário, cobrança) pluga aqui do mesmo jeito.`,
+    chart:null, kvs:[], rec:"", alertCond:false, isEmpty:true
+  };
+}
+
+/* ============================================================
+   ROTEADOR — IA (API) com fallback determinístico por palavra
+   ============================================================ */
+function num_from(txt){ // pega primeiro número pt-BR
+  const m=txt.replace(/\./g,'').match(/(\d+(?:,\d+)?)/);
+  return m?parseFloat(m[1].replace(',','.')):null;
+}
+function fallbackRoute(txt){
+  const t=txt.toLowerCase();
+  if(/(d[oó]lar|c[aâ]mbio|usd|6,|5,|cota[çc])/.test(t) && /(se|for|fosse|chegar|subir|a \d)/.test(t)){
+    const alvo=num_from(t)|| (SPOT+0.5); return {engine:'cambio_cenario',params:{alvo}};
+  }
+  if(/(trava|forward|ndf|hedge|travar)/.test(t)){
+    const usd=num_from(t)||EMPRESA.exposicaoUSD; const dias=/\d+\s*dias/.test(t)?parseInt(t.match(/(\d+)\s*dias/)[1]):EMPRESA.exposicaoDias;
+    return {engine:'cambio_trava',params:{usd:usd<10000?usd*1000:usd,dias}};
+  }
+  if(/(financiamento|empr[eé]stimo|cet|taxa real|pago de verdade|d[ií]vida|juros)/.test(t)) return {engine:'credito',params:{}};
+  if(/(caixa|giro|fleuriet|tesouraria|capital de giro)/.test(t)) return {engine:'caixa',params:{}};
+  if(/d[oó]lar|c[aâ]mbio|usd/.test(t)) return {engine:'cambio_cenario',params:{alvo:num_from(t)||SPOT+0.5}};
+  return {engine:'desconhecido',params:{txt}};
+}
+async function aiRoute(txt){
+  try{
+    const sys=`Você é o roteador do Copiloto MPA. Classifique a pergunta do dono de uma indústria e responda APENAS um JSON válido, sem markdown.
+Engines: "cambio_cenario" (e se o dólar for a X — extraia alvo), "cambio_trava" (travar US$ valor em N dias — extraia usd e dias), "credito" (custo real/CET de financiamento), "caixa" (caixa, giro, Fleuriet), "desconhecido".
+Formato: {"engine":"...","params":{"alvo":num,"usd":num,"dias":num}}. Use só os params que existirem.`;
+    const r=await fetch("https://api.anthropic.com/v1/messages",{
+      method:"POST",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:1000,
+        messages:[{role:"user",content:sys+"\n\nPergunta: "+txt}]})
+    });
+    const data=await r.json();
+    const out=data.content.filter(b=>b.type==="text").map(b=>b.text).join("").replace(/```json|```/g,"").trim();
+    const j=JSON.parse(out);
+    if(j&&j.engine) return j;
+  }catch(e){ /* cai no fallback */ }
+  return fallbackRoute(txt);
+}
+function dispatch(route){
+  const p=route.params||{};
+  switch(route.engine){
+    case 'cambio_cenario': return respCambioCenario(p.alvo||SPOT+0.5);
+    case 'cambio_trava':   return respTrava((p.usd&&p.usd<10000?p.usd*1000:p.usd)||EMPRESA.exposicaoUSD, p.dias||EMPRESA.exposicaoDias);
+    case 'credito':        return respCET();
+    case 'caixa':          return respCaixa();
+    default:               return respDesconhecido(p.txt||'');
+  }
+}
+
+/* ============================================================
+   UI — modos, render, trace
+   ============================================================ */
+const MODES=[
+  {id:'direto',name:'Direto',desc:'Resposta em uma frase + o número + um gráfico.',tag:'O essencial'},
+  {id:'consultivo',name:'Consultivo',desc:'Tudo do Direto + o que eu faria no seu lugar.',tag:'+ recomendação'},
+  {id:'vigilante',name:'Vigilante',desc:'Tudo do Consultivo + me avisa quando algo sai do padrão.',tag:'+ alerta de desvio'}
+];
+let mode='consultivo';
+const conv=document.getElementById('conv');
+
+function renderOpts(){
+  const o=document.getElementById('opts'); o.innerHTML='';
+  MODES.forEach(m=>{
+    const d=document.createElement('div');
+    d.className='opt'+(m.id===mode?' sel':'');
+    d.innerHTML=`<div class="radio"></div><div><div class="name">${m.name}</div><div class="desc">${m.desc}</div><div class="tag">${m.tag}</div></div>`;
+    d.onclick=()=>{mode=m.id;document.getElementById('modePill').textContent=m.name;renderOpts();};
+    o.appendChild(d);
+  });
+}
+function showLevel(){ return MODES.findIndex(m=>m.id===mode); }
+
+function addUser(txt){
+  const r=document.createElement('div'); r.className='row user';
+  r.innerHTML=`<div class="bubble-user">${txt}</div>`;
+  conv.appendChild(r); scroll();
+}
+function addTrace(motor){
+  const r=document.createElement('div'); r.className='row';
+  const t=document.createElement('div'); t.className='trace'; r.appendChild(t); conv.appendChild(r);
+  const steps=['interpretando a pergunta…',`roteando para <b>${motor}</b>`,'calculando com a curva real…'];
+  steps.forEach((s,i)=>{ const el=document.createElement('div'); el.className='step'; el.style.animationDelay=(i*.32)+'s'; el.innerHTML='› '+s; t.appendChild(el); });
+  scroll(); return r;
+}
+function buildCard(a){
+  const lvl=showLevel();
+  let h=`<div class="card"><div class="top"><div class="eyebrow"><span class="dot"></span>${a.motor}</div><div class="src">${a.src}</div></div>`;
+  h+=`<div class="answer-num">${a.num}${a.unit?` <small>${a.unit}</small>`:''}</div>`;
+  h+=`<div class="reading">${a.reading}</div>`;
+  if(a.chart && !a.isEmpty){ h+=`<div class="chartwrap"><div class="chartbox"><div class="chart-title">${a.chart.title}</div>${a.chart.svg}</div></div>`; }
+  if(a.kvs&&a.kvs.length){ h+=`<div class="kvs">${a.kvs.map(k=>`<span class="kv">${k}</span>`).join('')}</div>`; }
+  if(lvl>=1 && a.rec){
+    h+=`<div class="layer rec"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12.7c.6.5 1 1.3 1 2.1h6c0-.8.4-1.6 1-2.1A7 7 0 0 0 12 2z"/></svg></div><div><div class="ltitle">O que eu faria</div><div class="body">${a.rec}</div></div></div>`;
+  }
+  if(lvl>=2 && a.alertCond && a.alert){
+    h+=`<div class="layer alert"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4M12 17h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg></div><div><div class="ltitle">Fora do padrão</div><div class="body">${a.alert}</div></div></div>`;
+  }
+  h+=`</div>`;
+  return h;
+}
+async function ask(txt){
+  if(!txt.trim())return;
+  addUser(txt);
+  const route=await aiRoute(txt);
+  const motorName={cambio_cenario:'Motor de Câmbio',cambio_trava:'Motor de Câmbio',credito:'Motor de Crédito',caixa:'Skill Caixa',desconhecido:'Copiloto'}[route.engine]||'Copiloto';
+  const traceRow=addTrace(motorName);
+  const a=dispatch(route);
+  setTimeout(()=>{
+    traceRow.remove();
+    const r=document.createElement('div'); r.className='row';
+    r.innerHTML=buildCard(a); conv.appendChild(r); scroll();
+  },1150);
+}
+function scroll(){ requestAnimationFrame(()=>window.scrollTo({top:document.body.scrollHeight,behavior:'smooth'})); }
+
+/* chips */
+const CHIPS=[
+  ['E se o dólar for a 6,50?','e se o dólar for a 6,50?'],
+  ['Trava de US$ 500 mil em 90 dias','quero travar US$ 500 mil em 90 dias'],
+  ['Quanto pago de verdade no financiamento?','quanto pago de verdade nesse financiamento?'],
+  ['Como está meu caixa e meu giro?','como está meu caixa e meu capital de giro?']
+];
+const chipsEl=document.getElementById('chips');
+CHIPS.forEach(([label,q])=>{ const c=document.createElement('button'); c.className='chip'; c.textContent=label; c.onclick=()=>ask(q); chipsEl.appendChild(c); });
+
+/* input */
+const q=document.getElementById('q'), send=document.getElementById('send');
+q.addEventListener('input',()=>{q.style.height='auto';q.style.height=Math.min(q.scrollHeight,120)+'px';});
+function go(){ const v=q.value; q.value=''; q.style.height='auto'; ask(v); }
+send.onclick=go;
+q.addEventListener('keydown',e=>{ if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();go();} });
+
+/* drawer */
+const scrim=document.getElementById('scrim'),drawer=document.getElementById('drawer');
+function openD(){scrim.classList.add('on');drawer.classList.add('on');}
+function closeD(){scrim.classList.remove('on');drawer.classList.remove('on');}
+document.getElementById('gearBtn').onclick=openD; scrim.onclick=closeD;
+renderOpts();
+
+/* saudação inicial */
+window.addEventListener('load',()=>{
+  const r=document.createElement('div'); r.className='row';
+  r.innerHTML=`<div class="card"><div class="top"><div class="eyebrow"><span class="dot"></span>Copiloto do Dono</div></div>
+    <div class="reading" style="padding-top:10px">Pergunte do jeito que você falaria com seu diretor financeiro. Eu interpreto, escolho o motor certo e te devolvo o número — calculado de verdade, não chutado. Comece por um dos atalhos abaixo ou escreva a sua.</div></div>`;
+  conv.appendChild(r);
+});
+</script>
+</body>
+</html>
